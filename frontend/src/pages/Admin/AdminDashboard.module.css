@@ -1,0 +1,522 @@
+/* Admin Dashboard - Modern & Interactive Design */
+
+.pageWrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+  padding-bottom: 60px;
+}
+
+/* ==================== Loading State ==================== */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* ==================== Toast Notifications ==================== */
+.toastContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+  animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 3.7s forwards;
+  pointer-events: auto;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.toastSuccess {
+  border-left: 4px solid #28a745;
+}
+
+.toastError {
+  border-left: 4px solid #dc3545;
+}
+
+.toastInfo {
+  border-left: 4px solid #17a2b8;
+}
+
+.toastIcon {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.toastSuccess .toastIcon {
+  color: #28a745;
+}
+
+.toastError .toastIcon {
+  color: #dc3545;
+}
+
+.toastInfo .toastIcon {
+  color: #17a2b8;
+}
+
+.toastMessage {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* ==================== Header ==================== */
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 40px;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.pageSubtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 300;
+}
+
+.headerRight {
+  display: flex;
+  gap: 12px;
+}
+
+/* ==================== Welcome Card ==================== */
+.welcomeCard {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 6px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.welcomeCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.welcomeContent {
+  flex: 1;
+}
+
+.welcomeTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.welcomeText {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.welcomeIcon {
+  font-size: 64px;
+  opacity: 0.2;
+}
+
+/* ==================== Stats Grid ==================== */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.statCard {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+
+.statCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.statIcon {
+  font-size: 36px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statProducts { border-left: 4px solid #667eea; }
+.statProducts .statValue { color: #667eea; }
+
+.statQuotes { border-left: 4px solid #764ba2; }
+.statQuotes .statValue { color: #764ba2; }
+
+.statPending { border-left: 4px solid #ffc107; }
+.statPending .statValue { color: #ffc107; }
+
+.statProcessing { border-left: 4px solid #17a2b8; }
+.statProcessing .statValue { color: #17a2b8; }
+
+.statCompleted { border-left: 4px solid #28a745; }
+.statCompleted .statValue { color: #28a745; }
+
+.statRefresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 4px solid #6c757d;
+}
+
+/* ==================== Section Headers ==================== */
+.sectionHeader {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.sectionSubtitle {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+/* ==================== Quick Actions Grid ==================== */
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.actionCard {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border-top: 4px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.actionCard:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+}
+
+.actionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actionIcon {
+  font-size: 40px;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  transition: transform 0.3s ease;
+}
+
+.actionCard:hover .actionIcon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.actionBadge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.actionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.actionDescription {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.actionFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+}
+
+.actionLink {
+  font-size: 14px;
+  font-weight: 700;
+  color: #667eea;
+  transition: all 0.2s ease;
+}
+
+.actionCard:hover .actionLink {
+  color: #764ba2;
+  transform: translateX(4px);
+}
+
+/* ==================== Status Grid ==================== */
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.statusCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.statusCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.statusIcon {
+  font-size: 28px;
+}
+
+.statusContent {
+  flex: 1;
+}
+
+.statusLabel {
+  font-size: 13px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.statusValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #28a745;
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .actionsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .headerContent {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerRight {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .pageTitle {
+    font-size: 26px;
+  }
+
+  .welcomeCard {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .welcomeIcon {
+    font-size: 48px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .statCard {
+    padding: 16px;
+  }
+
+  .statIcon {
+    font-size: 28px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .statValue {
+    font-size: 24px;
+  }
+
+  .actionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statusGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .pageTitle {
+    font-size: 22px;
+  }
+
+  .welcomeCard {
+    padding: 20px;
+  }
+
+  .welcomeTitle {
+    font-size: 22px;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statusGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .toast {
+    min-width: 280px;
+  }
+}

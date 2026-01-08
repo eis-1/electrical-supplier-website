@@ -1,0 +1,279 @@
+.contactPage {
+  padding: calc(80px + var(--spacing-3xl)) var(--spacing-xl) var(--spacing-3xl);
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+.pageHeader {
+  text-align: center;
+  margin-bottom: var(--spacing-3xl);
+}
+
+.pageHeader h1 {
+  font-size: var(--font-size-4xl);
+  color: var(--color-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.pageHeader p {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.contactContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--spacing-3xl);
+  align-items: start;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.contactInfo h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.infoCard {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.infoCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 0;
+}
+
+.infoCard:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.infoCard:hover::before {
+  opacity: 1;
+}
+
+.infoIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.infoCard:hover .infoIcon {
+  transform: scale(1.1);
+}
+
+.infoContent {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.infoContent h3 {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.infoContent p {
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.contactLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.contactLink:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+.businessHoursCard {
+  padding: var(--spacing-xl);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 2px solid var(--color-border-light);
+  transition: all 0.2s ease;
+}
+
+.businessHoursCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary);
+}
+
+.businessHoursCard h3 {
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.hoursGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.hourRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.hourRow:last-child {
+  border-bottom: none;
+}
+
+.day {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.time {
+  color: var(--color-text-secondary);
+}
+
+.ctaSection {
+  margin-top: var(--spacing-md);
+}
+
+.ctaSection button,
+.ctaSection a {
+  transition: all 0.2s ease;
+}
+
+.ctaSection button:hover,
+.ctaSection a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.2);
+}
+
+.ctaSection button:active,
+.ctaSection a:active {
+  transform: translateY(0);
+}
+
+.mapSection {
+  position: sticky;
+  top: calc(80px + var(--spacing-xl));
+}
+
+.mapSection h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.mapWrapper {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  height: 500px;
+  transition: all 0.2s ease;
+}
+
+.mapWrapper:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.mapPlaceholder {
+  background: var(--color-bg-secondary);
+  border: 2px dashed var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3xl);
+  text-align: center;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+}
+
+.placeholderIcon {
+  font-size: 4rem;
+  opacity: 0.5;
+}
+
+.mapPlaceholder h3 {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.mapPlaceholder p {
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .contactContainer {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
+  }
+
+  .mapSection {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .contactPage {
+    padding: calc(70px + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+  }
+
+  .pageHeader h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .infoCard {
+    padding: var(--spacing-lg);
+  }
+
+  .hourRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .mapWrapper, .mapPlaceholder {
+    height: 350px;
+  }
+}

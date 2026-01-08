@@ -1,0 +1,136 @@
+// Prisma Schema for Electrical Supplier Website
+// Database: SQLite (Development)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Admin Users Table
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+// Product Categories Table
+model Category {
+  id           String    @id @default(uuid())
+  name         String    @unique
+  slug         String    @unique
+  icon         String?
+  description  String?
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  products     Product[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("categories")
+}
+
+// Brands Table
+model Brand {
+  id           String    @id @default(uuid())
+  name         String    @unique
+  slug         String    @unique
+  logo         String?
+  description  String?
+  website      String?
+  isAuthorized Boolean   @default(true)
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  products     Product[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("brands")
+}
+
+// Products Table
+model Product {
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  model        String?
+  categoryId   String?
+  brandId      String?
+  description  String?
+  keyFeatures  String?
+  image        String?
+  images       String?
+  datasheetUrl String?
+  isActive     Boolean       @default(true)
+  isFeatured   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  brand        Brand?        @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  specs        ProductSpec[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@map("products")
+}
+
+// Product Specifications Table
+model ProductSpec {
+  id           String   @id @default(uuid())
+  productId    String
+  specKey      String
+  specValue    String
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, specKey])
+  @@index([productId])
+  @@map("product_specs")
+}
+
+// Quote Requests Table
+model QuoteRequest {
+  id             String   @id @default(uuid())
+  name           String
+  company        String?
+  phone          String
+  whatsapp       String?
+  email          String
+  productName    String?
+  quantity       String?
+  projectDetails String?
+  status         String   @default("new")
+  notes          String?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+  @@map("quote_requests")
+}

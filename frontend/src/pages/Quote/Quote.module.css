@@ -1,0 +1,132 @@
+.quotePage {
+  padding: calc(80px + var(--spacing-3xl)) var(--spacing-xl) var(--spacing-3xl);
+  background-color: var(--color-bg-secondary);
+  min-height: 70vh;
+}
+
+.quoteFormContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--color-bg-primary);
+  padding: var(--spacing-3xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.quoteFormContainer h1 {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.quoteForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.errorBanner {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: var(--color-text-primary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.formGroup label {
+  font-weight: var(--font-weight-medium);
+}
+
+.formGroup textarea {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  resize: vertical;
+  transition: border-color var(--transition-fast);
+}
+
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.successMessage {
+  max-width: 600px;
+  margin: var(--spacing-4xl) auto;
+  text-align: center;
+  padding: var(--spacing-3xl);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.successMessage h2 {
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.referenceBox {
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-lg);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+
+.referenceLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.referenceValue {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-text-primary);
+}
+
+.successActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.whatsappButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.35);
+  color: #0f5132;
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-base);
+}
+
+.whatsappButton:hover {
+  background: rgba(37, 211, 102, 0.18);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .quoteFormContainer {
+    padding: var(--spacing-xl);
+  }
+}
