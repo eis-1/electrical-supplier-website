@@ -3,6 +3,11 @@
 # Start Script for Electrical Supplier Website (Single Port)
 # Runs everything on PORT 5000
 
+set -e
+
+# Ensure the script works even if executed from a different working directory
+cd "$(cd "$(dirname "$0")" && pwd)"
+
 echo "╔════════════════════════════════════════════════════════╗"
 echo "║  ELECTRICAL SUPPLIER WEBSITE - SINGLE PORT SETUP       ║"
 echo "╚════════════════════════════════════════════════════════╝"

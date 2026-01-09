@@ -1,0 +1,22 @@
+{
+  "name": "electrical-supplier-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack B2B electrical supplier website (Express + Prisma + React + Vite)",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "dev": "concurrently -n backend,frontend -c cyan,magenta \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "start": "powershell -ExecutionPolicy Bypass -File ./start-server.ps1",
+    "dev:single": "powershell -ExecutionPolicy Bypass -File ./start-server.ps1",
+    "build": "npm --prefix frontend run build && npm --prefix backend run build",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "format": "npm --prefix backend run format && npm --prefix frontend run format",
+    "prisma:generate": "npm --prefix backend run prisma:generate",
+    "prisma:migrate": "npm --prefix backend run prisma:migrate",
+    "prisma:seed": "npm --prefix backend run prisma:seed",
+    "prisma:studio": "npm --prefix backend run prisma:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
