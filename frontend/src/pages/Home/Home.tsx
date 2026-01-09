@@ -9,7 +9,8 @@ import { brandService } from '@services/brand.service';
 import type { Category, Brand } from '@/types';
 
 const Home = () => {
-  const [categories, setCategories] = useState<Category[]>([]);  const [brands, setBrands] = useState<Brand[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
 
   const companyWhatsApp = import.meta.env.VITE_COMPANY_WHATSAPP || '+1234567890';
@@ -138,7 +139,7 @@ const Home = () => {
               </Link>
             ))}
           </div>
-          <div style={{ textAlign: 'center', marginTop: 'var(--spacing-xl)' }}>
+          <div className={styles.sectionCta}>
             <Button as="link" to="/products" variant="outline" size="lg">
               View All Products
             </Button>
@@ -173,8 +174,8 @@ const Home = () => {
               ))}
             </div>
           </div>
-          
-          <div style={{ textAlign: 'center', marginTop: 'var(--spacing-xl)' }}>
+
+          <div className={styles.sectionCta}>
             <Button as="link" to="/brands" variant="outline" size="lg">
               View All Brands
             </Button>
