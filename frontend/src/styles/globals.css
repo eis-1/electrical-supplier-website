@@ -20,6 +20,21 @@ body {
   line-height: 1.6;
 }
 
+/* Accessibility + performance: reduce motion for users who request it */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
 /* CSS Variables - Design System */
 :root {
   /* Colors */

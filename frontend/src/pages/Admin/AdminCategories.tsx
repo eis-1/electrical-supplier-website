@@ -227,13 +227,7 @@ const AdminCategories = () => {
             <Button 
               variant="primary" 
               onClick={() => navigate('/admin/dashboard')}
-              style={{
-                fontSize: '16px',
-                fontWeight: '600',
-                padding: '12px 24px',
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
-                marginBottom: '16px'
-              }}
+              className={styles.backToDashboardButton}
             >
               ← Back to Dashboard
             </Button>
