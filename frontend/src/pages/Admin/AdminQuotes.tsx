@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { quoteService } from '../../services/quote.service';
 import apiClient from '../../services/api';
@@ -55,34 +55,34 @@ const AdminQuotes: React.FC = () => {
   });
 
   // Toast notification system
-  const showToast = (message: string, type: ToastType = 'success') => {
+  const showToast = useCallback((message: string, type: ToastType = 'success') => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 4000);
-  };
+  }, []);
 
   // Fetch quotes
-  const fetchQuotes = async () => {
+  const fetchQuotes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await quoteService.getAll();
       const items = data.items || [];
       setQuotes(items);
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to fetch quotes';
+    } catch (_err) {
+      const errorMsg = _err instanceof Error ? _err.message : 'Failed to fetch quotes';
       setError(errorMsg);
       showToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     fetchQuotes();
-  }, []);
+  }, [fetchQuotes]);
 
   // Filter and search quotes with useMemo for performance
   const filteredQuotes = useMemo(() => {
@@ -146,7 +146,7 @@ const AdminQuotes: React.FC = () => {
       await quoteService.update(String(quoteId), { status: newStatus });
       setQuotes(prev => prev.map(q => q.id === quoteId ? { ...q, status: newStatus } : q));
       showToast(`Status updated to ${newStatus}`, 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to update status', 'error');
     }
   };
@@ -167,8 +167,8 @@ const AdminQuotes: React.FC = () => {
       showToast('Quote updated successfully!', 'success');
       handleCloseModal();
       fetchQuotes();
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Failed to update quote', 'error');
+    } catch (_err) {
+      showToast(_err instanceof Error ? _err.message : 'Failed to update quote', 'error');
     } finally {
       setIsUpdating(false);
     }
@@ -184,7 +184,7 @@ const AdminQuotes: React.FC = () => {
       await apiClient.delete(`/quotes/${id}`);
       setQuotes(prev => prev.filter(q => q.id !== id));
       showToast('Quote deleted successfully', 'success');
-    } catch (err) {
+    } catch {
       showToast('Failed to delete quote', 'error');
     }
   };

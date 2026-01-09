@@ -22,6 +22,7 @@ const Products = () => {
 
   const selectedCategory = useMemo(() => searchParams.get('category') || '', [searchParams]);
   const selectedBrands = useMemo(() => searchParams.getAll('brand'), [searchParams]);
+  const selectedBrandsKey = useMemo(() => selectedBrands.join(','), [selectedBrands]);
   const searchQuery = useMemo(() => searchParams.get('search') || '', [searchParams]);
   const currentPage = useMemo(() => parseInt(searchParams.get('page') || '1', 10), [searchParams]);
 
@@ -61,7 +62,7 @@ const Products = () => {
       }
     };
     fetchProducts();
-  }, [selectedCategory, selectedBrands.join(','), searchQuery, currentPage]);
+  }, [selectedCategory, selectedBrands, selectedBrandsKey, searchQuery, currentPage]);
 
   const handleCategoryFilter = useCallback((slug: string) => {
     const newParams = new URLSearchParams(searchParams);

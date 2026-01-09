@@ -29,7 +29,7 @@ export const useAdminAuth = () => {
           localStorage.removeItem('adminUser');
           navigate('/admin/login');
         }
-      } catch (error) {
+        } catch {
         localStorage.removeItem('authToken');
         localStorage.removeItem('adminUser');
         navigate('/admin/login');

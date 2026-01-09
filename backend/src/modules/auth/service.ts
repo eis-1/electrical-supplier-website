@@ -65,7 +65,7 @@ export class AuthService {
     try {
       const decoded = jwt.verify(token, env.JWT_SECRET);
       return decoded;
-    } catch (error) {
+    } catch {
       throw new AppError(401, 'Invalid or expired token');
     }
   }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboard.module.css';
 import { Button } from '../../components/ui/Button';
@@ -24,25 +24,15 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      navigate('/admin/login');
-      return;
-    }
-
-    fetchDashboardData();
-  }, [navigate]);
-
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 4000);
-  };
+  }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const [productsData, quotesData] = await Promise.all([
@@ -65,7 +55,17 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      navigate('/admin/login');
+      return;
+    }
+
+    fetchDashboardData();
+  }, [navigate, fetchDashboardData]);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
