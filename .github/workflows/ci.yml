@@ -46,10 +46,20 @@ jobs:
         working-directory: ./frontend
         run: npm ci || npm install
 
-      - name: Lint
+      - name: Lint backend
+        working-directory: ./backend
         run: npm run lint
 
-      - name: Build
+      - name: Lint frontend
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      - name: Build frontend
+        working-directory: ./frontend
         run: npm run build
 
       - name: Start backend (background)
