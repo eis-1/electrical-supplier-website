@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styles from './AdminProducts.module.css';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { FileUpload } from '../../components/ui/FileUpload';
+import { AdminNavbar } from '../../components/admin/AdminNavbar';
 import SEO from '../../components/common/SEO';
 import { productService } from '../../services/product.service';
 import { categoryService } from '../../services/category.service';
@@ -25,7 +25,6 @@ interface ProductFormData {
 }
 
 const AdminProducts = () => {
-  const navigate = useNavigate();
   const { isLoading: authLoading, logout } = useAdminAuth();
   
   const [products, setProducts] = useState<Product[]>([]);
@@ -192,28 +191,14 @@ const AdminProducts = () => {
     <div className={styles.adminPage}>
       <SEO title="Product Management - Admin" />
       
-      <div className={styles.header}>
+      {/* Navigation */}
+      <AdminNavbar onLogout={logout} />
+
+      {/* Page Header */}
+      <div className={styles.pageHeader}>
         <div className="container">
-          <div className={styles.headerTop}>
-            <Button 
-              variant="primary" 
-              onClick={() => navigate('/admin/dashboard')}
-              className={styles.backToDashboardButton}
-            >
-              ← Back to Dashboard
-            </Button>
-          </div>
-          <div className={styles.headerContent}>
-            <div>
-              <h1>Product Management</h1>
-              <p>Manage your product catalog</p>
-            </div>
-            <div className={styles.headerActions}>
-              <Button variant="outline" onClick={logout}>
-                Logout
-              </Button>
-            </div>
-          </div>
+          <h1 className={styles.pageTitle}>Product Management</h1>
+          <p className={styles.pageSubtitle}>Manage your product catalog</p>
         </div>
       </div>
 

@@ -1,14 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styles from './AdminProducts.module.css';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
+import { AdminNavbar } from '../../components/admin/AdminNavbar';
 import SEO from '../../components/common/SEO';
 import { categoryService } from '../../services/category.service';
 import { brandService } from '../../services/brand.service';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
 import type { Category, Brand } from '../../types';
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 interface CategoryFormData {
   name: string;
@@ -19,15 +27,17 @@ interface CategoryFormData {
 
 interface BrandFormData {
   name: string;
+  slug: string;
   description: string;
   logo: string;
+  website: string;
+  isAuthorized: boolean;
   isActive: boolean;
 }
 
 type TabType = 'categories' | 'brands';
 
 const AdminCategories = () => {
-  const navigate = useNavigate();
   const { isLoading: authLoading, logout } = useAdminAuth();
   
   const [activeTab, setActiveTab] = useState<TabType>('categories');
@@ -50,8 +60,11 @@ const AdminCategories = () => {
   
   const [brandForm, setBrandForm] = useState<BrandFormData>({
     name: '',
+    slug: '',
     description: '',
     logo: '',
+    website: '',
+    isAuthorized: false,
     isActive: true,
   });
   
@@ -147,7 +160,7 @@ const AdminCategories = () => {
   // Brand CRUD
   const openCreateBrandModal = () => {
     setEditingBrand(null);
-    setBrandForm({ name: '', description: '', logo: '', isActive: true });
+    setBrandForm({ name: '', slug: '', description: '', logo: '', website: '', isAuthorized: false, isActive: true });
     setFormErrors({});
     setIsModalOpen(true);
   };
@@ -156,31 +169,44 @@ const AdminCategories = () => {
     setEditingBrand(brand);
     setBrandForm({
       name: brand.name,
+      slug: brand.slug,
       description: brand.description || '',
       logo: brand.logo || '',
+      website: brand.website || '',
+      isAuthorized: brand.isAuthorized ?? false,
       isActive: brand.isActive ?? true,
     });
     setFormErrors({});
     setIsModalOpen(true);
   };
 
-  const validateBrandForm = (): boolean => {
-    const errors: Record<string, string> = {};
-    if (!brandForm.name.trim()) errors.name = 'Brand name is required';
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   const handleBrandSubmit = async () => {
-    if (!validateBrandForm()) return;
+    const effectiveSlug = brandForm.slug.trim() || slugify(brandForm.name);
+    const payload = {
+      ...brandForm,
+      slug: effectiveSlug,
+      website: brandForm.website?.trim() ? brandForm.website.trim() : undefined,
+    };
+
+    // Keep state in sync (so UI shows generated slug too)
+    if (effectiveSlug !== brandForm.slug) {
+      setBrandForm((prev) => ({ ...prev, slug: effectiveSlug }));
+    }
+
+    // Validate required fields
+    const errors: Record<string, string> = {};
+    if (!payload.name.trim()) errors.name = 'Brand name is required';
+    if (!payload.slug.trim()) errors.slug = 'Slug is required';
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
 
     setSubmitLoading(true);
     try {
       if (editingBrand) {
-        await brandService.update(editingBrand.id, brandForm);
+        await brandService.update(editingBrand.id, payload);
         alert('Brand updated successfully!');
       } else {
-        await brandService.create(brandForm);
+        await brandService.create(payload);
         alert('Brand created successfully!');
       }
       setIsModalOpen(false);
@@ -221,28 +247,14 @@ const AdminCategories = () => {
     <div className={styles.adminPage}>
       <SEO title="Categories & Brands Management - Admin" />
       
-      <div className={styles.header}>
+      {/* Navigation */}
+      <AdminNavbar onLogout={logout} />
+
+      {/* Page Header */}
+      <div className={styles.pageHeader}>
         <div className="container">
-          <div className={styles.headerTop}>
-            <Button 
-              variant="primary" 
-              onClick={() => navigate('/admin/dashboard')}
-              className={styles.backToDashboardButton}
-            >
-              ← Back to Dashboard
-            </Button>
-          </div>
-          <div className={styles.headerContent}>
-            <div>
-              <h1>Categories & Brands</h1>
-              <p>Manage product categorization</p>
-            </div>
-            <div className={styles.headerActions}>
-              <Button variant="outline" onClick={logout}>
-                Logout
-              </Button>
-            </div>
-          </div>
+          <h1 className={styles.pageTitle}>Categories & Brands</h1>
+          <p className={styles.pageSubtitle}>Manage product categorization</p>
         </div>
       </div>
 
@@ -471,9 +483,23 @@ const AdminCategories = () => {
             <Input
               label="Brand Name *"
               value={brandForm.name}
-              onChange={(e) => setBrandForm({ ...brandForm, name: e.target.value })}
+              onChange={(e) => {
+                const nextName = e.target.value;
+                setBrandForm((prev) => {
+                  const nextSlug = !isEditingBrand && !prev.slug ? slugify(nextName) : prev.slug;
+                  return { ...prev, name: nextName, slug: nextSlug };
+                });
+              }}
               error={formErrors.name}
               placeholder="e.g., Siemens"
+            />
+
+            <Input
+              label="Slug *"
+              value={brandForm.slug}
+              onChange={(e) => setBrandForm({ ...brandForm, slug: slugify(e.target.value) })}
+              error={formErrors.slug}
+              placeholder="e.g., siemens"
             />
 
             <Input
@@ -481,6 +507,13 @@ const AdminCategories = () => {
               value={brandForm.logo}
               onChange={(e) => setBrandForm({ ...brandForm, logo: e.target.value })}
               placeholder="https://example.com/logo.png"
+            />
+
+            <Input
+              label="Website"
+              value={brandForm.website}
+              onChange={(e) => setBrandForm({ ...brandForm, website: e.target.value })}
+              placeholder="https://www.siemens.com"
             />
 
             <div className={styles.formGroup}>
@@ -492,6 +525,15 @@ const AdminCategories = () => {
                 rows={3}
               />
             </div>
+
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={brandForm.isAuthorized}
+                onChange={(e) => setBrandForm({ ...brandForm, isAuthorized: e.target.checked })}
+              />
+              <span>Authorized brand</span>
+            </label>
 
             <label className={styles.checkboxLabel}>
               <input

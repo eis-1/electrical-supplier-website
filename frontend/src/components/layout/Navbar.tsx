@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { Button } from '@components/ui/Button';
+import { useNavbarHeightCssVar } from '../../hooks/useNavbarHeight';
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navRef = useRef<HTMLElement>(null!);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +23,9 @@ export const Navbar = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  // Keep `--navbar-height` in sync with the actual rendered navbar (and mobile top offset).
+  useNavbarHeightCssVar(navRef, [isScrolled, isMobileMenuOpen]);
 
   // WhatsApp Configuration
   const companyPhone = import.meta.env.VITE_COMPANY_WHATSAPP || '+1234567890';
@@ -37,6 +42,7 @@ export const Navbar = () => {
 
   return (
     <nav 
+      ref={navRef}
       className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''} ${isMobileMenuOpen ? styles.menuOpen : ''}`}
     >
       <div className={styles.navContainer}>

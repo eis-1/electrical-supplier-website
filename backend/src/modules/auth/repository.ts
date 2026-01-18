@@ -9,6 +9,19 @@ export class AuthRepository {
     });
   }
 
+  async findAdminById(id: string): Promise<Admin | null> {
+    return prisma.admin.findUnique({
+      where: { id },
+    });
+  }
+
+  async updateAdmin(id: string, data: Partial<Admin>): Promise<Admin> {
+    return prisma.admin.update({
+      where: { id },
+      data,
+    });
+  }
+
   async createAdmin(email: string, password: string, name: string): Promise<Admin> {
     return prisma.admin.create({
       data: {

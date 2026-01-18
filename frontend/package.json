@@ -2,6 +2,8 @@
   "name": "electrical-supplier-frontend",
   "version": "1.0.0",
   "description": "Frontend for Electrical Supplier B2B Website",
+  "license": "MIT",
+  "author": "MD EAFTEKHIRUL ISLAM",
   "type": "module",
   "scripts": {
     "dev": "vite",

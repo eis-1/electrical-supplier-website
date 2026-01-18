@@ -3,6 +3,7 @@ import { ProductService } from './service';
 import { ApiResponse } from '../../utils/response';
 import { asyncHandler } from '../../middlewares/error.middleware';
 import { AuthRequest } from '../../middlewares/auth.middleware';
+import { logger } from '../../utils/logger';
 
 export class ProductController {
   private service: ProductService;
@@ -43,18 +44,29 @@ export class ProductController {
 
   create = asyncHandler(async (req: AuthRequest, res: Response) => {
     const product = await this.service.createProduct(req.body);
+    logger.audit('product_created', req.admin?.id || 'unknown', {
+      productId: product.id,
+      productName: product.name,
+    });
     return ApiResponse.created(res, product, 'Product created successfully');
   });
 
   update = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const product = await this.service.updateProduct(id, req.body);
+    logger.audit('product_updated', req.admin?.id || 'unknown', {
+      productId: id,
+      productName: product.name,
+    });
     return ApiResponse.success(res, product, 'Product updated successfully');
   });
 
   delete = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     await this.service.deleteProduct(id);
+    logger.audit('product_deleted', req.admin?.id || 'unknown', {
+      productId: id,
+    });
     return ApiResponse.success(res, null, 'Product deleted successfully');
   });
 }

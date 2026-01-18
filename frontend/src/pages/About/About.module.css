@@ -1,15 +1,15 @@
 .aboutPage {
-  padding: calc(80px + var(--spacing-3xl)) var(--spacing-xl) var(--spacing-3xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
 }
 
 .pageTitle {
   text-align: center;
-  margin-bottom: var(--spacing-3xl);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .section {
   max-width: 900px;
-  margin: 0 auto var(--spacing-3xl);
+  margin: 0 auto var(--spacing-2xl);
 }
 
 .section h2 {
@@ -68,6 +68,14 @@
 }
 
 @media (max-width: 768px) {
+  .aboutPage {
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+  }
+
+  .section p {
+    font-size: var(--font-size-base);
+  }
+
   .shopPhotos {
     grid-template-columns: 1fr;
   }

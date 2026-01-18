@@ -2,6 +2,8 @@ import { QuoteRepository } from './repository';
 import { AppError } from '../../middlewares/error.middleware';
 import { emailService } from '../../utils/email.service';
 import { QuoteRequest } from '@prisma/client';
+import { env } from '../../config/env';
+import { logger } from '../../utils/logger';
 
 interface CreateQuoteData {
   name: string;
@@ -53,6 +55,39 @@ export class QuoteService {
   }
 
   async createQuote(data: CreateQuoteData): Promise<QuoteRequest> {
+    // Anti-spam: per-email daily cap
+    if (data.email) {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const countToday = await this.repository.countByEmailSince({
+        email: data.email,
+        since: startOfDay,
+      });
+
+      if (countToday >= env.QUOTE_MAX_PER_EMAIL_PER_DAY) {
+        throw new AppError(429, 'Too many quote submissions. Please try again later.');
+      }
+    }
+
+    // Anti-spam: deduplicate rapid repeated submissions
+    if (data.email && data.phone) {
+      const since = new Date(Date.now() - env.QUOTE_DEDUP_WINDOW_MS);
+      const recent = await this.repository.findRecentDuplicate({
+        email: data.email,
+        phone: data.phone,
+        since,
+      });
+      if (recent) {
+        logger.security({
+          type: 'quote',
+          action: 'spam_blocked_duplicate',
+          ip: data.ipAddress,
+          details: { email: data.email },
+        });
+        throw new AppError(429, 'We already received your request. Please wait for our response.');
+      }
+    }
+
     const quote = await this.repository.create(data);
 
     // Generate reference number from ID
@@ -73,7 +108,11 @@ export class QuoteService {
 
       await emailService.sendQuoteConfirmation(quote.email, referenceNumber);
     } catch (error) {
-      console.error('Failed to send email notifications:', error);
+      logger.error('Failed to send quote notification email', error as Error, {
+        quoteId: quote.id,
+        email: data.email,
+        referenceNumber,
+      });
       // Don't fail the request if email fails
     }
 

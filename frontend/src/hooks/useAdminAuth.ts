@@ -10,28 +10,51 @@ export const useAdminAuth = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('authToken');
-      const adminUser = localStorage.getItem('adminUser');
-
-      if (!token || !adminUser) {
-        navigate('/admin/login');
-        return;
-      }
+      let token = authService.getToken();
+      const adminUserRaw = localStorage.getItem('adminUser');
 
       try {
-        // Verify token with backend
-        const isValid = await authService.verifyToken();
-        if (isValid) {
-          setIsAuthenticated(true);
-          setAdmin(JSON.parse(adminUser));
-        } else {
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('adminUser');
-          navigate('/admin/login');
+        // If no token in memory but refresh cookie exists, attempt refresh.
+        if (!token) {
+          token = await authService.refreshToken();
         }
-        } catch {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('adminUser');
+
+        if (!token) {
+          setIsAuthenticated(false);
+          setAdmin(null);
+          navigate('/admin/login');
+          return;
+        }
+
+        // Verify token with backend (also validates server-side)
+        const verifiedAdmin = await authService.verifyToken();
+        if (!verifiedAdmin) {
+          await authService.logout();
+          setIsAuthenticated(false);
+          setAdmin(null);
+          navigate('/admin/login');
+          return;
+        }
+
+        // If adminUser isn't stored (or can't be parsed), recover from token verification.
+        if (adminUserRaw) {
+          try {
+            const parsed = JSON.parse(adminUserRaw);
+            setAdmin(parsed);
+          } catch {
+            localStorage.setItem('adminUser', JSON.stringify(verifiedAdmin));
+            setAdmin(verifiedAdmin);
+          }
+        } else {
+          localStorage.setItem('adminUser', JSON.stringify(verifiedAdmin));
+          setAdmin(verifiedAdmin);
+        }
+
+        setIsAuthenticated(true);
+      } catch {
+        await authService.logout();
+        setIsAuthenticated(false);
+        setAdmin(null);
         navigate('/admin/login');
       } finally {
         setIsLoading(false);
@@ -42,9 +65,9 @@ export const useAdminAuth = () => {
   }, [navigate]);
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('adminUser');
-    navigate('/admin/login');
+    authService.logout().finally(() => {
+      navigate('/admin/login');
+    });
   };
 
   return { isAuthenticated, isLoading, admin, logout };

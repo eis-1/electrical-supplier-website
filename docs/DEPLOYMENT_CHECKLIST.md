@@ -27,11 +27,15 @@
 - [ ] HTTPS enabled on production server
 - [ ] Secure cookie settings configured
 - [ ] Rate limiting enabled and configured
+- [ ] Reverse-proxy headers validated (real client IP available; trust proxy configured)
 - [ ] Helmet security headers enabled
 - [ ] File upload restrictions verified
+- [ ] Upload magic-byte validation enabled
+- [ ] Upload serving headers configured (prevent XSS/inline execution)
 - [ ] SQL injection prevention verified (Prisma ORM handles this)
 - [ ] XSS prevention verified
 - [ ] CSRF protection (if using cookies)
+- [ ] Quote anti-spam controls verified (rate limit + dedupe + per-email/day cap)
 
 ### 4. Database Migration 💾
 
@@ -57,6 +61,8 @@
 - [ ] Upload directory created with proper permissions
 - [ ] File size limits configured
 - [ ] Allowed file types restricted
+- [ ] File type validation by magic bytes (not only mimetype)
+- [ ] Upload serving headers configured (X-Content-Type-Options, Content-Disposition)
 - [ ] Consider cloud storage (S3, Cloudinary) for production
 - [ ] CDN configured for static assets (optional)
 

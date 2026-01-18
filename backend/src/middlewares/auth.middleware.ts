@@ -26,7 +26,7 @@ export const authenticateAdmin = asyncHandler(
 
     try {
       // Verify token
-      const decoded = jwt.verify(token, env.JWT_SECRET) as {
+      const decoded = jwt.verify(token, env.JWT_SECRET, { algorithms: ['HS256'] }) as {
         id: string;
         email: string;
         role: string;

@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboard.module.css';
 import { Button } from '../../components/ui/Button';
+import { AdminNavbar } from '../../components/admin/AdminNavbar';
 import SEO from '../../components/common/SEO';
 import { productService } from '../../services/product.service';
 import { quoteService } from '../../services/quote.service';
+import { useAdminAuth } from '../../hooks/useAdminAuth';
 
 interface Toast {
   id: number;
@@ -14,12 +16,14 @@ interface Toast {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ 
-    products: 0, 
-    quotes: 0, 
-    pendingQuotes: 0,
-    processingQuotes: 0,
-    completedQuotes: 0
+  const { isLoading: authLoading, isAuthenticated, logout } = useAdminAuth();
+  const [stats, setStats] = useState({
+    products: 0,
+    quotes: 0,
+    newQuotes: 0,
+    contactedQuotes: 0,
+    quotedQuotes: 0,
+    closedQuotes: 0
   });
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -44,9 +48,10 @@ const AdminDashboard = () => {
       setStats({
         products: productsData.pagination.total,
         quotes: quotes.length,
-        pendingQuotes: quotes.filter((q: any) => q.status === 'pending').length,
-        processingQuotes: quotes.filter((q: any) => q.status === 'processing').length,
-        completedQuotes: quotes.filter((q: any) => q.status === 'completed').length,
+        newQuotes: quotes.filter((q: any) => q.status === 'new').length,
+        contactedQuotes: quotes.filter((q: any) => q.status === 'contacted').length,
+        quotedQuotes: quotes.filter((q: any) => q.status === 'quoted').length,
+        closedQuotes: quotes.filter((q: any) => q.status === 'closed').length,
       });
       showToast('Dashboard data loaded', 'success');
     } catch (error) {
@@ -58,20 +63,14 @@ const AdminDashboard = () => {
   }, [showToast]);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      navigate('/admin/login');
-      return;
-    }
-
+    if (authLoading) return;
+    if (!isAuthenticated) return;
     fetchDashboardData();
-  }, [navigate, fetchDashboardData]);
+  }, [authLoading, isAuthenticated, fetchDashboardData]);
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('adminUser');
     showToast('Logged out successfully', 'info');
-    setTimeout(() => navigate('/admin/login'), 1000);
+    logout();
   };
 
   const quickActions = [
@@ -80,7 +79,7 @@ const AdminDashboard = () => {
       description: 'Add, edit, or remove products from your catalog',
       icon: '📦',
       path: '/admin/products',
-      color: '#667eea',
+      variant: 'Products',
       stats: `${stats.products} Products`
     },
     {
@@ -88,7 +87,7 @@ const AdminDashboard = () => {
       description: 'View and manage customer quote requests',
       icon: '💼',
       path: '/admin/quotes',
-      color: '#764ba2',
+      variant: 'Quotes',
       stats: `${stats.quotes} Total Quotes`
     },
     {
@@ -96,18 +95,20 @@ const AdminDashboard = () => {
       description: 'Manage product categories and brands',
       icon: '🏷️',
       path: '/admin/categories',
-      color: '#f093fb',
+      variant: 'Categories',
       stats: 'Organization'
     }
   ];
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className={styles.pageWrapper}>
         <SEO title="Admin Dashboard" />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
-          <p className={styles.loadingText}>Loading dashboard...</p>
+          <p className={styles.loadingText}>
+            {authLoading ? 'Verifying authentication...' : 'Loading dashboard...'}
+          </p>
         </div>
       </div>
     );
@@ -131,23 +132,14 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* Header */}
-      <div className={styles.header}>
+      {/* Navigation */}
+      <AdminNavbar onLogout={handleLogout} />
+
+      {/* Page Header */}
+      <div className={styles.pageHeader}>
         <div className="container">
-          <div className={styles.headerContent}>
-            <div className={styles.headerLeft}>
-              <h1 className={styles.pageTitle}>Admin Dashboard</h1>
-              <p className={styles.pageSubtitle}>Welcome back! Here's what's happening</p>
-            </div>
-            <div className={styles.headerRight}>
-              <Button variant="outline" onClick={() => navigate('/')}>
-                🏠 Visit Site
-              </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                Logout
-              </Button>
-            </div>
-          </div>
+          <h1 className={styles.pageTitle}>Dashboard</h1>
+          <p className={styles.pageSubtitle}>Welcome back! Here's what's happening</p>
         </div>
       </div>
 
@@ -157,7 +149,7 @@ const AdminDashboard = () => {
           <div className={styles.welcomeContent}>
             <h2 className={styles.welcomeTitle}>Dashboard Overview</h2>
             <p className={styles.welcomeText}>
-              Manage your electrical supplier business from one central hub. 
+              Manage your electrical supplier business from one central hub.
               Quick access to all your admin tools.
             </p>
           </div>
@@ -185,30 +177,38 @@ const AdminDashboard = () => {
           <div className={`${styles.statCard} ${styles.statPending}`}>
             <div className={styles.statIcon}>⏳</div>
             <div className={styles.statContent}>
-              <div className={styles.statValue}>{stats.pendingQuotes}</div>
-              <div className={styles.statLabel}>Pending</div>
+              <div className={styles.statValue}>{stats.newQuotes}</div>
+              <div className={styles.statLabel}>New</div>
             </div>
           </div>
 
           <div className={`${styles.statCard} ${styles.statProcessing}`}>
             <div className={styles.statIcon}>⚙️</div>
             <div className={styles.statContent}>
-              <div className={styles.statValue}>{stats.processingQuotes}</div>
-              <div className={styles.statLabel}>Processing</div>
+              <div className={styles.statValue}>{stats.contactedQuotes}</div>
+              <div className={styles.statLabel}>Contacted</div>
             </div>
           </div>
 
           <div className={`${styles.statCard} ${styles.statCompleted}`}>
             <div className={styles.statIcon}>✅</div>
             <div className={styles.statContent}>
-              <div className={styles.statValue}>{stats.completedQuotes}</div>
-              <div className={styles.statLabel}>Completed</div>
+              <div className={styles.statValue}>{stats.quotedQuotes}</div>
+              <div className={styles.statLabel}>Quoted</div>
+            </div>
+          </div>
+
+          <div className={`${styles.statCard} ${styles.statCompleted}`}>
+            <div className={styles.statIcon}>📌</div>
+            <div className={styles.statContent}>
+              <div className={styles.statValue}>{stats.closedQuotes}</div>
+              <div className={styles.statLabel}>Closed</div>
             </div>
           </div>
 
           <div className={`${styles.statCard} ${styles.statRefresh}`}>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={fetchDashboardData}
               disabled={loading}
             >
@@ -225,17 +225,16 @@ const AdminDashboard = () => {
 
         <div className={styles.actionsGrid}>
           {quickActions.map((action, index) => (
-            <div 
+            <div
               key={index}
-              className={styles.actionCard}
+              className={`${styles.actionCard} ${styles[`actionCard${action.variant}`]}`}
               onClick={() => navigate(action.path)}
-              style={{ borderTopColor: action.color }}
             >
               <div className={styles.actionHeader}>
-                <div className={styles.actionIcon} style={{ background: `${action.color}15` }}>
+                <div className={styles.actionIcon}>
                   {action.icon}
                 </div>
-                <div className={styles.actionBadge} style={{ background: action.color }}>
+                <div className={styles.actionBadge}>
                   {action.stats}
                 </div>
               </div>

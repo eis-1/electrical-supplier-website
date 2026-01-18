@@ -31,6 +31,23 @@ Thumbs.db
 # Logs
 logs/
 *.log
+backend/server-output.log
+backend/backend.log
+
+# Test files (keep test structure but ignore test scripts)
+backend/test-*.js
+backend/e2e-check.js
+backend/check-schema.js
+backend/fix-admin-now.js
+backend/setup-admin.js
+backend/quick-test.js
+backend/security-test.js
+backend/create-admin.ts
+
+# Local diagnostic artifacts
+backend/server-output*.txt
+admin-quotes-test.png
+backend/nul
 
 # Database
 *.sqlite
@@ -49,10 +66,6 @@ coverage/
 tmp/
 temp/
 *.tmp
-
-# Prisma
-prisma/migrations/
-!prisma/migrations/.gitkeep
 
 # Misc
 .cache/

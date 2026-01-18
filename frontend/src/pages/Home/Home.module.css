@@ -5,8 +5,9 @@
 /* Hero Section */
 .hero {
   background: linear-gradient(180deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%);
-  padding: var(--spacing-3xl) 0;
-  min-height: 75vh;
+  padding-top: calc(var(--navbar-height, 80px) + var(--spacing-2xl));
+  padding-bottom: var(--spacing-2xl);
+  min-height: 65vh;
   display: flex;
   align-items: center;
   position: relative;
@@ -16,7 +17,7 @@
 .heroContent {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-3xl);
+  gap: var(--spacing-2xl);
   align-items: center;
   position: relative;
 }
@@ -68,7 +69,7 @@
 
 /* Trust Section */
 .trustSection {
-  padding: var(--spacing-3xl) 0;
+  padding: var(--spacing-2xl) 0;
   background: linear-gradient(180deg, var(--color-bg-primary) 0%, rgba(30, 58, 138, 0.02) 100%);
   position: relative;
 }
@@ -281,7 +282,7 @@
 /* CTA Banner */
 .ctaBanner {
   background: var(--color-primary);
-  padding: var(--spacing-3xl) 0;
+  padding: var(--spacing-2xl) 0;
   color: var(--color-text-inverse);
 }
 
@@ -310,53 +311,113 @@
   .trustGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .brandCard {
     min-width: 160px;
   }
-  
+
   .brandsTrack {
     animation-duration: 25s;
   }
 }
 
 @media (max-width: 768px) {
+  .hero {
+    min-height: 50vh;
+    padding-top: calc(var(--navbar-height, 90px) + var(--spacing-2xl));
+    padding-bottom: var(--spacing-2xl);
+  }
+
   .heroContent,
   .whyChooseUs {
     grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
   }
 
-  .categoryGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .trustGrid {
-    grid-template-columns: 1fr;
-  }
-  
-  .brandCard {
-    min-width: 140px;
-    padding: var(--spacing-lg);
-  }
-  
-  .brandLogo {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .brandsTrack {
-    animation-duration: 20s;
+  .heroLeft {
+    text-align: center;
   }
 
   .heroTitle {
     font-size: var(--font-size-4xl);
+    line-height: 1.2;
+  }
+
+  .heroSubtitle {
+    font-size: var(--font-size-base);
   }
 
   .heroActions {
     flex-direction: column;
+    gap: var(--spacing-md);
   }
 
-  .heroActions a {
+  .heroActions a,
+  .heroActions button {
     width: 100%;
+    justify-content: center;
+  }
+
+  .categoryGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .trustGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .brandCard {
+    min-width: 140px;
+    padding: var(--spacing-lg);
+  }
+
+  .brandLogo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .brandsTrack {
+    animation-duration: 20s;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    min-height: 45vh;
+    padding-top: calc(var(--navbar-height, 90px) + var(--spacing-xl));
+    padding-bottom: var(--spacing-xl);
+  }
+
+  .heroTitle {
+    font-size: var(--font-size-3xl);
+  }
+
+  .heroSubtitle {
+    font-size: 0.875rem;
+  }
+
+  .categoryGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .trustItem h3 {
+    font-size: 1rem;
+  }
+
+  .trustItem p {
+    font-size: 0.875rem;
+  }
+
+  .brandCard {
+    min-width: 120px;
+    padding: var(--spacing-md);
+  }
+
+  .brandLogo {
+    width: 50px;
+    height: 50px;
   }
 }

@@ -19,8 +19,18 @@ class EmailService {
   private initialize() {
     try {
       // Check if SMTP is configured
+      const looksLikePlaceholder = (value: string) => {
+        const v = (value || '').trim().toLowerCase();
+        return v.includes('your-email') || v.includes('your-app-password');
+      };
+
       if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASS) {
         logger.warn('SMTP credentials not configured. Email notifications disabled.');
+        return;
+      }
+
+      if (looksLikePlaceholder(env.SMTP_USER) || looksLikePlaceholder(env.SMTP_PASS)) {
+        logger.warn('SMTP credentials appear to be placeholders. Email notifications disabled.');
         return;
       }
 
@@ -28,6 +38,10 @@ class EmailService {
         host: env.SMTP_HOST,
         port: env.SMTP_PORT,
         secure: env.SMTP_SECURE,
+        // Prevent long hangs on misconfigured SMTP
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
         auth: {
           user: env.SMTP_USER,
           pass: env.SMTP_PASS,
@@ -47,7 +61,7 @@ class EmailService {
     }
 
     try {
-      const info = await this.transporter.sendMail({
+      const sendPromise = this.transporter.sendMail({
         from: `"${env.COMPANY_NAME || 'Electrical Supplier'}" <${env.EMAIL_FROM}>`,
         to: options.to,
         subject: options.subject,
@@ -55,7 +69,16 @@ class EmailService {
         html: options.html,
       });
 
-      logger.info(`Email sent successfully: ${info.messageId}`);
+      const info = await Promise.race([
+        sendPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Email send timeout')), 12000)
+        ),
+      ]);
+
+      // info can be unknown due to Promise.race typing
+      const messageId = (info as any)?.messageId;
+      logger.info(`Email sent successfully: ${messageId || 'unknown'}`);
       return true;
     } catch (error) {
       logger.error('Failed to send email:', error);

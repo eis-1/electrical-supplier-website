@@ -12,16 +12,44 @@ datasource db {
 
 // Admin Users Table
 model Admin {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      String   @default("admin")
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  name            String
+  role            String   @default("admin")
+  isActive        Boolean  @default(true)
+  
+  // Two-Factor Authentication
+  twoFactorSecret String?  // TOTP secret (encrypted)
+  twoFactorEnabled Boolean @default(false)
+  backupCodes     String?  // JSON array of hashed backup codes
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  refreshTokens   RefreshToken[]
 
   @@map("admins")
+}
+
+// Refresh Token Table (server-side session management)
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique  // Hashed token
+  adminId     String
+  ipAddress   String?
+  userAgent   String?
+  isRevoked   Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  admin       Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([expiresAt])
+  @@index([isRevoked])
+  @@map("refresh_tokens")
 }
 
 // Product Categories Table

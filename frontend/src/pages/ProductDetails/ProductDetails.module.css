@@ -1,5 +1,5 @@
 .productDetails {
-  padding: calc(80px + var(--spacing-3xl)) var(--spacing-xl) var(--spacing-3xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
 }
 
 .breadcrumb {
@@ -95,6 +95,7 @@
 .specKey {
   font-weight: var(--font-weight-semibold);
   width: 40%;
+  overflow-wrap: anywhere;
 }
 
 .specValue {
@@ -187,6 +188,8 @@
   font-weight: var(--font-weight-bold);
   margin: var(--spacing-sm) 0 var(--spacing-lg);
   color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .inquirySuccessActions {
@@ -215,11 +218,33 @@
 }
 
 @media (max-width: 768px) {
+  .productDetails {
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+  }
+
   .productLayout {
     grid-template-columns: 1fr;
   }
 
+  .productRight h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .specifications {
+    padding: var(--spacing-xl);
+  }
+
+  .inquirySection {
+    padding: var(--spacing-xl);
+  }
+
   .inquiryGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .productRight h1 {
+    font-size: var(--font-size-2xl);
   }
 }

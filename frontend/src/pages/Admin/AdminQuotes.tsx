@@ -5,19 +5,24 @@ import apiClient from '../../services/api';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
 import { Modal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';
+import { AdminNavbar } from '../../components/admin/AdminNavbar';
 import SEO from '../../components/common/SEO';
 import styles from './AdminQuotes.module.css';
 
 interface Quote {
-  id: number;
-  referenceNumber: string;
+  id: string;
   name: string;
   email: string;
-  phone?: string;
+  phone: string;
+  whatsapp?: string;
   company?: string;
-  message: string;
-  status: 'pending' | 'processing' | 'completed' | 'rejected';
-  adminNotes?: string;
+  productName?: string;
+  quantity?: string;
+  projectDetails?: string;
+  status: 'new' | 'contacted' | 'quoted' | 'closed';
+  notes?: string;
+  ipAddress?: string;
+  userAgent?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,7 +37,7 @@ interface Toast {
 
 const AdminQuotes: React.FC = () => {
   const navigate = useNavigate();
-  useAdminAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAdminAuth();
 
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,8 +55,8 @@ const AdminQuotes: React.FC = () => {
 
   // Form state
   const [formData, setFormData] = useState({
-    status: 'pending' as Quote['status'],
-    adminNotes: ''
+    status: 'new' as Quote['status'],
+    notes: ''
   });
 
   // Toast notification system
@@ -81,8 +86,12 @@ const AdminQuotes: React.FC = () => {
   }, [showToast]);
 
   useEffect(() => {
-    fetchQuotes();
-  }, [fetchQuotes]);
+    // Only fetch quotes after authentication is verified
+    if (!authLoading && isAuthenticated) {
+      fetchQuotes();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, isAuthenticated]);
 
   // Filter and search quotes with useMemo for performance
   const filteredQuotes = useMemo(() => {
@@ -97,11 +106,12 @@ const AdminQuotes: React.FC = () => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(q =>
-        q.referenceNumber.toLowerCase().includes(query) ||
+        q.id.toLowerCase().includes(query) ||
         q.name.toLowerCase().includes(query) ||
         q.email.toLowerCase().includes(query) ||
         q.company?.toLowerCase().includes(query) ||
-        q.phone?.includes(query)
+        q.phone?.includes(query) ||
+        q.productName?.toLowerCase().includes(query)
       );
     }
 
@@ -111,10 +121,10 @@ const AdminQuotes: React.FC = () => {
   // Calculate stats
   const stats = useMemo(() => ({
     total: quotes.length,
-    pending: quotes.filter(q => q.status === 'pending').length,
-    processing: quotes.filter(q => q.status === 'processing').length,
-    completed: quotes.filter(q => q.status === 'completed').length,
-    rejected: quotes.filter(q => q.status === 'rejected').length
+    new: quotes.filter(q => q.status === 'new').length,
+    contacted: quotes.filter(q => q.status === 'contacted').length,
+    quoted: quotes.filter(q => q.status === 'quoted').length,
+    closed: quotes.filter(q => q.status === 'closed').length
   }), [quotes]);
 
   // Open details modal
@@ -122,7 +132,7 @@ const AdminQuotes: React.FC = () => {
     setSelectedQuote(quote);
     setFormData({
       status: quote.status,
-      adminNotes: quote.adminNotes || ''
+      notes: quote.notes || ''
     });
     setIsDetailsModalOpen(true);
   };
@@ -131,7 +141,7 @@ const AdminQuotes: React.FC = () => {
   const handleCloseModal = () => {
     setIsDetailsModalOpen(false);
     setSelectedQuote(null);
-    setFormData({ status: 'pending', adminNotes: '' });
+    setFormData({ status: 'new', notes: '' });
   };
 
   // Handle form input changes
@@ -141,9 +151,9 @@ const AdminQuotes: React.FC = () => {
   };
 
   // Quick status update (inline from table)
-  const handleQuickStatusUpdate = async (quoteId: number, newStatus: Quote['status']) => {
+  const handleQuickStatusUpdate = async (quoteId: string, newStatus: Quote['status']) => {
     try {
-      await quoteService.update(String(quoteId), { status: newStatus });
+      await quoteService.update(quoteId, { status: newStatus });
       setQuotes(prev => prev.map(q => q.id === quoteId ? { ...q, status: newStatus } : q));
       showToast(`Status updated to ${newStatus}`, 'success');
     } catch {
@@ -159,9 +169,9 @@ const AdminQuotes: React.FC = () => {
 
     setIsUpdating(true);
     try {
-      await quoteService.update(String(selectedQuote.id), {
+      await quoteService.update(selectedQuote.id, {
         status: formData.status,
-        notes: formData.adminNotes
+        notes: formData.notes
       });
 
       showToast('Quote updated successfully!', 'success');
@@ -175,8 +185,8 @@ const AdminQuotes: React.FC = () => {
   };
 
   // Handle delete with confirmation
-  const handleDelete = async (id: number, referenceNumber: string) => {
-    if (!window.confirm(`Delete quote ${referenceNumber}? This cannot be undone.`)) {
+  const handleDelete = async (id: string, quoteName: string) => {
+    if (!window.confirm(`Delete quote from ${quoteName}? This cannot be undone.`)) {
       return;
     }
 
@@ -191,18 +201,18 @@ const AdminQuotes: React.FC = () => {
 
   // Handle reply via email
   const handleReply = (quote: Quote) => {
-    const subject = encodeURIComponent(`Re: Quote Request ${quote.referenceNumber}`);
-    const body = encodeURIComponent(`Dear ${quote.name},\n\nThank you for your quote request (${quote.referenceNumber}).\n\n`);
+    const subject = encodeURIComponent(`Re: Quote Request from ${quote.name}`);
+    const body = encodeURIComponent(`Dear ${quote.name},\n\nThank you for your quote request.\n\nProduct: ${quote.productName || 'N/A'}\nQuantity: ${quote.quantity || 'N/A'}\n\n`);
     window.location.href = `mailto:${quote.email}?subject=${subject}&body=${body}`;
   };
 
   // Get status badge class
   const getStatusBadgeClass = (status: Quote['status']) => {
     switch (status) {
-      case 'pending': return styles.badgePending;
-      case 'processing': return styles.badgeProcessing;
-      case 'completed': return styles.badgeCompleted;
-      case 'rejected': return styles.badgeRejected;
+      case 'new': return styles.badgeNew;
+      case 'contacted': return styles.badgePending;
+      case 'quoted': return styles.badgeProcessing;
+      case 'closed': return styles.badgeCompleted;
       default: return '';
     }
   };
@@ -214,13 +224,15 @@ const AdminQuotes: React.FC = () => {
     navigate('/admin/login');
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className={styles.pageWrapper}>
         <SEO title="Quote Management - Admin" />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
-          <p className={styles.loadingText}>Loading quotes...</p>
+          <p className={styles.loadingText}>
+            {authLoading ? 'Verifying authentication...' : 'Loading quotes...'}
+          </p>
         </div>
       </div>
     );
@@ -244,23 +256,14 @@ const AdminQuotes: React.FC = () => {
         ))}
       </div>
 
-      {/* Header */}
-      <div className={styles.header}>
+      {/* Navigation */}
+      <AdminNavbar onLogout={handleLogout} />
+
+      {/* Page Header */}
+      <div className={styles.pageHeader}>
         <div className="container">
-          <div className={styles.headerContent}>
-            <div className={styles.headerLeft}>
-              <h1 className={styles.pageTitle}>Quote Management</h1>
-              <p className={styles.pageSubtitle}>Manage customer quote requests</p>
-            </div>
-            <div className={styles.headerRight}>
-              <Button variant="outline" onClick={() => navigate('/admin/dashboard')}>
-                ← Dashboard
-              </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                Logout
-              </Button>
-            </div>
-          </div>
+          <h1 className={styles.pageTitle}>Quote Management</h1>
+          <p className={styles.pageSubtitle}>Manage customer quote requests</p>
         </div>
       </div>
 
@@ -277,22 +280,22 @@ const AdminQuotes: React.FC = () => {
           <div className={`${styles.statCard} ${styles.statPending}`}>
             <div className={styles.statIcon}>⏳</div>
             <div className={styles.statContent}>
-              <div className={styles.statValue}>{stats.pending}</div>
-              <div className={styles.statLabel}>Pending</div>
+              <div className={styles.statValue}>{stats.contacted}</div>
+              <div className={styles.statLabel}>Contacted</div>
             </div>
           </div>
           <div className={`${styles.statCard} ${styles.statProcessing}`}>
             <div className={styles.statIcon}>⚙️</div>
             <div className={styles.statContent}>
-              <div className={styles.statValue}>{stats.processing}</div>
-              <div className={styles.statLabel}>Processing</div>
+              <div className={styles.statValue}>{stats.quoted}</div>
+              <div className={styles.statLabel}>Quoted</div>
             </div>
           </div>
           <div className={`${styles.statCard} ${styles.statCompleted}`}>
             <div className={styles.statIcon}>✅</div>
             <div className={styles.statContent}>
-              <div className={styles.statValue}>{stats.completed}</div>
-              <div className={styles.statLabel}>Completed</div>
+              <div className={styles.statValue}>{stats.closed}</div>
+              <div className={styles.statLabel}>Closed</div>
             </div>
           </div>
         </div>
@@ -327,10 +330,10 @@ const AdminQuotes: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="all">All ({stats.total})</option>
-              <option value="pending">Pending ({stats.pending})</option>
-              <option value="processing">Processing ({stats.processing})</option>
-              <option value="completed">Completed ({stats.completed})</option>
-              <option value="rejected">Rejected ({stats.rejected})</option>
+              <option value="new">New ({stats.new})</option>
+              <option value="contacted">Contacted ({stats.contacted})</option>
+              <option value="quoted">Quoted ({stats.quoted})</option>
+              <option value="closed">Closed ({stats.closed})</option>
             </select>
           </div>
 
@@ -371,8 +374,8 @@ const AdminQuotes: React.FC = () => {
               <div key={quote.id} className={styles.quoteCard}>
                 <div className={styles.quoteHeader}>
                   <div className={styles.quoteRef}>
-                    <span className={styles.refLabel}>REF:</span>
-                    <span className={styles.refNumber}>{quote.referenceNumber}</span>
+                    <span className={styles.refLabel}>ID:</span>
+                    <span className={styles.refNumber}>{quote.id.substring(0, 8)}</span>
                   </div>
                   <div className={styles.statusBadgeContainer}>
                     <select
@@ -381,10 +384,10 @@ const AdminQuotes: React.FC = () => {
                       onChange={(e) => handleQuickStatusUpdate(quote.id, e.target.value as Quote['status'])}
                       title="Quick status update"
                     >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="completed">Completed</option>
-                      <option value="rejected">Rejected</option>
+                      <option value="new">New</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="quoted">Quoted</option>
+                      <option value="closed">Closed</option>
                     </select>
                   </div>
                 </div>
@@ -410,9 +413,11 @@ const AdminQuotes: React.FC = () => {
 
                   <div className={styles.quoteMessage}>
                     <p className={styles.messagePreview}>
-                      {quote.message.length > 120 
-                        ? `${quote.message.substring(0, 120)}...` 
-                        : quote.message}
+                      <strong>Product:</strong> {quote.productName || 'Not specified'}<br/>
+                      <strong>Quantity:</strong> {quote.quantity || 'Not specified'}
+                      {quote.projectDetails && (
+                        <><br/><strong>Details:</strong> {quote.projectDetails.length > 80 ? `${quote.projectDetails.substring(0, 80)}...` : quote.projectDetails}</>
+                      )}
                     </p>
                   </div>
 
@@ -450,7 +455,7 @@ const AdminQuotes: React.FC = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => handleDelete(quote.id, quote.referenceNumber)}
+                    onClick={() => handleDelete(quote.id, quote.name)}
                     style={{ color: '#dc3545' }}
                   >
                     🗑️ Delete
@@ -466,7 +471,7 @@ const AdminQuotes: React.FC = () => {
       {isDetailsModalOpen && selectedQuote && (
         <Modal
           isOpen={isDetailsModalOpen}
-          title={`Quote Details - ${selectedQuote.referenceNumber}`}
+          title={`Quote Details - ${selectedQuote.name}`}
           onClose={handleCloseModal}
           size="lg"
         >
@@ -507,10 +512,23 @@ const AdminQuotes: React.FC = () => {
             <div className={styles.modalSection}>
               <h3 className={styles.sectionTitle}>
                 <span className={styles.sectionIcon}>💬</span>
-                Customer Message
+                Quote Request Details
               </h3>
               <div className={styles.messageBox}>
-                <p className={styles.fullMessage}>{selectedQuote.message}</p>
+                <div className={styles.infoRow}>
+                  <span className={styles.infoLabel}>Product:</span>
+                  <span className={styles.infoValue}>{selectedQuote.productName || 'Not specified'}</span>
+                </div>
+                <div className={styles.infoRow}>
+                  <span className={styles.infoLabel}>Quantity:</span>
+                  <span className={styles.infoValue}>{selectedQuote.quantity || 'Not specified'}</span>
+                </div>
+                {selectedQuote.projectDetails && (
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>Project Details:</span>
+                    <p className={styles.fullMessage}>{selectedQuote.projectDetails}</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -555,10 +573,10 @@ const AdminQuotes: React.FC = () => {
                   onChange={handleInputChange}
                   required
                 >
-                  <option value="pending">⏳ Pending</option>
-                  <option value="processing">⚙️ Processing</option>
-                  <option value="completed">✅ Completed</option>
-                  <option value="rejected">❌ Rejected</option>
+                  <option value="new">🆕 New</option>
+                  <option value="contacted">📞 Contacted</option>
+                  <option value="quoted">🧾 Quoted</option>
+                  <option value="closed">✅ Closed</option>
                 </select>
               </div>
 
@@ -568,9 +586,9 @@ const AdminQuotes: React.FC = () => {
                 </label>
                 <textarea
                   id="modal-notes"
-                  name="adminNotes"
+                  name="notes"
                   className={styles.formTextarea}
-                  value={formData.adminNotes}
+                  value={formData.notes}
                   onChange={handleInputChange}
                   rows={4}
                   placeholder="Add internal notes about this quote... (only visible to admins)"

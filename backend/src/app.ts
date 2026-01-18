@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import { env } from './config/env';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
@@ -18,6 +19,24 @@ import uploadRoutes from './routes/upload.routes';
 export const createApp = (): Application => {
   const app = express();
 
+  // If running behind a reverse proxy (Nginx/Cloudflare), trust proxy headers.
+  // This ensures req.ip and rate limiting use the real client IP.
+  app.set('trust proxy', 1);
+
+  // HSTS: Force HTTPS in production (requires HTTPS to be configured)
+  if (env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+      // Only set HSTS if the request is already over HTTPS
+      if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+        res.setHeader(
+          'Strict-Transport-Security',
+          'max-age=31536000; includeSubDomains; preload'
+        );
+      }
+      next();
+    });
+  }
+
   // Security middleware
   app.use(helmet({
     contentSecurityPolicy: {
@@ -25,9 +44,15 @@ export const createApp = (): Application => {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
+        scriptSrc: ["'self'"],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
       },
     },
-    // Removed crossOriginResourcePolicy as it is not recognized
+    hsts: false, // We handle HSTS manually above
+    frameguard: { action: 'deny' },
+    noSniff: true,
+    xssFilter: true,
   }));
 
   // CORS configuration
@@ -35,8 +60,12 @@ export const createApp = (): Application => {
     origin: env.CORS_ORIGIN,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-csrf-token'],
+    exposedHeaders: ['x-csrf-token'],
   }));
+
+  // Cookie parser (must come before routes that use cookies)
+  app.use(cookieParser(env.COOKIE_SECRET));
 
   // Body parsing middleware
   app.use(express.json({ limit: '10mb' }));
@@ -45,9 +74,24 @@ export const createApp = (): Application => {
   // Rate limiting
   app.use(`/api/${env.API_VERSION}`, apiLimiter);
 
-  // Health check endpoint
+  // Health check endpoint (enhanced with security status)
   app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    const isProduction = env.NODE_ENV === 'production';
+    const securityStatus = {
+      hsts: isProduction,
+      helmet: true,
+      rateLimiting: true,
+      jwtExpiry: true,
+      uploadValidation: true,
+      auditLogging: true,
+    };
+
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      environment: env.NODE_ENV,
+      security: securityStatus,
+    });
   });
 
   // API routes
@@ -60,8 +104,20 @@ export const createApp = (): Application => {
   app.use(`${apiPrefix}/quotes`, quoteRoutes);
   app.use(`${apiPrefix}/upload`, uploadRoutes);
 
-  // Static files for uploads
-  app.use('/uploads', express.static(env.UPLOAD_DIR));
+  // Static files for uploads (with security headers)
+  app.use('/uploads', (req, res, next) => {
+    // Security headers for uploaded files
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Content-Security-Policy', "default-src 'none'");
+    
+    // Force download for documents (PDFs) to prevent inline execution
+    if (req.path.includes('/documents/')) {
+      res.setHeader('Content-Disposition', 'attachment');
+    }
+    
+    next();
+  }, express.static(env.UPLOAD_DIR));
 
   // Serve frontend static files (if built)
   const frontendDistPath = path.join(__dirname, '../../frontend/dist');

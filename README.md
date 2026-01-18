@@ -15,12 +15,23 @@ A full-stack B2B electrical supplier website with a product catalog, brand & cat
 
 ## ✨ Features
 
+### Core Functionality
+
 - **Product Catalog**: Browse products by category and brand (B2B-friendly: quote-first, not cart-first)
 - **Quote Requests**: Customers submit quote requests; admins manage quote pipeline
-- **Admin Panel**: Secure admin login with CRUD for products, categories, brands
-- **Uploads**: Upload product assets (e.g., datasheets) via backend
-- **Single-Port Deployment**: Express serves the API and the built frontend on the same port
-- **Modern UI**: React + Vite frontend with responsive layout and clean design
+- **Admin Panel**: Secure admin login with CRUD for products, categories, brands, and quotes
+- **File Uploads**: Upload product assets (e.g., datasheets) with magic-byte validation
+- **Single-Port Deployment**: Express serves the API and built frontend on the same port
+- **Modern UI**: React + Vite frontend with fully responsive mobile-first design
+
+### Security Features
+
+- **Two-Factor Authentication (2FA)**: TOTP-based MFA with QR code setup and backup codes
+- **JWT Authentication**: Access tokens with secure refresh token rotation
+- **Rate Limiting**: Protect against brute force and abuse
+- **Enterprise Security**: Helmet headers, CSRF protection, input validation
+- **File Security**: Magic-byte validation, path traversal protection
+- **Password Security**: Bcrypt hashing with configurable rounds
 
 ---
 
@@ -92,12 +103,16 @@ cp frontend/.env.example frontend/.env
 cd backend
 npx prisma generate
 npx prisma migrate dev
+# Or for existing database:
+npx prisma db push
 npm run prisma:seed
 cd ..
 
 # Build frontend and start everything on http://localhost:5000
 ./start-server.sh
 ```
+
+**Testing**: See [docs/COMPLETE_TESTING_GUIDE.md](docs/COMPLETE_TESTING_GUIDE.md) for immediate testing steps.
 
 ---
 
@@ -185,13 +200,32 @@ Note: production uses the single-port flow (build frontend and let Express serve
 
 ## 🧪 Testing
 
-This project currently focuses on:
+This project includes comprehensive testing tools:
 
-- API functionality checks (manual/smoke testing)
-- Linting and TypeScript builds
+### Automated Tests
+
+```bash
+cd backend
+npm install --save-dev jest axios speakeasy
+npm test  # Runs the integration test suite
+npm run test:coverage  # With coverage report
+```
+
+### Postman Collection
+
+Import `docs/Electrical_Supplier_API.postman_collection.json` for:
+
+- 40+ pre-configured requests
+- Automatic token management
+- Security attack simulations
+
+### Manual Testing
+
+See [docs/COMPLETE_TESTING_GUIDE.md](docs/COMPLETE_TESTING_GUIDE.md) for 8 phases of testing.
 
 Recommended checks before pushing:
 
+- `backend` → `npm test`
 - `backend` → `npm run build`
 - `frontend` → `npm run build`
 - `backend` → `npm run lint`
@@ -203,11 +237,35 @@ Recommended checks before pushing:
 
 Available docs:
 
-- **API docs**: `docs/API_DOCUMENTATION.md`
-- **API contract**: `docs/api-contract.md`
-- **DB schema**: `docs/db-schema.md`
-- **Deployment checklist**: `docs/DEPLOYMENT_CHECKLIST.md`
-- **Scope**: `docs/scope.md`
+### Testing & API
+
+- **Complete Testing Guide**: [docs/COMPLETE_TESTING_GUIDE.md](docs/COMPLETE_TESTING_GUIDE.md) - 8-phase testing workflow
+- **API Testing Guide**: [docs/API_TESTING_GUIDE.md](docs/API_TESTING_GUIDE.md) - Complete API reference and examples
+- **Test Suite Documentation**: [backend/tests/README.md](backend/tests/README.md) - Automated testing setup
+- **Postman Collection**: [docs/Electrical_Supplier_API.postman_collection.json](docs/Electrical_Supplier_API.postman_collection.json) - 40+ pre-configured requests
+
+### Project Information
+
+- **Project Overview**: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) - Architecture and design decisions
+- **Project Structure**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Detailed folder layout
+- **API Documentation**: [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) - Full API specification
+- **API Contract**: [docs/api-contract.md](docs/api-contract.md) - Request/response schemas
+- **Database Schema**: [docs/db-schema.md](docs/db-schema.md) - Database design and relationships
+- **Deployment Checklist**: [docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md) - Production deployment guide
+- **Project Scope**: [docs/scope.md](docs/scope.md) - Original project requirements
+
+### Security Documentation
+
+- **Security Overview**: [SECURITY.md](SECURITY.md) - Security policies and reporting
+- **Security Improvements**: [SECURITY_IMPROVEMENTS.md](SECURITY_IMPROVEMENTS.md) - Implemented security features
+- **Security Audit**: [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) - Security assessment results
+
+### Additional Resources
+
+- **Completion Summary**: [PROJECT_COMPLETION_SUMMARY.md](PROJECT_COMPLETION_SUMMARY.md) - Project milestones
+- **Mobile Responsive Guide**: [MOBILE_RESPONSIVE_GUIDE.md](MOBILE_RESPONSIVE_GUIDE.md) - Mobile optimization details
+- **Contributing Guidelines**: [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute
+- **Changelog**: [CHANGELOG.md](CHANGELOG.md) - Version history
 
 ---
 
@@ -233,30 +291,55 @@ This project is licensed under the MIT License - see **[`LICENSE`](LICENSE)**.
 
 ## 🗺️ Roadmap
 
-- Pagination and improved filtering in admin tables
-- Full-text product search (PostgreSQL-ready)
-- Better upload validation (size/type) and progress UI
-- Multiple admin users + role-based access control (RBAC)
-- Cloud storage option for uploads (S3/R2)
-- Better admin session UX (token refresh / graceful expiry handling)
+### Planned Features
+
+- [ ] **Advanced Search**: Full-text product search with PostgreSQL support
+- [ ] **Improved Admin UX**: Better pagination and filtering in admin tables
+- [ ] **File Upload Enhancements**: Progress indicators and drag-drop support
+- [ ] **Multi-Admin Support**: Role-based access control (RBAC) for multiple admin users
+- [ ] **Cloud Storage**: S3/R2 integration for scalable file storage
+- [ ] **Email Templates**: HTML email templates for quotes and notifications
+- [ ] **Analytics Dashboard**: Enhanced metrics and reporting for admins
+- [ ] **API Rate Limiting**: Per-user rate limits with Redis integration
+- [ ] **Audit Logging**: Comprehensive activity logs for compliance
+- [ ] **Export Features**: CSV/Excel export for quotes and products
 
 ---
 
 ## 📞 Contact
 
 - **Author**: MD EAFTEKHIRUL ISLAM
-- **Repo**: https://github.com/eis-1/electrical-supplier-website
-- **Issues**: https://github.com/eis-1/electrical-supplier-website/issues
+- **Email**: Contact through GitHub issues
+- **GitHub**: [@eis-1](https://github.com/eis-1)
+- **Repository**: [electrical-supplier-website](https://github.com/eis-1/electrical-supplier-website)
+- **Issues**: [Report bugs or request features](https://github.com/eis-1/electrical-supplier-website/issues)
 
 ---
 
 ## 🙏 Acknowledgments
 
-Built with help from the open-source community, especially:
+Built with modern open-source technologies:
 
-- React, Vite, React Router
-- Express.js
-- Prisma ORM
-- ESLint and Prettier
+### Core Technologies
+
+- **[React 18](https://react.dev/)** - UI library
+- **[Vite](https://vitejs.dev/)** - Build tool and dev server
+- **[TypeScript](https://www.typescriptlang.org/)** - Type safety
+- **[Express.js](https://expressjs.com/)** - Backend framework
+- **[Prisma ORM](https://www.prisma.io/)** - Database toolkit
+
+### Security & Authentication
+
+- **[bcryptjs](https://github.com/dcodeIO/bcrypt.js)** - Password hashing
+- **[jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)** - JWT implementation
+- **[speakeasy](https://github.com/speakeasyjs/speakeasy)** - 2FA/TOTP
+- **[helmet](https://helmetjs.github.io/)** - Security headers
+
+### Development Tools
+
+- **[ESLint](https://eslint.org/)** & **[Prettier](https://prettier.io/)** - Code quality
+- **[Jest](https://jestjs.io/)** - Testing framework
+
+Special thanks to the open-source community for making modern web development accessible and secure.
 
 For deeper technical notes and architecture details, see **[`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md)**.

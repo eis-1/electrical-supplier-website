@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-build:
+    name: Test & Build (Node 18)
+    runs-on: ubuntu-latest
+    env:
+      # Minimal env needed for backend to boot in CI
+      NODE_ENV: test
+      PORT: 5000
+      DATABASE_URL: file:./dev.db
+      JWT_SECRET: ci-test-secret-change-me
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci || npm install
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci || npm install
+
+      - name: Prisma generate
+        working-directory: ./backend
+        run: npx prisma generate
+
+      - name: Prisma migrate (deploy)
+        working-directory: ./backend
+        run: npx prisma migrate deploy
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci || npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Start backend (background)
+        working-directory: ./backend
+        run: |
+          npm run start &
+
+      - name: Wait for backend health
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:5000/health >/dev/null; then
+              echo "Backend is up";
+              exit 0;
+            fi
+            echo "Waiting for backend... ($i/30)";
+            sleep 2;
+          done
+          echo "Backend failed to start";
+          exit 1
+
+      - name: Backend tests (integration)
+        working-directory: ./backend
+        env:
+          BASE_URL: http://localhost:5000
+        run: npm test

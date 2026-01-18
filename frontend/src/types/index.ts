@@ -89,6 +89,10 @@ export interface QuoteRequest {
   productName?: string;
   quantity?: string;
   projectDetails?: string;
+
+  // Anti-spam metadata (optional; backend ignores/uses as needed)
+  honeypot?: string;
+  formStartTs?: number;
 }
 
 export interface Quote extends QuoteRequest {

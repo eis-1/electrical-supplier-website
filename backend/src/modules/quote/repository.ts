@@ -24,6 +24,33 @@ interface QuoteFilters {
 }
 
 export class QuoteRepository {
+  async findRecentDuplicate(params: {
+    email: string;
+    phone: string;
+    since: Date;
+  }): Promise<QuoteRequest | null> {
+    const { email, phone, since } = params;
+
+    return prisma.quoteRequest.findFirst({
+      where: {
+        email,
+        phone,
+        createdAt: { gte: since },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async countByEmailSince(params: { email: string; since: Date }): Promise<number> {
+    const { email, since } = params;
+    return prisma.quoteRequest.count({
+      where: {
+        email,
+        createdAt: { gte: since },
+      },
+    });
+  }
+
   async findAll(
     filters: QuoteFilters,
     page: number = 1,

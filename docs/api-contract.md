@@ -398,7 +398,11 @@ Submit quote request (Public)
   "email": "john@abc.com",
   "productName": "Industrial Cable 4mm",
   "quantity": "500 meters",
-  "projectDetails": "Needed for factory wiring project"
+  "projectDetails": "Needed for factory wiring project",
+
+  // Optional anti-spam metadata (ignored by backend if not provided)
+  "honeypot": "",
+  "formStartTs": 1736820000000
 }
 ```
 

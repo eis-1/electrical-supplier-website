@@ -8,6 +8,7 @@ import { quoteService } from '../../services/quote.service';
 
 const Quote = () => {
   const [searchParams] = useSearchParams();
+  const [formStartTs] = useState(() => Date.now());
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -96,6 +97,9 @@ const Quote = () => {
         productName: formData.productName,
         quantity: formData.quantity,
         projectDetails: formData.projectDetails || undefined,
+        // Anti-spam metadata
+        honeypot: formData.honeypot,
+        formStartTs,
       });
       setSuccessData({ referenceNumber: result.referenceNumber });
     } catch (error) {
@@ -104,7 +108,7 @@ const Quote = () => {
     } finally {
       setLoading(false);
     }
-  }, [validate, formData]);
+  }, [validate, formData, formStartTs]);
 
   if (successData) {
     const companyWhatsApp = import.meta.env.VITE_COMPANY_WHATSAPP || '';
@@ -174,6 +178,18 @@ const Quote = () => {
           ) : null}
 
           <form onSubmit={handleSubmit} className={styles.quoteForm}>
+            {/* Honeypot field (hidden from real users, attractive to simplistic bots) */}
+            <input
+              type="text"
+              name="honeypot"
+              value={formData.honeypot}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className={styles.honeypot}
+            />
+
             <Input
               label="Full Name *"
               name="name"

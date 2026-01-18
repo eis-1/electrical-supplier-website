@@ -201,7 +201,7 @@ npx prisma migrate reset
 Change PORT in .env:
 
 ```env
-PORT=5001
+PORT=5000
 ```
 
 ### JWT Token Issues

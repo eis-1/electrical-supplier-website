@@ -3,7 +3,8 @@
 .pageWrapper {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
-  padding-bottom: 40px;
+  padding-top: calc(var(--navbar-height, 90px) + 12px);
+  padding-bottom: 24px;
 }
 
 /* ==================== Loading State ==================== */
@@ -12,7 +13,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: var(--app-height, 100vh);
   gap: 20px;
 }
 
@@ -39,7 +40,7 @@
 /* ==================== Toast Notifications ==================== */
 .toastContainer {
   position: fixed;
-  top: 20px;
+  top: calc(var(--navbar-height, 0px) + 16px);
   right: 20px;
   z-index: 10000;
   display: flex;
@@ -764,31 +765,42 @@
 }
 
 @media (max-width: 768px) {
+  .pageWrapper {
+    padding-top: calc(var(--navbar-height, 90px) + 12px);
+    padding-bottom: 16px;
+  }
+
+  .header {
+    padding: 20px 0;
+    margin-bottom: 20px;
+  }
+
   .headerContent {
     flex-direction: column;
     align-items: flex-start;
   }
 
   .pageTitle {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .statsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
   .statCard {
-    padding: 16px;
+    padding: 14px 10px;
   }
 
   .statIcon {
-    font-size: 28px;
-    width: 50px;
-    height: 50px;
+    font-size: 24px;
+    width: 45px;
+    height: 45px;
   }
 
   .statValue {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .controlsBar {
@@ -828,8 +840,36 @@
 }
 
 @media (max-width: 480px) {
+  .pageWrapper {
+    padding-top: calc(var(--navbar-height, 90px) + 8px);
+  }
+
+  .header {
+    padding: 16px 0;
+    margin-bottom: 16px;
+  }
+
   .pageTitle {
-    font-size: 22px;
+    font-size: 20px;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .statCard {
+    padding: 16px 12px;
+  }
+
+  .statIcon {
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .statValue {
+    font-size: 20px;
   }
 
   .headerRight {

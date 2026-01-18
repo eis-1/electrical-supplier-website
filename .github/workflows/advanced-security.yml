@@ -1,0 +1,189 @@
+name: Advanced Security Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  # SAST - Static Application Security Testing
+  sast-codeql:
+    name: CodeQL Analysis (SAST)
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # Dependency vulnerability scanning with Snyk
+  snyk-scan:
+    name: Snyk Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Snyk to check for vulnerabilities (Backend)
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --file=backend/package.json
+          command: test
+
+      - name: Run Snyk to check for vulnerabilities (Frontend)
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --file=frontend/package.json
+          command: test
+
+  # Container security scanning (if using Docker)
+  trivy-scan:
+    name: Trivy Container Scan
+    runs-on: ubuntu-latest
+    if: false  # Enable this if you containerize the app
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # OWASP Dependency Check
+  owasp-dependency-check:
+    name: OWASP Dependency Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Depcheck (Backend)
+        uses: dependency-check/Dependency-Check_Action@main
+        continue-on-error: true
+        with:
+          project: 'electrical-supplier-backend'
+          path: './backend'
+          format: 'HTML'
+          out: 'reports'
+
+      - name: Upload Dependency Check results
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check-report
+          path: reports/
+
+  # License compliance check
+  license-check:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Check licenses (Backend)
+        working-directory: ./backend
+        run: npx license-checker --summary
+
+      - name: Check licenses (Frontend)
+        working-directory: ./frontend
+        run: npx license-checker --summary
+
+  # Security headers check (for deployed apps)
+  security-headers-check:
+    name: Security Headers Check
+    runs-on: ubuntu-latest
+    if: false  # Enable after deployment
+    
+    steps:
+      - name: Check security headers
+        run: |
+          curl -I https://your-production-domain.com | grep -i "strict-transport-security"
+          curl -I https://your-production-domain.com | grep -i "x-content-type-options"
+          curl -I https://your-production-domain.com | grep -i "x-frame-options"
+
+  # Summary report
+  security-summary:
+    name: Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [sast-codeql, snyk-scan, owasp-dependency-check, license-check]
+    if: always()
+    
+    steps:
+      - name: Check scan results
+        run: |
+          echo "=== Security Scan Results ==="
+          echo "CodeQL SAST: ${{ needs.sast-codeql.result }}"
+          echo "Snyk Scan: ${{ needs.snyk-scan.result }}"
+          echo "OWASP Dependency Check: ${{ needs.owasp-dependency-check.result }}"
+          echo "License Check: ${{ needs.license-check.result }}"
+          
+          if [ "${{ needs.sast-codeql.result }}" == "failure" ]; then
+            echo "⚠️ CodeQL found security issues"
+          fi
+          
+          if [ "${{ needs.snyk-scan.result }}" == "failure" ]; then
+            echo "⚠️ Snyk found vulnerabilities"
+          fi

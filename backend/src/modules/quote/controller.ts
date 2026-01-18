@@ -16,8 +16,27 @@ export class QuoteController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.headers['user-agent'];
 
+    // Whitelist fields (prevents unexpected body keys from reaching Prisma create)
+    const {
+      name,
+      company,
+      phone,
+      whatsapp,
+      email,
+      productName,
+      quantity,
+      projectDetails,
+    } = req.body as Record<string, any>;
+
     const quoteData = {
-      ...req.body,
+      name,
+      company,
+      phone,
+      whatsapp,
+      email,
+      productName,
+      quantity,
+      projectDetails,
       ipAddress,
       userAgent,
     };

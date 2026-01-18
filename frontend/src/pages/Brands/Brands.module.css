@@ -1,11 +1,11 @@
 .brandsPage {
-  padding: calc(80px + var(--spacing-3xl)) var(--spacing-xl) var(--spacing-3xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
 }
 
 .brandsHeader {
   text-align: center;
   max-width: 800px;
-  margin: 0 auto var(--spacing-3xl);
+  margin: 0 auto var(--spacing-2xl);
 }
 
 .brandsHeader h1 {
@@ -69,12 +69,20 @@
 }
 
 @media (max-width: 768px) {
+  .brandsPage {
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+  }
+
   .brandsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 480px) {
+  .brandCard {
+    padding: var(--spacing-lg);
+  }
+
   .brandsGrid {
     grid-template-columns: 1fr;
   }
