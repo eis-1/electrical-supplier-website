@@ -330,8 +330,12 @@
 }
 
 @media (max-width: 768px) {
+  .navbar > .container {
+    padding: 0 16px;
+  }
+
   .navContent {
-    padding: 0.75rem 0;
+    padding: 0.75rem 1rem;
   }
 
   .navLeft {
@@ -369,8 +373,12 @@
 }
 
 @media (max-width: 480px) {
+  .navbar > .container {
+    padding: 0 12px;
+  }
+
   .navContent {
-    padding: 0.625rem 0;
+    padding: 0.625rem 0.875rem;
   }
 
   .logo {
