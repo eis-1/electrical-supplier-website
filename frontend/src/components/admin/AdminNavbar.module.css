@@ -336,6 +336,9 @@
 
   .navContent {
     padding: 0.75rem 1rem;
+    /* Cleaner, more “admin” palette on small screens (less purple, more professional) */
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.16);
   }
 
   .navLeft {
@@ -369,6 +372,27 @@
 
   .mobileMenu {
     display: flex;
+    margin-top: 0;
+    padding: 12px 12px 16px;
+    /* Make dropdown look like a real panel instead of text floating on the page */
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 58, 138, 0.96) 100%);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.35);
+  }
+
+  .mobileNavLink {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .mobileNavLink:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .mobileNavLinkActive {
+    background: rgba(255, 255, 255, 0.18);
   }
 }
 
@@ -379,6 +403,11 @@
 
   .navContent {
     padding: 0.625rem 0.875rem;
+  }
+
+  .mobileMenu {
+    padding: 10px 10px 14px;
+    border-radius: 0 0 14px 14px;
   }
 
   .logo {
