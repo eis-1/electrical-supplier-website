@@ -1,0 +1,12 @@
+# Electrical Supplier Website - robots.txt
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Disallow admin panel
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
