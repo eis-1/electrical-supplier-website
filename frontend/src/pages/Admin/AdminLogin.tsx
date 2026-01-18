@@ -53,8 +53,8 @@ const AdminLogin = () => {
 
   return (
     <div className={styles.loginPage}>
-      <SEO title="Admin Login" />
-      
+      <SEO title="Admin Login" noIndex />
+
       <div className={styles.loginContainer}>
         <div className={styles.loginCard}>
           <h1>Admin Login</h1>

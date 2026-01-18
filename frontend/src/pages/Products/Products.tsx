@@ -26,6 +26,24 @@ const Products = () => {
   const searchQuery = useMemo(() => searchParams.get('search') || '', [searchParams]);
   const currentPage = useMemo(() => parseInt(searchParams.get('page') || '1', 10), [searchParams]);
 
+  const seoTitle = useMemo(() => {
+    if (searchQuery) return `Search: ${searchQuery}`;
+    if (selectedCategory) {
+      const cat = categories.find(c => c.id === selectedCategory);
+      return cat ? `${cat.name} Products` : 'Products';
+    }
+    return 'Products';
+  }, [searchQuery, selectedCategory, categories]);
+
+  const seoDescription = useMemo(() => {
+    if (searchQuery) return `Search results for "${searchQuery}" - industrial electrical products and components.`;
+    if (selectedCategory) {
+      const cat = categories.find(c => c.id === selectedCategory);
+      return cat ? `Browse ${cat.name.toLowerCase()} from top brands - quality industrial electrical components.` : 'Browse our complete range of industrial electrical products.';
+    }
+    return 'Browse our complete range of industrial electrical products, automation components, and solutions from authorized brands.';
+  }, [searchQuery, selectedCategory, categories]);
+
   useEffect(() => {
     const fetchFilters = async () => {
       try {
@@ -78,7 +96,7 @@ const Products = () => {
   const handleBrandFilter = useCallback((slug: string) => {
     const newParams = new URLSearchParams(searchParams);
     const currentBrands = newParams.getAll('brand');
-    
+
     if (currentBrands.includes(slug)) {
       newParams.delete('brand');
       currentBrands.filter(b => b !== slug).forEach(b => newParams.append('brand', b));
@@ -112,13 +130,13 @@ const Products = () => {
   return (
     <div className={styles.productsPage}>
       <SEO
-        title="Products Catalog"
-        description="Browse our comprehensive range of industrial electrical products including circuit breakers, contactors, automation systems, cables, and switches from authorized brands."
+        title={seoTitle}
+        description={seoDescription}
         keywords="electrical products, industrial automation, circuit breakers, contactors, MCB, MCCB, cables, switches"
       />
       <div className="container">
         <h1 className={styles.pageTitle}>Products Catalog</h1>
-        
+
         {/* Search Bar */}
         <div className={styles.searchSection}>
           <form onSubmit={handleSearch} className={styles.searchForm}>
@@ -140,7 +158,7 @@ const Products = () => {
             </p>
           )}
         </div>
-        
+
         <div className={styles.productsLayout}>
           {/* Sidebar Filters */}
           <aside className={styles.sidebar}>

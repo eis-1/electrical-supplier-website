@@ -39,17 +39,17 @@ type TabType = 'categories' | 'brands';
 
 const AdminCategories = () => {
   const { isLoading: authLoading, logout } = useAdminAuth();
-  
+
   const [activeTab, setActiveTab] = useState<TabType>('categories');
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
-  
+
   // Form states
   const [categoryForm, setCategoryForm] = useState<CategoryFormData>({
     name: '',
@@ -57,7 +57,7 @@ const AdminCategories = () => {
     slug: '',
     isActive: true,
   });
-  
+
   const [brandForm, setBrandForm] = useState<BrandFormData>({
     name: '',
     slug: '',
@@ -67,7 +67,7 @@ const AdminCategories = () => {
     isAuthorized: false,
     isActive: true,
   });
-  
+
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -245,8 +245,8 @@ const AdminCategories = () => {
 
   return (
     <div className={styles.adminPage}>
-      <SEO title="Categories & Brands Management - Admin" />
-      
+      <SEO title="Categories & Brands Management - Admin" noIndex />
+
       {/* Navigation */}
       <AdminNavbar onLogout={logout} />
 

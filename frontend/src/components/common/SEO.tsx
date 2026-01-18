@@ -7,6 +7,10 @@ interface SEOProps {
   ogImage?: string;
   ogType?: string;
   canonical?: string;
+  /** Prevent indexing by search engines (recommended for /admin pages). */
+  noIndex?: boolean;
+  /** Prevent link following by crawlers. */
+  noFollow?: boolean;
 }
 
 const SEO: React.FC<SEOProps> = ({
@@ -16,6 +20,8 @@ const SEO: React.FC<SEOProps> = ({
   ogImage,
   ogType = 'website',
   canonical,
+  noIndex = false,
+  noFollow = false,
 }) => {
   const defaultTitle = import.meta.env.VITE_COMPANY_NAME || 'Electrical Supplier';
   const defaultDescription =
@@ -26,27 +32,42 @@ const SEO: React.FC<SEOProps> = ({
   const siteTitle = title ? `${title} | ${defaultTitle}` : defaultTitle;
   const siteDescription = description || defaultDescription;
   const siteKeywords = keywords || defaultKeywords;
-  const currentUrl = canonical || window.location.href;
+
+  const computedCanonicalUrl = (() => {
+    try {
+      const url = new URL(window.location.href);
+      // Canonical should be stable: no query/hash.
+      url.search = '';
+      url.hash = '';
+      return url.toString();
+    } catch {
+      return `${window.location.origin}${window.location.pathname}`;
+    }
+  })();
+
+  const currentUrl = canonical || computedCanonicalUrl;
   const siteUrl = window.location.origin;
 
+  const robotsContent = (() => {
+    if (noIndex) {
+      return 'noindex, nofollow, noarchive';
+    }
+
+    const followToken = noFollow ? 'nofollow' : 'follow';
+    return `index, ${followToken}, max-image-preview:large, max-snippet:-1, max-video-preview:-1`;
+  })();
+
   // Enhanced LocalBusiness structured data with complete schema
-  const localBusinessSchema = {
+  const localBusinessSchema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: import.meta.env.VITE_COMPANY_NAME || 'Electrical Supplier',
     description: defaultDescription,
     url: siteUrl,
-    telephone: import.meta.env.VITE_COMPANY_PHONE || '',
-    email: import.meta.env.VITE_COMPANY_EMAIL || '',
     address: {
       '@type': 'PostalAddress',
       streetAddress: import.meta.env.VITE_COMPANY_ADDRESS || '',
       addressCountry: 'BD',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: import.meta.env.VITE_COMPANY_LAT || '',
-      longitude: import.meta.env.VITE_COMPANY_LNG || '',
     },
     openingHoursSpecification: [
       {
@@ -63,6 +84,27 @@ const SEO: React.FC<SEOProps> = ({
       import.meta.env.VITE_COMPANY_LINKEDIN || '',
     ].filter(Boolean),
   };
+
+  // Avoid emitting empty schema fields.
+  const companyPhone = import.meta.env.VITE_COMPANY_PHONE;
+  if (companyPhone) {
+    localBusinessSchema.telephone = companyPhone;
+  }
+
+  const companyEmail = import.meta.env.VITE_COMPANY_EMAIL;
+  if (companyEmail) {
+    localBusinessSchema.email = companyEmail;
+  }
+
+  const lat = import.meta.env.VITE_COMPANY_LAT;
+  const lng = import.meta.env.VITE_COMPANY_LNG;
+  if (lat && lng) {
+    localBusinessSchema.geo = {
+      '@type': 'GeoCoordinates',
+      latitude: lat,
+      longitude: lng,
+    };
+  }
 
   return (
     <Helmet>
@@ -89,7 +131,7 @@ const SEO: React.FC<SEOProps> = ({
       {ogImage && <meta name="twitter:image" content={ogImage} />}
 
       {/* Additional Meta Tags */}
-      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      <meta name="robots" content={robotsContent} />
       <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
       <meta name="author" content={defaultTitle} />

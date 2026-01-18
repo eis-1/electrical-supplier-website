@@ -227,7 +227,7 @@ const AdminQuotes: React.FC = () => {
   if (authLoading || loading) {
     return (
       <div className={styles.pageWrapper}>
-        <SEO title="Quote Management - Admin" />
+        <SEO title="Quote Management - Admin" noIndex />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p className={styles.loadingText}>
@@ -240,7 +240,7 @@ const AdminQuotes: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      <SEO title="Quote Management - Admin" />
+      <SEO title="Quote Management - Admin" noIndex />
 
       {/* Toast Notifications */}
       <div className={styles.toastContainer}>
@@ -311,7 +311,7 @@ const AdminQuotes: React.FC = () => {
               className={styles.searchInput}
             />
             {searchQuery && (
-              <button 
+              <button
                 className={styles.clearSearch}
                 onClick={() => setSearchQuery('')}
                 title="Clear search"
@@ -323,7 +323,7 @@ const AdminQuotes: React.FC = () => {
 
           <div className={styles.filterGroup}>
             <label htmlFor="statusFilter" className={styles.filterLabel}>Status:</label>
-            <select 
+            <select
               id="statusFilter"
               className={styles.filterSelect}
               value={statusFilter}
@@ -361,7 +361,7 @@ const AdminQuotes: React.FC = () => {
             <div className={styles.emptyIcon}>📭</div>
             <h3 className={styles.emptyTitle}>No quotes found</h3>
             <p className={styles.emptyText}>
-              {searchQuery 
+              {searchQuery
                 ? `No quotes match "${searchQuery}"`
                 : statusFilter !== 'all'
                 ? `No ${statusFilter} quotes`
@@ -438,22 +438,22 @@ const AdminQuotes: React.FC = () => {
                 </div>
 
                 <div className={styles.quoteActions}>
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     size="sm"
                     onClick={() => handleViewDetails(quote)}
                   >
                     📋 View Details
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => handleReply(quote)}
                   >
                     ✉️ Reply
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => handleDelete(quote.id, quote.name)}
                     style={{ color: '#dc3545' }}
@@ -560,7 +560,7 @@ const AdminQuotes: React.FC = () => {
                 <span className={styles.sectionIcon}>⚙️</span>
                 Admin Actions
               </h3>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="modal-status" className={styles.formLabel}>
                   Quote Status <span className={styles.required}>*</span>
@@ -601,16 +601,16 @@ const AdminQuotes: React.FC = () => {
 
             {/* Modal Actions */}
             <div className={styles.modalActions}>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={handleCloseModal}
                 disabled={isUpdating}
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 variant="primary"
                 disabled={isUpdating}
               >

@@ -25,6 +25,11 @@ const Quote = () => {
   const [submitError, setSubmitError] = useState<string>('');
   const [successData, setSuccessData] = useState<{ referenceNumber: string } | null>(null);
 
+  const seoTitle = successData ? 'Quote Request Submitted' : 'Request a Quote';
+  const seoDescription = successData
+    ? `Your quote request (Ref: ${successData.referenceNumber}) has been submitted successfully. Our team will contact you shortly with competitive pricing.`
+    : 'Request a competitive quote for industrial electrical products, automation components, and bulk orders. Fast response, competitive pricing, and expert consultation for your business needs.';
+
   const prefillProductName = useMemo(() => {
     const productName = searchParams.get('productName') || '';
     return productName.trim();
@@ -123,8 +128,8 @@ const Quote = () => {
     return (
       <div className={styles.quotePage}>
         <SEO
-          title="Quote Request Submitted"
-          description="Your quote request has been received. We will contact you within 24 hours with pricing and availability."
+          title={seoTitle}
+          description={seoDescription}
         />
         <div className="container">
           <div className={styles.successMessage}>
@@ -160,8 +165,8 @@ const Quote = () => {
   return (
     <div className={styles.quotePage}>
       <SEO
-        title="Request a Quote"
-        description="Get competitive pricing for electrical products. Fill out our quote request form and our team will respond within 24 hours with detailed pricing and availability."
+        title={seoTitle}
+        description={seoDescription}
         keywords="request quote, get pricing, electrical quote, B2B quote, wholesale pricing"
       />
       <div className="container">

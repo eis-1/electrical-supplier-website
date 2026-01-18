@@ -26,7 +26,7 @@ interface ProductFormData {
 
 const AdminProducts = () => {
   const { isLoading: authLoading, logout } = useAdminAuth();
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -189,8 +189,8 @@ const AdminProducts = () => {
 
   return (
     <div className={styles.adminPage}>
-      <SEO title="Product Management - Admin" />
-      
+      <SEO title="Product Management - Admin" noIndex />
+
       {/* Navigation */}
       <AdminNavbar onLogout={logout} />
 
@@ -323,8 +323,9 @@ const AdminProducts = () => {
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label>Category *</label>
+              <label htmlFor="admin-product-category">Category *</label>
               <select
+                id="admin-product-category"
                 value={formData.categoryId}
                 onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                 className={formErrors.categoryId ? styles.error : ''}
@@ -340,8 +341,9 @@ const AdminProducts = () => {
             </div>
 
             <div className={styles.formGroup}>
-              <label>Brand *</label>
+              <label htmlFor="admin-product-brand">Brand *</label>
               <select
+                id="admin-product-brand"
                 value={formData.brandId}
                 onChange={(e) => setFormData({ ...formData, brandId: e.target.value })}
                 className={formErrors.brandId ? styles.error : ''}

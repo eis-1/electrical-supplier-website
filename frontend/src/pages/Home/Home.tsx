@@ -49,11 +49,16 @@ const Home = () => {
   return (
     <div className={styles.home}>
       <SEO
+        title="Home"
+        description="Leading B2B supplier of industrial electrical components, automation solutions, and genuine branded products. Authorized distributor for Siemens, Schneider, ABB, and more."
+        keywords="electrical supplier, industrial electrical, automation, circuit breakers, cables, switches, contactors"
+      />
+      <SEO
         title="Home - B2B Electrical & Industrial Supplier"
         description="Leading B2B supplier of industrial electrical components, automation solutions, circuit breakers, cables, switches, and genuine branded products. Authorized distributor for Siemens, Schneider, ABB, Legrand, and more."
         keywords="electrical supplier, industrial electrical, automation, circuit breakers, cables, switches, contactors, MCB, MCCB, RCCB, B2B electrical"
       />
-      
+
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className="container">
@@ -154,7 +159,7 @@ const Home = () => {
           <p className="section-subtitle">
             We partner with the world's leading electrical brands
           </p>
-          
+
           <div className={styles.brandsSlider}>
             <div className={styles.brandsTrack}>
               {/* First set */}

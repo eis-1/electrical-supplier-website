@@ -27,20 +27,40 @@ const startServer = async () => {
     });
 
     // Graceful shutdown
-    const shutdown = async () => {
-      logger.info('Shutting down server...');
-      
-      // Close Redis connection
-      await closeRedis();
-      
-      server.close(() => {
-        logger.info('Server closed');
-        process.exit(0);
+    const shutdown = async (signal: string) => {
+      logger.info(`Received ${signal}, starting graceful shutdown...`);
+
+      // Stop accepting new connections
+      server.close(async () => {
+        logger.info('HTTP server closed');
+
+        try {
+          // Close Redis connection
+          await closeRedis();
+          logger.info('Redis connection closed');
+
+          // Close database connection
+          const { prisma } = await import('./config/db');
+          await prisma.$disconnect();
+          logger.info('Database connection closed');
+
+          logger.info('Graceful shutdown complete');
+          process.exit(0);
+        } catch (error) {
+          logger.error('Error during shutdown', error);
+          process.exit(1);
+        }
       });
+
+      // Force shutdown after 30 seconds
+      setTimeout(() => {
+        logger.error('Forced shutdown after timeout');
+        process.exit(1);
+      }, 30000);
     };
 
-    process.on('SIGTERM', shutdown);
-    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
 
   } catch (error) {
     logger.error('Failed to start server:', error);

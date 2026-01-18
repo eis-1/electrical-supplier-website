@@ -9,4 +9,8 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: http://localhost:5000/sitemap.xml
+
+# NOTE:
+# In production, the backend serves a domain-safe /robots.txt and /sitemap.xml dynamically.
+# If you host the frontend separately, update the Sitemap URL to your real domain.

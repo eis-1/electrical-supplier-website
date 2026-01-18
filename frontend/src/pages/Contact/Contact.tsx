@@ -12,8 +12,12 @@ const Contact = () => {
 
   return (
     <div className={styles.contactPage}>
-      <SEO title="Contact Us" description="Get in touch with our team for electrical supply inquiries and support" />
-      
+      <SEO
+        title="Contact Us"
+        description="Contact our B2B electrical supply team for inquiries, quotes, technical support, and partnership opportunities. Visit our physical showroom or reach us by phone, email, or WhatsApp."
+        keywords="contact us, electrical supplier contact, B2B inquiries, technical support, get in touch"
+      />
+
       <div className="container">
         <div className={styles.pageHeader}>
           <h1>Contact Us</h1>
@@ -24,7 +28,7 @@ const Contact = () => {
           {/* Contact Information */}
           <div className={styles.contactInfo}>
             <h2>Get in Touch</h2>
-            
+
             <div className={styles.infoCard}>
               <div className={styles.infoIcon}>📍</div>
               <div className={styles.infoContent}>

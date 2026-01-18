@@ -103,7 +103,7 @@ const AdminDashboard = () => {
   if (authLoading || loading) {
     return (
       <div className={styles.pageWrapper}>
-        <SEO title="Admin Dashboard" />
+        <SEO title="Admin Dashboard" noIndex />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p className={styles.loadingText}>
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      <SEO title="Admin Dashboard" />
+      <SEO title="Admin Dashboard" noIndex />
 
       {/* Toast Notifications */}
       <div className={styles.toastContainer}>
