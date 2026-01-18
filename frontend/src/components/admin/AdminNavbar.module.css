@@ -61,6 +61,8 @@
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   opacity: 0;
   transition: opacity 0.4s ease;
+  /* Prevent the decorative overlay from blocking clicks on nav buttons */
+  pointer-events: none;
 }
 
 .navContent:hover::before {
