@@ -18,6 +18,7 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
   as = 'button',
   to,
+  type,
   ...props
 }) => {
   const classes = `${styles.button} ${styles[variant]} ${styles[size]} ${
@@ -33,7 +34,7 @@ export const Button: React.FC<ButtonProps> = ({
   }
 
   return (
-    <button className={classes} {...props}>
+    <button type={type ?? 'button'} className={classes} {...props}>
       {children}
     </button>
   );

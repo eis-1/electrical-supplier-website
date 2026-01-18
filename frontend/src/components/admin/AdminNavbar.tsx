@@ -64,6 +64,7 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
               {navItems.map((item) => (
                 <button
                   key={item.path}
+                  type="button"
                   onClick={() => navigate(item.path)}
                   className={`${styles.navLink} ${isActive(item.path) ? styles.navLinkActive : ''}`}
                 >
@@ -94,6 +95,7 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
             {/* Mobile Menu Button */}
             <button
               className={styles.mobileMenuButton}
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
@@ -110,6 +112,7 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
             {navItems.map((item) => (
               <button
                 key={item.path}
+                type="button"
                 onClick={() => {
                   navigate(item.path);
                   setIsMobileMenuOpen(false);
