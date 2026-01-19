@@ -1,6 +1,6 @@
-import { CategoryRepository } from './repository';
-import { Category } from '@prisma/client';
-import { AppError } from '../../middlewares/error.middleware';
+import { CategoryRepository } from "./repository";
+import { Category } from "@prisma/client";
+import { AppError } from "../../middlewares/error.middleware";
 
 interface CreateCategoryData {
   name: string;
@@ -17,7 +17,9 @@ export class CategoryService {
     this.repository = new CategoryRepository();
   }
 
-  async getAllCategories(includeInactive: boolean = false): Promise<Category[]> {
+  async getAllCategories(
+    includeInactive: boolean = false,
+  ): Promise<Category[]> {
     return this.repository.findAll(includeInactive);
   }
 
@@ -25,7 +27,7 @@ export class CategoryService {
     const category = await this.repository.findById(id);
 
     if (!category) {
-      throw new AppError(404, 'Category not found');
+      throw new AppError(404, "Category not found");
     }
 
     return category;
@@ -35,7 +37,7 @@ export class CategoryService {
     const category = await this.repository.findBySlug(slug);
 
     if (!category) {
-      throw new AppError(404, 'Category not found');
+      throw new AppError(404, "Category not found");
     }
 
     return category;
@@ -45,13 +47,16 @@ export class CategoryService {
     // Check if slug already exists
     const existing = await this.repository.findBySlug(data.slug);
     if (existing) {
-      throw new AppError(409, 'Category with this slug already exists');
+      throw new AppError(409, "Category with this slug already exists");
     }
 
     return this.repository.create(data);
   }
 
-  async updateCategory(id: string, data: Partial<CreateCategoryData>): Promise<Category> {
+  async updateCategory(
+    id: string,
+    data: Partial<CreateCategoryData>,
+  ): Promise<Category> {
     // Check if category exists
     await this.getCategoryById(id);
 
@@ -59,7 +64,7 @@ export class CategoryService {
     if (data.slug) {
       const existing = await this.repository.findBySlug(data.slug);
       if (existing && existing.id !== id) {
-        throw new AppError(409, 'Category with this slug already exists');
+        throw new AppError(409, "Category with this slug already exists");
       }
     }
 

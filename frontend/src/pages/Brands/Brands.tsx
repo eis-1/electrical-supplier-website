@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import styles from './Brands.module.css';
-import SEO from '../../components/common/SEO';
-import { brandService } from '../../services/brand.service';
-import type { Brand } from '../../types/index';
+import { useEffect, useState } from "react";
+import styles from "./Brands.module.css";
+import SEO from "../../components/common/SEO";
+import { brandService } from "../../services/brand.service";
+import type { Brand } from "../../types/index";
 
 const Brands = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -14,7 +14,7 @@ const Brands = () => {
         const data = await brandService.getAll();
         setBrands(data);
       } catch (error) {
-        console.error('Error fetching brands:', error);
+        console.error("Error fetching brands:", error);
       } finally {
         setLoading(false);
       }
@@ -23,7 +23,11 @@ const Brands = () => {
   }, []);
 
   if (loading) {
-    return <div className="loading"><div className="spinner"></div></div>;
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+      </div>
+    );
   }
 
   return (
@@ -37,8 +41,9 @@ const Brands = () => {
         <div className={styles.brandsHeader}>
           <h1>Our Authorized Brands</h1>
           <p>
-            We are authorized distributors for leading electrical and industrial brands.
-            All products are genuine and come with manufacturer warranties.
+            We are authorized distributors for leading electrical and industrial
+            brands. All products are genuine and come with manufacturer
+            warranties.
           </p>
         </div>
 

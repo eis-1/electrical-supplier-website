@@ -1,6 +1,6 @@
-import React from 'react';
-import styles from './Modal.module.css';
-import { Button } from './Button';
+import React from "react";
+import styles from "./Modal.module.css";
+import { Button } from "./Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface ModalProps {
   onSubmit?: () => void;
   submitText?: string;
   submitDisabled?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -19,9 +19,9 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   children,
   onSubmit,
-  submitText = 'Submit',
+  submitText = "Submit",
   submitDisabled = false,
-  size = 'md',
+  size = "md",
 }) => {
   if (!isOpen) return null;
 
@@ -36,15 +36,17 @@ export const Modal: React.FC<ModalProps> = ({
       <div className={`${styles.modalContent} ${styles[size]}`}>
         <div className={styles.modalHeader}>
           <h2>{title}</h2>
-          <button className={styles.closeButton} onClick={onClose} aria-label="Close">
+          <button
+            className={styles.closeButton}
+            onClick={onClose}
+            aria-label="Close"
+          >
             ×
           </button>
         </div>
-        
-        <div className={styles.modalBody}>
-          {children}
-        </div>
-        
+
+        <div className={styles.modalBody}>{children}</div>
+
         {onSubmit && (
           <div className={styles.modalFooter}>
             <Button variant="outline" onClick={onClose}>

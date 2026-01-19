@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styles from './AdminDashboard.module.css';
-import { Button } from '../../components/ui/Button';
-import { AdminNavbar } from '../../components/admin/AdminNavbar';
-import SEO from '../../components/common/SEO';
-import { productService } from '../../services/product.service';
-import { quoteService } from '../../services/quote.service';
-import { useAdminAuth } from '../../hooks/useAdminAuth';
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./AdminDashboard.module.css";
+import { Button } from "../../components/ui/Button";
+import { AdminNavbar } from "../../components/admin/AdminNavbar";
+import SEO from "../../components/common/SEO";
+import { productService } from "../../services/product.service";
+import { quoteService } from "../../services/quote.service";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 interface Toast {
   id: number;
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: "success" | "error" | "info";
 }
 
 const AdminDashboard = () => {
@@ -23,18 +23,21 @@ const AdminDashboard = () => {
     newQuotes: 0,
     contactedQuotes: 0,
     quotedQuotes: 0,
-    closedQuotes: 0
+    closedQuotes: 0,
   });
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
-    const id = Date.now();
-    setToasts(prev => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, 4000);
-  }, []);
+  const showToast = useCallback(
+    (message: string, type: "success" | "error" | "info" = "success") => {
+      const id = Date.now();
+      setToasts((prev) => [...prev, { id, message, type }]);
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, 4000);
+    },
+    [],
+  );
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -48,15 +51,16 @@ const AdminDashboard = () => {
       setStats({
         products: productsData.pagination.total,
         quotes: quotes.length,
-        newQuotes: quotes.filter((q: any) => q.status === 'new').length,
-        contactedQuotes: quotes.filter((q: any) => q.status === 'contacted').length,
-        quotedQuotes: quotes.filter((q: any) => q.status === 'quoted').length,
-        closedQuotes: quotes.filter((q: any) => q.status === 'closed').length,
+        newQuotes: quotes.filter((q: any) => q.status === "new").length,
+        contactedQuotes: quotes.filter((q: any) => q.status === "contacted")
+          .length,
+        quotedQuotes: quotes.filter((q: any) => q.status === "quoted").length,
+        closedQuotes: quotes.filter((q: any) => q.status === "closed").length,
       });
-      showToast('Dashboard data loaded', 'success');
+      showToast("Dashboard data loaded", "success");
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      showToast('Failed to load dashboard data', 'error');
+      console.error("Error fetching dashboard data:", error);
+      showToast("Failed to load dashboard data", "error");
     } finally {
       setLoading(false);
     }
@@ -69,35 +73,35 @@ const AdminDashboard = () => {
   }, [authLoading, isAuthenticated, fetchDashboardData]);
 
   const handleLogout = () => {
-    showToast('Logged out successfully', 'info');
+    showToast("Logged out successfully", "info");
     logout();
   };
 
   const quickActions = [
     {
-      title: 'Product Management',
-      description: 'Add, edit, or remove products from your catalog',
-      icon: '📦',
-      path: '/admin/products',
-      variant: 'Products',
-      stats: `${stats.products} Products`
+      title: "Product Management",
+      description: "Add, edit, or remove products from your catalog",
+      icon: "📦",
+      path: "/admin/products",
+      variant: "Products",
+      stats: `${stats.products} Products`,
     },
     {
-      title: 'Quote Requests',
-      description: 'View and manage customer quote requests',
-      icon: '💼',
-      path: '/admin/quotes',
-      variant: 'Quotes',
-      stats: `${stats.quotes} Total Quotes`
+      title: "Quote Requests",
+      description: "View and manage customer quote requests",
+      icon: "💼",
+      path: "/admin/quotes",
+      variant: "Quotes",
+      stats: `${stats.quotes} Total Quotes`,
     },
     {
-      title: 'Categories & Brands',
-      description: 'Manage product categories and brands',
-      icon: '🏷️',
-      path: '/admin/categories',
-      variant: 'Categories',
-      stats: 'Organization'
-    }
+      title: "Categories & Brands",
+      description: "Manage product categories and brands",
+      icon: "🏷️",
+      path: "/admin/categories",
+      variant: "Categories",
+      stats: "Organization",
+    },
   ];
 
   if (authLoading || loading) {
@@ -107,7 +111,9 @@ const AdminDashboard = () => {
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p className={styles.loadingText}>
-            {authLoading ? 'Verifying authentication...' : 'Loading dashboard...'}
+            {authLoading
+              ? "Verifying authentication..."
+              : "Loading dashboard..."}
           </p>
         </div>
       </div>
@@ -120,12 +126,15 @@ const AdminDashboard = () => {
 
       {/* Toast Notifications */}
       <div className={styles.toastContainer}>
-        {toasts.map(toast => (
-          <div key={toast.id} className={`${styles.toast} ${styles[`toast${toast.type.charAt(0).toUpperCase() + toast.type.slice(1)}`]}`}>
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`${styles.toast} ${styles[`toast${toast.type.charAt(0).toUpperCase() + toast.type.slice(1)}`]}`}
+          >
             <span className={styles.toastIcon}>
-              {toast.type === 'success' && '✓'}
-              {toast.type === 'error' && '✕'}
-              {toast.type === 'info' && 'ℹ'}
+              {toast.type === "success" && "✓"}
+              {toast.type === "error" && "✕"}
+              {toast.type === "info" && "ℹ"}
             </span>
             <span className={styles.toastMessage}>{toast.message}</span>
           </div>
@@ -139,7 +148,9 @@ const AdminDashboard = () => {
       <div className={styles.pageHeader}>
         <div className="container">
           <h1 className={styles.pageTitle}>Dashboard</h1>
-          <p className={styles.pageSubtitle}>Welcome back! Here's what's happening</p>
+          <p className={styles.pageSubtitle}>
+            Welcome back! Here's what's happening
+          </p>
         </div>
       </div>
 
@@ -212,7 +223,7 @@ const AdminDashboard = () => {
               onClick={fetchDashboardData}
               disabled={loading}
             >
-              {loading ? 'Refreshing...' : '🔄 Refresh Stats'}
+              {loading ? "Refreshing..." : "🔄 Refresh Stats"}
             </Button>
           </div>
         </div>
@@ -220,7 +231,9 @@ const AdminDashboard = () => {
         {/* Quick Actions */}
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Quick Actions</h2>
-          <p className={styles.sectionSubtitle}>Jump to your most-used admin tools</p>
+          <p className={styles.sectionSubtitle}>
+            Jump to your most-used admin tools
+          </p>
         </div>
 
         <div className={styles.actionsGrid}>
@@ -231,19 +244,13 @@ const AdminDashboard = () => {
               onClick={() => navigate(action.path)}
             >
               <div className={styles.actionHeader}>
-                <div className={styles.actionIcon}>
-                  {action.icon}
-                </div>
-                <div className={styles.actionBadge}>
-                  {action.stats}
-                </div>
+                <div className={styles.actionIcon}>{action.icon}</div>
+                <div className={styles.actionBadge}>{action.stats}</div>
               </div>
               <h3 className={styles.actionTitle}>{action.title}</h3>
               <p className={styles.actionDescription}>{action.description}</p>
               <div className={styles.actionFooter}>
-                <span className={styles.actionLink}>
-                  Open →
-                </span>
+                <span className={styles.actionLink}>Open →</span>
               </div>
             </div>
           ))}

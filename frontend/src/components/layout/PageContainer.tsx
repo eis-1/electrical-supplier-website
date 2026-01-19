@@ -1,6 +1,6 @@
-import { Navbar } from './Navbar';
-import { Footer } from './Footer';
-import styles from './PageContainer.module.css';
+import { Navbar } from "./Navbar";
+import { Footer } from "./Footer";
+import styles from "./PageContainer.module.css";
 
 interface PageContainerProps {
   children: React.ReactNode;

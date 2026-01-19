@@ -59,7 +59,9 @@ jobs:
         with:
           target: 'http://localhost:5000'
           rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a -j -m 5 -T 120 -z "-config replacer.full_list(0).description=auth1 -config replacer.full_list(0).enabled=true -config replacer.full_list(0).matchtype=REQ_HEADER -config replacer.full_list(0).matchstr=Authorization -config replacer.full_list(0).regex=false -config replacer.full_list(0).replacement=Bearer ${{ secrets.TEST_JWT_TOKEN }}"'
+          # NOTE: This job is disabled. If you enable it, you can optionally add an Authorization header
+          # via ZAP replacer config (e.g., Bearer token). Keep secrets out of this workflow file.
+          cmd_options: '-a -j -m 5 -T 120'
           fail_action: false  # Don't fail build on findings (just report)
           issue_title: 'OWASP ZAP Baseline Security Scan'
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -111,8 +113,7 @@ jobs:
           node security-test.js
         env:
           TEST_URL: http://localhost:5000
-          ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
-          ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          # NOTE: This job is disabled. If you enable it, provide admin creds via GitHub Secrets or vars.
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -194,7 +195,9 @@ jobs:
   ssl-tls-scan:
     name: SSL/TLS Configuration Scan
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # Disabled by default: requires PRODUCTION_URL repository variable.
+    # Enable after deployment.
+    if: false
 
     steps:
       - name: Install testssl.sh
@@ -205,7 +208,9 @@ jobs:
       - name: Run SSL/TLS scan
         run: |
           cd testssl.sh
-          ./testssl.sh --severity MEDIUM --jsonfile ../testssl-report.json ${{ secrets.PRODUCTION_URL }} || true
+          ./testssl.sh --severity MEDIUM --jsonfile ../testssl-report.json "$PRODUCTION_URL" || true
+        env:
+          PRODUCTION_URL: https://your-production-domain.example
 
       - name: Upload SSL/TLS Report
         uses: actions/upload-artifact@v3

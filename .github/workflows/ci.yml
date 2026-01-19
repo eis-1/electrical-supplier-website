@@ -30,6 +30,9 @@ jobs:
       - name: Install root dependencies
         run: npm ci || npm install
 
+      - name: Validate OpenAPI spec
+        run: npx @apidevtools/swagger-cli validate docs/openapi.yaml
+
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm ci || npm install
@@ -85,3 +88,26 @@ jobs:
         env:
           BASE_URL: http://localhost:5000
         run: npm test
+
+      - name: Backend tests with coverage gate
+        working-directory: ./backend
+        env:
+          BASE_URL: http://localhost:5000
+        run: npm run test:coverage
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: backend/coverage/
+          retention-days: 30
+
+      - name: Coverage summary
+        if: always()
+        working-directory: ./backend
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "📊 Coverage Summary:"
+            cat coverage/coverage-summary.json | grep -A 5 "total"
+          fi

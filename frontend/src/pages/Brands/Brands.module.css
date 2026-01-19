@@ -1,5 +1,6 @@
 .brandsPage {
-  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl)
+    var(--spacing-2xl);
 }
 
 .brandsHeader {
@@ -28,7 +29,9 @@
   padding: var(--spacing-xl);
   border-radius: var(--radius-lg);
   text-align: center;
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
 }
 
 .brandCard:hover {
@@ -70,7 +73,8 @@
 
 @media (max-width: 768px) {
   .brandsPage {
-    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md)
+      var(--spacing-2xl);
   }
 
   .brandsGrid {

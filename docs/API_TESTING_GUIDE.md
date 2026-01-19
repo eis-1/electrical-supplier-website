@@ -59,7 +59,7 @@ To create a local admin for testing, use the bootstrap script:
 - File: `backend/setup-admin.js`
 - Creates (or recreates) the default admin:
   - Email: `admin@electricalsupplier.com`
-  - Password: `admin123`
+  - Password: Set via `SEED_ADMIN_PASSWORD` (recommended to set explicitly even in development)
 
 **Verification**:
 

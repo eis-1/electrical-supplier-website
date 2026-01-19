@@ -1,6 +1,6 @@
-import { BrandRepository } from './repository';
-import { Brand } from '@prisma/client';
-import { AppError } from '../../middlewares/error.middleware';
+import { BrandRepository } from "./repository";
+import { Brand } from "@prisma/client";
+import { AppError } from "../../middlewares/error.middleware";
 
 interface CreateBrandData {
   name: string;
@@ -27,7 +27,7 @@ export class BrandService {
     const brand = await this.repository.findById(id);
 
     if (!brand) {
-      throw new AppError(404, 'Brand not found');
+      throw new AppError(404, "Brand not found");
     }
 
     return brand;
@@ -37,7 +37,7 @@ export class BrandService {
     const brand = await this.repository.findBySlug(slug);
 
     if (!brand) {
-      throw new AppError(404, 'Brand not found');
+      throw new AppError(404, "Brand not found");
     }
 
     return brand;
@@ -47,13 +47,16 @@ export class BrandService {
     // Check if slug already exists
     const existing = await this.repository.findBySlug(data.slug);
     if (existing) {
-      throw new AppError(409, 'Brand with this slug already exists');
+      throw new AppError(409, "Brand with this slug already exists");
     }
 
     return this.repository.create(data);
   }
 
-  async updateBrand(id: string, data: Partial<CreateBrandData>): Promise<Brand> {
+  async updateBrand(
+    id: string,
+    data: Partial<CreateBrandData>,
+  ): Promise<Brand> {
     // Check if brand exists
     await this.getBrandById(id);
 
@@ -61,7 +64,7 @@ export class BrandService {
     if (data.slug) {
       const existing = await this.repository.findBySlug(data.slug);
       if (existing && existing.id !== id) {
-        throw new AppError(409, 'Brand with this slug already exists');
+        throw new AppError(409, "Brand with this slug already exists");
       }
     }
 

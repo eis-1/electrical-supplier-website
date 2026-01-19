@@ -9,17 +9,30 @@
  */
 
 const axios = require('axios');
+const http = require('http');
+const https = require('https');
 const speakeasy = require('speakeasy');
 const path = require('path');
 const { execSync } = require('child_process');
 const crypto = require('crypto');
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+const { startTestServer } = require('./utils/testServer');
+
 const API_PREFIX = '/api/v1';
+
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'admin123';
 
 const adminCreds = {
   email: 'admin@electricalsupplier.com',
-  password: 'admin123',
+  password: ADMIN_PASSWORD,
+};
+
+const roleCreds = {
+  superadmin: { email: 'superadmin@electricalsupplier.com', password: ADMIN_PASSWORD },
+  editor: { email: 'editor@electricalsupplier.com', password: ADMIN_PASSWORD },
+  viewer: { email: 'viewer@electricalsupplier.com', password: ADMIN_PASSWORD },
 };
 
 // Test state
@@ -33,18 +46,33 @@ const state = {
   productSlug: null,
 };
 
-// Axios instance
-const api = axios.create({
-  baseURL: BASE_URL,
-  validateStatus: () => true, // Don't throw on any status
-});
+let serverContext;
+
+// Axios instance (initialized after server starts)
+let api;
+let httpAgent;
+let httpsAgent;
 
 const setAuth = (token) => {
+  if (!api) {
+    throw new Error('API client not initialized. Did the test server fail to start?');
+  }
   if (!token) {
     delete api.defaults.headers.common['Authorization'];
     return;
   }
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+};
+
+const loginAs = async (creds) => {
+  setAuth(null);
+  const res = await api.post(`${API_PREFIX}/auth/login`, creds);
+  expect(res.status).toBe(200);
+  expect(res.data.success).toBe(true);
+  // For these role users we expect no 2FA requirement
+  expect(res.data.data.requiresTwoFactor).toBeUndefined();
+  expect(res.data.data.token).toBeDefined();
+  return res.data.data.token;
 };
 
 const generateTOTP = (secret) => {
@@ -55,10 +83,72 @@ const generateTOTP = (secret) => {
 };
 
 describe('Electrical Supplier API Tests', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     // Ensure default admin exists and is reset to a known state.
     const backendRoot = path.resolve(__dirname, '..');
     execSync('node setup-admin.js', { cwd: backendRoot, stdio: 'ignore' });
+
+    // Ensure additional role users exist for RBAC tests (idempotent).
+    const prisma = new PrismaClient();
+    try {
+      const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+
+      const ensureAdmin = async (email, role, name) => {
+        await prisma.admin.upsert({
+          where: { email },
+          update: {
+            role,
+            isActive: true,
+            twoFactorEnabled: false,
+          },
+          create: {
+            email,
+            password: hashedPassword,
+            name,
+            role,
+            isActive: true,
+            twoFactorEnabled: false,
+          },
+        });
+      };
+
+      await ensureAdmin(roleCreds.superadmin.email, 'superadmin', 'Super Administrator');
+      await ensureAdmin(roleCreds.editor.email, 'editor', 'Content Editor');
+      await ensureAdmin(roleCreds.viewer.email, 'viewer', 'Content Viewer');
+    } finally {
+      await prisma.$disconnect();
+    }
+
+    // Start backend server (ephemeral port) for integration tests.
+    serverContext = await startTestServer();
+
+    // Ensure we don't leave open sockets behind (Jest will warn about leaked handles).
+    httpAgent = new http.Agent({ keepAlive: false, maxSockets: 25 });
+    httpsAgent = new https.Agent({ keepAlive: false, maxSockets: 25 });
+    api = axios.create({
+      baseURL: serverContext.baseUrl,
+      validateStatus: () => true, // Don't throw on any status
+      httpAgent,
+      httpsAgent,
+    });
+  });
+
+  afterAll(async () => {
+    if (serverContext?.close) {
+      await serverContext.close();
+    }
+
+    // Force-close any remaining sockets held by the agent.
+    try {
+      httpAgent?.destroy();
+    } catch (_) {
+      // ignore
+    }
+    try {
+      httpsAgent?.destroy();
+    } catch (_) {
+      // ignore
+    }
   });
 
   describe('1. Health Check', () => {
@@ -379,6 +469,60 @@ describe('Electrical Supplier API Tests', () => {
       expect(response.headers['x-content-type-options']).toBe('nosniff');
       expect(response.headers['x-frame-options']).toBeDefined();
       expect(response.headers['x-dns-prefetch-control']).toBeDefined();
+    });
+  });
+
+  describe('9. RBAC & Audit Logs', () => {
+    test('admin should access audit logs list and stats', async () => {
+      // Restore admin token from earlier auth flow
+      setAuth(state.token);
+
+      const listRes = await api.get(`${API_PREFIX}/audit-logs?limit=5`);
+      expect(listRes.status).toBe(200);
+      expect(listRes.data.success).toBe(true);
+
+      const statsRes = await api.get(`${API_PREFIX}/audit-logs/stats`);
+      expect(statsRes.status).toBe(200);
+      expect(statsRes.data.success).toBe(true);
+    });
+
+    test('editor should be forbidden from audit logs list but can access /me', async () => {
+      const editorToken = await loginAs(roleCreds.editor);
+      setAuth(editorToken);
+
+      const listRes = await api.get(`${API_PREFIX}/audit-logs?limit=5`);
+      expect(listRes.status).toBe(403);
+      expect(listRes.data.success).toBe(false);
+
+      const meRes = await api.get(`${API_PREFIX}/audit-logs/me?limit=5`);
+      expect(meRes.status).toBe(200);
+      expect(meRes.data.success).toBe(true);
+    });
+
+    test('viewer should be forbidden from audit logs list but can access /me', async () => {
+      const viewerToken = await loginAs(roleCreds.viewer);
+      setAuth(viewerToken);
+
+      const listRes = await api.get(`${API_PREFIX}/audit-logs?limit=5`);
+      expect(listRes.status).toBe(403);
+      expect(listRes.data.success).toBe(false);
+
+      const meRes = await api.get(`${API_PREFIX}/audit-logs/me?limit=5`);
+      expect(meRes.status).toBe(200);
+      expect(meRes.data.success).toBe(true);
+    });
+
+    test('superadmin should access audit logs list and stats', async () => {
+      const superToken = await loginAs(roleCreds.superadmin);
+      setAuth(superToken);
+
+      const listRes = await api.get(`${API_PREFIX}/audit-logs?limit=5`);
+      expect(listRes.status).toBe(200);
+      expect(listRes.data.success).toBe(true);
+
+      const statsRes = await api.get(`${API_PREFIX}/audit-logs/stats`);
+      expect(statsRes.status).toBe(200);
+      expect(statsRes.data.success).toBe(true);
     });
   });
 });

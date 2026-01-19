@@ -1,0 +1,109 @@
+name: Security Audit
+
+on:
+  schedule:
+    # Run daily at 8 AM UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Allow manual trigger
+  push:
+    branches: [main]
+    paths:
+      - '**/package.json'
+      - '**/package-lock.json'
+
+jobs:
+  audit:
+    name: NPM Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Backend Audit
+        working-directory: ./backend
+        run: |
+          echo "🔍 Running backend security audit..."
+          npm audit --audit-level=moderate --json > backend-audit.json || true
+          npm audit --audit-level=moderate || true
+
+      - name: Frontend Audit
+        working-directory: ./frontend
+        run: |
+          echo "🔍 Running frontend security audit..."
+          npm audit --audit-level=moderate --json > frontend-audit.json || true
+          npm audit --audit-level=moderate || true
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit-reports
+          path: |
+            backend/backend-audit.json
+            frontend/frontend-audit.json
+          retention-days: 30
+
+      - name: Check for high/critical vulnerabilities
+        run: |
+          echo "Checking for high/critical vulnerabilities (strict gate)..."
+
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+
+          function readAuditJson(p) {
+            if (!fs.existsSync(p)) {
+              throw new Error(`Missing audit report: ${p}`);
+            }
+            const raw = fs.readFileSync(p, 'utf8').trim();
+            if (!raw) throw new Error(`Empty audit report: ${p}`);
+            let json;
+            try {
+              json = JSON.parse(raw);
+            } catch (e) {
+              throw new Error(`Invalid JSON in audit report: ${p}`);
+            }
+            const vulns = json?.metadata?.vulnerabilities;
+            if (!vulns) {
+              throw new Error(`Audit report missing metadata.vulnerabilities: ${p}`);
+            }
+            return { path: p, vulnerabilities: vulns };
+          }
+
+          const backend = readAuditJson(path.join('backend', 'backend-audit.json'));
+          const frontend = readAuditJson(path.join('frontend', 'frontend-audit.json'));
+
+          const bHigh = Number(backend.vulnerabilities.high || 0);
+          const bCritical = Number(backend.vulnerabilities.critical || 0);
+          const fHigh = Number(frontend.vulnerabilities.high || 0);
+          const fCritical = Number(frontend.vulnerabilities.critical || 0);
+
+          console.log(`Backend vulnerabilities: high=${bHigh}, critical=${bCritical}`);
+          console.log(`Frontend vulnerabilities: high=${fHigh}, critical=${fCritical}`);
+
+          if (bHigh + bCritical + fHigh + fCritical > 0) {
+            console.error('❌ High/critical vulnerabilities found. See uploaded audit artifacts.');
+            process.exit(1);
+          }
+
+          console.log('✅ No high/critical vulnerabilities found');
+          NODE
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          deny-licenses: GPL-3.0, AGPL-3.0

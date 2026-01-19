@@ -1,14 +1,21 @@
-import styles from './Contact.module.css';
-import { Button } from '../../components/ui/Button';
-import SEO from '../../components/common/SEO';
+import styles from "./Contact.module.css";
+import { Button } from "../../components/ui/Button";
+import SEO from "../../components/common/SEO";
 
 const Contact = () => {
-  const companyName = import.meta.env.VITE_COMPANY_NAME;
-  const address = import.meta.env.VITE_COMPANY_ADDRESS;
-  const phone = import.meta.env.VITE_COMPANY_PHONE;
-  const email = import.meta.env.VITE_COMPANY_EMAIL;
-  const whatsapp = import.meta.env.VITE_COMPANY_WHATSAPP;
+  const companyName = import.meta.env.VITE_COMPANY_NAME || "Electrical Supplier";
+  const address = import.meta.env.VITE_COMPANY_ADDRESS || "Your business address";
+  const phone = import.meta.env.VITE_COMPANY_PHONE || "+880";
+  const email = import.meta.env.VITE_COMPANY_EMAIL || "info@example.com";
+  const whatsapp = import.meta.env.VITE_COMPANY_WHATSAPP || "+880";
   const mapUrl = import.meta.env.VITE_GOOGLE_MAPS_EMBED_URL;
+
+  // wa.me requires digits only (no '+' or spaces)
+  const whatsappDigits = whatsapp.replace(/[^0-9]/g, "");
+
+  const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${companyName} ${address}`,
+  )}`;
 
   return (
     <div className={styles.contactPage}>
@@ -42,7 +49,9 @@ const Contact = () => {
               <div className={styles.infoContent}>
                 <h3>Call Us</h3>
                 <p>
-                  <a href={`tel:${phone}`} className={styles.contactLink}>{phone}</a>
+                  <a href={`tel:${phone}`} className={styles.contactLink}>
+                    {phone}
+                  </a>
                 </p>
               </div>
             </div>
@@ -52,7 +61,9 @@ const Contact = () => {
               <div className={styles.infoContent}>
                 <h3>Email Us</h3>
                 <p>
-                  <a href={`mailto:${email}`} className={styles.contactLink}>{email}</a>
+                  <a href={`mailto:${email}`} className={styles.contactLink}>
+                    {email}
+                  </a>
                 </p>
               </div>
             </div>
@@ -62,7 +73,12 @@ const Contact = () => {
               <div className={styles.infoContent}>
                 <h3>WhatsApp</h3>
                 <p>
-                  <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className={styles.contactLink}>
+                  <a
+                    href={`https://wa.me/${whatsappDigits}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.contactLink}
+                  >
                     Chat with us on WhatsApp
                   </a>
                 </p>
@@ -106,9 +122,27 @@ const Contact = () => {
               </div>
             ) : (
               <div className={styles.mapPlaceholder}>
-                <div className={styles.placeholderIcon}>🗺️</div>
-                <h3>Map Coming Soon</h3>
-                <p>Configure VITE_GOOGLE_MAPS_EMBED_URL in .env to display the interactive map</p>
+                <img
+                  src="/assets/map-placeholder.svg"
+                  alt="Map placeholder"
+                  loading="lazy"
+                  width={1200}
+                  height={900}
+                  className={styles.mapPlaceholderImage}
+                />
+                <h3>Interactive map not configured</h3>
+                <p>
+                  Set <code>VITE_GOOGLE_MAPS_EMBED_URL</code> in <code>frontend/.env</code>.
+                  Meanwhile, you can open the location in Google Maps.
+                </p>
+                <a
+                  href={mapSearchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.contactLink}
+                >
+                  Open in Google Maps
+                </a>
               </div>
             )}
           </div>

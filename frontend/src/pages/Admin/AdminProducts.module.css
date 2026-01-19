@@ -211,7 +211,7 @@
   background-color: var(--color-bg-secondary);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: var(--font-size-sm);
   color: var(--color-primary);
 }

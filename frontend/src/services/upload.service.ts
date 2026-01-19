@@ -1,4 +1,4 @@
-import apiClient from './api';
+import apiClient from "./api";
 
 export interface UploadResponse {
   filename: string;
@@ -14,17 +14,16 @@ export const uploadService = {
    */
   async uploadFile(file: File): Promise<UploadResponse> {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
-    const response = await apiClient.post<{ success: boolean; data: UploadResponse }>(
-      '/upload/single',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+    const response = await apiClient.post<{
+      success: boolean;
+      data: UploadResponse;
+    }>("/upload/single", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return response.data.data;
   },
@@ -35,18 +34,17 @@ export const uploadService = {
   async uploadMultipleFiles(files: File[]): Promise<UploadResponse[]> {
     const formData = new FormData();
     files.forEach((file) => {
-      formData.append('files', file);
+      formData.append("files", file);
     });
 
-    const response = await apiClient.post<{ success: boolean; data: UploadResponse[] }>(
-      '/upload/multiple',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+    const response = await apiClient.post<{
+      success: boolean;
+      data: UploadResponse[];
+    }>("/upload/multiple", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return response.data.data;
   },
@@ -54,7 +52,10 @@ export const uploadService = {
   /**
    * Delete a file
    */
-  async deleteFile(type: 'images' | 'documents', filename: string): Promise<void> {
+  async deleteFile(
+    type: "images" | "documents",
+    filename: string,
+  ): Promise<void> {
     await apiClient.delete(`/upload/${type}/${filename}`);
   },
 
@@ -62,11 +63,11 @@ export const uploadService = {
    * Get full URL for uploaded file
    */
   getFileUrl(url: string): string {
-    if (url.startsWith('http')) {
+    if (url.startsWith("http")) {
       return url;
     }
     // Remove leading slash if present
-    const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
-    return `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/${cleanUrl}`;
+    const cleanUrl = url.startsWith("/") ? url.substring(1) : url;
+    return `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/${cleanUrl}`;
   },
 };

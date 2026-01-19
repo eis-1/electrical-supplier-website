@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { env } from '../config/env';
-import { ApiResponse } from '../utils/response';
-import { asyncHandler } from './error.middleware';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { env } from "../config/env";
+import { ApiResponse } from "../utils/response";
+import { asyncHandler } from "./error.middleware";
 
 export interface AuthRequest extends Request {
   admin?: {
@@ -16,9 +16,9 @@ export const authenticateAdmin = asyncHandler(
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     // Get token from header
     const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      ApiResponse.unauthorized(res, 'No token provided');
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      ApiResponse.unauthorized(res, "No token provided");
       return;
     }
 
@@ -26,7 +26,9 @@ export const authenticateAdmin = asyncHandler(
 
     try {
       // Verify token
-      const decoded = jwt.verify(token, env.JWT_SECRET, { algorithms: ['HS256'] }) as {
+      const decoded = jwt.verify(token, env.JWT_SECRET, {
+        algorithms: ["HS256"],
+      }) as {
         id: string;
         email: string;
         role: string;
@@ -42,12 +44,12 @@ export const authenticateAdmin = asyncHandler(
       next();
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
-        ApiResponse.unauthorized(res, 'Token expired');
+        ApiResponse.unauthorized(res, "Token expired");
         return;
       }
-      ApiResponse.unauthorized(res, 'Invalid token');
+      ApiResponse.unauthorized(res, "Invalid token");
     }
-  }
+  },
 );
 
 // Export alias for backward compatibility

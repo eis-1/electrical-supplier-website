@@ -144,7 +144,8 @@ node setup-admin.js
 This creates (or recreates):
 
 - Email: `admin@electricalsupplier.com`
-- Password: `admin123`
+- Password: Set via seed script configuration
+- **Note**: Use the password configured in your seed script or `.env` file
 
 ✅ Admin exists in database  
 ✅ Password is hashed in DB  
@@ -157,7 +158,7 @@ This creates (or recreates):
 ```powershell
 $body = @{
   email = "admin@electricalsupplier.com"
-  password = "admin123"
+  password = "your-admin-password"  # Use password from seed script
 } | ConvertTo-Json
 
 $response = Invoke-WebRequest -Uri "http://localhost:5000/api/v1/auth/login" `
@@ -593,7 +594,6 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/v1/quotes" `
 - Run "Refresh Token"
 
 2. **02. Two-Factor Authentication**
-
    - Run "Setup 2FA" → check Console for secret
    - **Scan QR code** with authenticator app
    - Get TOTP code from app
@@ -602,7 +602,6 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/v1/quotes" `
    - Run "Get 2FA Status"
 
 3. **03. Categories**
-
    - Run "List Categories"
    - Run "Create Category" (requires auth)
 

@@ -32,17 +32,23 @@ echo ""
 
 echo ""
 echo "[5/5] Testing Login..."
-LOGIN_RESPONSE=$(curl -s -X POST http://localhost:$PORT/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"admin@electricalsupplier.com\",\"password\":\"admin123\"}")
-echo "$LOGIN_RESPONSE" | python -m json.tool 2>/dev/null || echo "$LOGIN_RESPONSE"
 
-# Extract token if successful
-TOKEN=$(echo "$LOGIN_RESPONSE" | grep -o '"token":"[^"]*' | cut -d'"' -f4)
-if [ ! -z "$TOKEN" ]; then
-    echo ""
-    echo "   ✓ Login successful! Token received."
-    echo "   Token: ${TOKEN:0:50}..."
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-${SEED_ADMIN_PASSWORD:-}}"
+if [ -z "$ADMIN_PASSWORD" ]; then
+        echo "   ⚠️  Skipping login test (set ADMIN_PASSWORD or SEED_ADMIN_PASSWORD)"
+else
+        LOGIN_RESPONSE=$(curl -s -X POST http://localhost:$PORT/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"admin@electricalsupplier.com\",\"password\":\"$ADMIN_PASSWORD\"}")
+        echo "$LOGIN_RESPONSE" | python -m json.tool 2>/dev/null || echo "$LOGIN_RESPONSE"
+
+        # Extract token if successful
+        TOKEN=$(echo "$LOGIN_RESPONSE" | grep -o '"token":"[^"]*' | cut -d'"' -f4)
+        if [ ! -z "$TOKEN" ]; then
+                echo ""
+                echo "   ✓ Login successful! Token received."
+                echo "   Token: ${TOKEN:0:50}..."
+        fi
 fi
 
 echo ""

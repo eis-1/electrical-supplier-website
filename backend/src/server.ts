@@ -1,12 +1,16 @@
-import { createApp } from './app';
-import { env } from './config/env';
-import { connectDatabase } from './config/db';
-import { initRedis, closeRedis } from './config/redis';
-import { initializeRateLimiters } from './middlewares/rateLimit.middleware';
-import { logger } from './utils/logger';
+import { createApp } from "./app";
+import { env } from "./config/env";
+import { connectDatabase, disconnectDatabase } from "./config/db";
+import { initRedis, closeRedis } from "./config/redis";
+import { initializeRateLimiters } from "./middlewares/rateLimit.middleware";
+import { initSentry } from "./config/sentry";
+import { logger } from "./utils/logger";
 
 const startServer = async () => {
   try {
+    // Initialize Sentry FIRST (to catch initialization errors)
+    initSentry();
+
     // Connect to database
     await connectDatabase();
 
@@ -21,9 +25,11 @@ const startServer = async () => {
 
     // Start server
     const server = app.listen(env.PORT, () => {
-      logger.info(`🚀 Server running on port ${env.PORT}`);
-      logger.info(`📍 Environment: ${env.NODE_ENV}`);
-      logger.info(`🌐 API: http://localhost:${env.PORT}/api/${env.API_VERSION}`);
+      logger.info(`Server running on port ${env.PORT}`, {
+        environment: env.NODE_ENV,
+        apiVersion: env.API_VERSION,
+        url: `http://localhost:${env.PORT}/api/${env.API_VERSION}`,
+      });
     });
 
     // Graceful shutdown
@@ -32,38 +38,36 @@ const startServer = async () => {
 
       // Stop accepting new connections
       server.close(async () => {
-        logger.info('HTTP server closed');
+        logger.info("HTTP server closed");
 
         try {
           // Close Redis connection
           await closeRedis();
-          logger.info('Redis connection closed');
+          logger.info("Redis connection closed");
 
           // Close database connection
-          const { prisma } = await import('./config/db');
-          await prisma.$disconnect();
-          logger.info('Database connection closed');
+          await disconnectDatabase();
+          logger.info("Database connection closed");
 
-          logger.info('Graceful shutdown complete');
+          logger.info("Graceful shutdown complete");
           process.exit(0);
         } catch (error) {
-          logger.error('Error during shutdown', error);
+          logger.error("Error during shutdown", error);
           process.exit(1);
         }
       });
 
       // Force shutdown after 30 seconds
       setTimeout(() => {
-        logger.error('Forced shutdown after timeout');
+        logger.error("Forced shutdown after timeout");
         process.exit(1);
       }, 30000);
     };
 
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
-
+    process.on("SIGTERM", () => shutdown("SIGTERM"));
+    process.on("SIGINT", () => shutdown("SIGINT"));
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    logger.error("Failed to start server:", error);
     process.exit(1);
   }
 };

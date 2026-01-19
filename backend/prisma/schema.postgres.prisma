@@ -1,0 +1,187 @@
+// Prisma Schema for Electrical Supplier Website
+// Database: PostgreSQL (Recommended for Production)
+//
+// NOTE:
+// - This project currently uses SQLite by default in prisma/schema.prisma for local dev/testing.
+// - For production on PostgreSQL, use this schema file and the npm scripts:
+//     cd backend
+//     npm run prisma:generate:pg
+//     npm run prisma:deploy:pg   # uses `prisma db push`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  password         String
+  name             String
+  role             String   @default("editor")
+  isActive         Boolean  @default(true)
+
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean  @default(false)
+  backupCodes      String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  refreshTokens    RefreshToken[]
+  auditLogs        AuditLog[]
+
+  @@map("admins")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  adminId   String
+  ipAddress String?
+  userAgent String?
+  isRevoked Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([expiresAt])
+  @@index([isRevoked])
+  @@map("refresh_tokens")
+}
+
+model Category {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  slug         String   @unique
+  icon         String?
+  description  String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  products Product[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("categories")
+}
+
+model Brand {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  slug         String   @unique
+  logo         String?
+  description  String?
+  website      String?
+  isAuthorized Boolean  @default(true)
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  products Product[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("brands")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  model        String?
+  categoryId   String?
+  brandId      String?
+  description  String?
+  keyFeatures  String?
+  image        String?
+  images       String?
+  datasheetUrl String?
+  isActive     Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  brand    Brand?    @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  specs    ProductSpec[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@map("products")
+}
+
+model ProductSpec {
+  id           String   @id @default(uuid())
+  productId    String
+  specKey      String
+  specValue    String
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, specKey])
+  @@index([productId])
+  @@map("product_specs")
+}
+
+model QuoteRequest {
+  id             String   @id @default(uuid())
+  name           String
+  company        String?
+  phone          String
+  whatsapp       String?
+  email          String
+  productName    String?
+  quantity       String?
+  projectDetails String?
+  status         String   @default("new")
+  notes          String?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+  @@map("quote_requests")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  adminId    String
+  action     String
+  resource   String?
+  resourceId String?
+  changes    String?
+  ipAddress  String?
+  userAgent  String?
+  status     String   @default("success")
+  errorMsg   String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

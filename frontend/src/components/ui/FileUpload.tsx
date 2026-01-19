@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styles from './FileUpload.module.css';
+import React, { useState } from "react";
+import styles from "./FileUpload.module.css";
 
 interface FileUploadProps {
   label?: string;
@@ -13,8 +13,8 @@ interface FileUploadProps {
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
-  label = 'Upload File',
-  accept = '.pdf',
+  label = "Upload File",
+  accept = ".pdf",
   maxSizeMB = 10,
   onFileSelect,
   onFileRemove,
@@ -28,9 +28,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false);
     }
   };
@@ -63,10 +63,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
 
     // Validate file type
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    const acceptedExtensions = accept.split(',').map(ext => ext.trim().replace('.', ''));
-    
-    if (!acceptedExtensions.includes(fileExtension || '')) {
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+    const acceptedExtensions = accept
+      .split(",")
+      .map((ext) => ext.trim().replace(".", ""));
+
+    if (!acceptedExtensions.includes(fileExtension || "")) {
       alert(`Invalid file type. Accepted types: ${accept}`);
       return;
     }
@@ -83,18 +85,18 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
   return (
     <div className={styles.fileUploadContainer}>
       {label && <label className={styles.label}>{label}</label>}
-      
+
       {!selectedFile && !currentFileUrl && (
         <div
-          className={`${styles.dropzone} ${dragActive ? styles.dragActive : ''} ${disabled ? styles.disabled : ''}`}
+          className={`${styles.dropzone} ${dragActive ? styles.dragActive : ""} ${disabled ? styles.disabled : ""}`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
@@ -111,7 +113,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           <label htmlFor="file-upload" className={styles.uploadLabel}>
             <div className={styles.uploadIcon}>📁</div>
             <p className={styles.uploadText}>
-              <span className={styles.uploadLink}>Click to upload</span> or drag and drop
+              <span className={styles.uploadLink}>Click to upload</span> or drag
+              and drop
             </p>
             <p className={styles.uploadHint}>
               {accept.toUpperCase()} (max {maxSizeMB}MB)
@@ -126,7 +129,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             <span className={styles.fileIcon}>📄</span>
             <div className={styles.fileDetails}>
               <p className={styles.fileName}>{selectedFile.name}</p>
-              <p className={styles.fileSize}>{formatFileSize(selectedFile.size)}</p>
+              <p className={styles.fileSize}>
+                {formatFileSize(selectedFile.size)}
+              </p>
             </div>
           </div>
           <button
@@ -146,9 +151,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             <span className={styles.fileIcon}>📄</span>
             <div className={styles.fileDetails}>
               <p className={styles.fileName}>Current file</p>
-              <a 
-                href={currentFileUrl} 
-                target="_blank" 
+              <a
+                href={currentFileUrl}
+                target="_blank"
                 rel="noopener noreferrer"
                 className={styles.fileLink}
               >

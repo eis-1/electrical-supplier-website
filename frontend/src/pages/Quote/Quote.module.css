@@ -1,5 +1,6 @@
 .quotePage {
-  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl)
+    var(--spacing-2xl);
   background-color: var(--color-bg-secondary);
   min-height: 70vh;
 }
@@ -138,7 +139,8 @@
 
 @media (max-width: 768px) {
   .quotePage {
-    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md)
+      var(--spacing-2xl);
   }
 
   .quoteFormContainer {

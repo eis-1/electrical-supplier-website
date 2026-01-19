@@ -16,18 +16,19 @@ model Admin {
   email           String   @unique
   password        String
   name            String
-  role            String   @default("admin")
+  role            String   @default("editor") // superadmin, editor, viewer
   isActive        Boolean  @default(true)
-  
+
   // Two-Factor Authentication
   twoFactorSecret String?  // TOTP secret (encrypted)
   twoFactorEnabled Boolean @default(false)
   backupCodes     String?  // JSON array of hashed backup codes
-  
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   refreshTokens   RefreshToken[]
+  auditLogs       AuditLog[]
 
   @@map("admins")
 }
@@ -43,7 +44,7 @@ model RefreshToken {
   expiresAt   DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   admin       Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   @@index([adminId])
@@ -63,7 +64,7 @@ model Category {
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  
+
   products     Product[]
 
   @@index([slug])
@@ -84,7 +85,7 @@ model Brand {
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  
+
   products     Product[]
 
   @@index([slug])
@@ -109,7 +110,7 @@ model Product {
   isFeatured   Boolean       @default(false)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  
+
   category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   brand        Brand?        @relation(fields: [brandId], references: [id], onDelete: SetNull)
   specs        ProductSpec[]
@@ -131,7 +132,7 @@ model ProductSpec {
   displayOrder Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  
+
   product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, specKey])
@@ -161,4 +162,28 @@ model QuoteRequest {
   @@index([createdAt])
   @@index([email])
   @@map("quote_requests")
+}
+
+// Audit Log Table (for tracking admin actions)
+model AuditLog {
+  id         String   @id @default(uuid())
+  adminId    String
+  action     String   // e.g., "product.create", "quote.update", "admin.delete"
+  resource   String?  // Resource type (product, quote, admin, etc.)
+  resourceId String?  // ID of affected resource
+  changes    String?  // JSON string of changes (before/after)
+  ipAddress  String?
+  userAgent  String?
+  status     String   @default("success") // success, failure
+  errorMsg   String?  // Error message if status is failure
+  metadata   String?  // Additional context (JSON)
+  createdAt  DateTime @default(now())
+
+  admin      Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

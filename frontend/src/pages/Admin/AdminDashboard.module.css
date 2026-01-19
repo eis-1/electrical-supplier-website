@@ -27,8 +27,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loadingText {
@@ -58,7 +62,9 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 300px;
-  animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 3.7s forwards;
+  animation:
+    slideInRight 0.3s ease-out,
+    fadeOut 0.3s ease-in 3.7s forwards;
   pointer-events: auto;
 }
 
@@ -74,8 +80,12 @@
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .toastSuccess {
@@ -206,8 +216,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .statCard {
@@ -257,20 +273,40 @@
   letter-spacing: 0.5px;
 }
 
-.statProducts { border-left: 4px solid #667eea; }
-.statProducts .statValue { color: #667eea; }
+.statProducts {
+  border-left: 4px solid #667eea;
+}
+.statProducts .statValue {
+  color: #667eea;
+}
 
-.statQuotes { border-left: 4px solid #764ba2; }
-.statQuotes .statValue { color: #764ba2; }
+.statQuotes {
+  border-left: 4px solid #764ba2;
+}
+.statQuotes .statValue {
+  color: #764ba2;
+}
 
-.statPending { border-left: 4px solid #ffc107; }
-.statPending .statValue { color: #ffc107; }
+.statPending {
+  border-left: 4px solid #ffc107;
+}
+.statPending .statValue {
+  color: #ffc107;
+}
 
-.statProcessing { border-left: 4px solid #17a2b8; }
-.statProcessing .statValue { color: #17a2b8; }
+.statProcessing {
+  border-left: 4px solid #17a2b8;
+}
+.statProcessing .statValue {
+  color: #17a2b8;
+}
 
-.statCompleted { border-left: 4px solid #28a745; }
-.statCompleted .statValue { color: #28a745; }
+.statCompleted {
+  border-left: 4px solid #28a745;
+}
+.statCompleted .statValue {
+  color: #28a745;
+}
 
 .statRefresh {
   display: flex;

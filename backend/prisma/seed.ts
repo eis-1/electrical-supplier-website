@@ -6,22 +6,73 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  // Create admin user
-  const hashedPassword = await bcrypt.hash('admin123', 10);
-  
+  // Create admin users with different roles
+  const seedPassword =
+    process.env.SEED_ADMIN_PASSWORD ||
+    (process.env.NODE_ENV === 'production' ? '' : 'admin123');
+
+  if (!seedPassword) {
+    throw new Error(
+      'SEED_ADMIN_PASSWORD is required when running seed in production. Refusing to seed a default password.',
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(seedPassword, 10);
+
+  const superadmin = await prisma.admin.upsert({
+    where: { email: 'superadmin@electricalsupplier.com' },
+    update: {},
+    create: {
+      email: 'superadmin@electricalsupplier.com',
+      password: hashedPassword,
+      name: 'Super Administrator',
+      role: 'superadmin',
+      isActive: true,
+    },
+  });
+
   const admin = await prisma.admin.upsert({
     where: { email: 'admin@electricalsupplier.com' },
     update: {},
     create: {
       email: 'admin@electricalsupplier.com',
       password: hashedPassword,
-      name: 'System Administrator',
+      name: 'Content Administrator',
       role: 'admin',
       isActive: true,
     },
   });
 
-  console.log('✓ Admin user created:', admin.email);
+  const editor = await prisma.admin.upsert({
+    where: { email: 'editor@electricalsupplier.com' },
+    update: {},
+    create: {
+      email: 'editor@electricalsupplier.com',
+      password: hashedPassword,
+      name: 'Content Editor',
+      role: 'editor',
+      isActive: true,
+    },
+  });
+
+  const viewer = await prisma.admin.upsert({
+    where: { email: 'viewer@electricalsupplier.com' },
+    update: {},
+    create: {
+      email: 'viewer@electricalsupplier.com',
+      password: hashedPassword,
+      name: 'Content Viewer',
+      role: 'viewer',
+      isActive: true,
+    },
+  });
+
+  console.log('✓ Admin users created:');
+  console.log('  - Superadmin:', superadmin.email);
+  console.log('  - Admin:', admin.email);
+  console.log('  - Editor:', editor.email);
+  console.log('  - Viewer:', viewer.email);
+  console.log('ℹ️  Seed password is set via SEED_ADMIN_PASSWORD (development may default to a simple password).');
 
   // Create categories
   const categories = [
@@ -197,7 +248,7 @@ async function main() {
         { specKey: 'Stranding', specValue: 'Class 5 (Flexible)' },
       ],
     },
-    
+
     // Switches & Sockets (6 products)
     {
       name: 'Modular Switch 1 Way',
@@ -438,7 +489,7 @@ async function main() {
   let productCount = 0;
   for (const productData of products) {
     const { specs, ...productInfo } = productData;
-    
+
     await prisma.product.upsert({
       where: { slug: productInfo.slug },
       update: {},

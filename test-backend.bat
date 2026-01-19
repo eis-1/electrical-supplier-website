@@ -35,9 +35,19 @@ echo.
 
 echo.
 echo [5/5] Testing Login...
-curl -s -X POST http://localhost:%PORT%/api/v1/auth/login ^
-  -H "Content-Type: application/json" ^
-  -d "{\"email\":\"admin@electricalsupplier.com\",\"password\":\"admin123\"}"
+if "%ADMIN_PASSWORD%"=="" (
+  if "%SEED_ADMIN_PASSWORD%"=="" (
+    echo    Skipping login test (set ADMIN_PASSWORD or SEED_ADMIN_PASSWORD)
+  ) else (
+    curl -s -X POST http://localhost:%PORT%/api/v1/auth/login ^
+      -H "Content-Type: application/json" ^
+      -d "{\"email\":\"admin@electricalsupplier.com\",\"password\":\"%SEED_ADMIN_PASSWORD%\"}"
+  )
+) else (
+  curl -s -X POST http://localhost:%PORT%/api/v1/auth/login ^
+    -H "Content-Type: application/json" ^
+    -d "{\"email\":\"admin@electricalsupplier.com\",\"password\":\"%ADMIN_PASSWORD%\"}"
+)
 echo.
 
 echo.

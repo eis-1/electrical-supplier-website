@@ -1,0 +1,9 @@
+/* Shared styling for lazy-loaded images */
+.image {
+  opacity: 0.6;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.loaded {
+  opacity: 1;
+}

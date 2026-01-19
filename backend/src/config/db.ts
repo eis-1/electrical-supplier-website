@@ -1,10 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-import { logger } from '../utils/logger';
+import { PrismaClient } from "@prisma/client";
+import { logger } from "../utils/logger";
 
 // Prisma Client Singleton
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    log: ['error', 'warn'],
+    log: ["error", "warn"],
   });
 };
 
@@ -14,7 +14,7 @@ declare global {
 
 export const prisma = globalThis.prisma ?? prismaClientSingleton();
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = prisma;
 }
 
@@ -22,16 +22,16 @@ if (process.env.NODE_ENV !== 'production') {
 export const connectDatabase = async (): Promise<void> => {
   try {
     await prisma.$connect();
-    logger.info('✓ Database connected successfully');
+    logger.info("✓ Database connected successfully");
   } catch (error) {
     if (error instanceof Error) {
-      logger.error('✗ Database connection failed:', {
+      logger.error("✗ Database connection failed:", {
         name: error.name,
         message: error.message,
         stack: error.stack,
       });
     } else {
-      logger.error('✗ Database connection failed:', error);
+      logger.error("✗ Database connection failed:", error);
     }
     process.exit(1);
   }
@@ -41,19 +41,8 @@ export const connectDatabase = async (): Promise<void> => {
 export const disconnectDatabase = async (): Promise<void> => {
   try {
     await prisma.$disconnect();
-    logger.info('Database disconnected');
+    logger.info("Database disconnected");
   } catch (error) {
-    logger.error('Error disconnecting database:', error);
+    logger.error("Error disconnecting database:", error);
   }
 };
-
-// Handle graceful shutdown
-process.on('SIGINT', async () => {
-  await disconnectDatabase();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  await disconnectDatabase();
-  process.exit(0);
-});

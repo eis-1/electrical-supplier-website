@@ -26,7 +26,7 @@ Admin login to get JWT token.
 ```json
 {
   "email": "admin@electrical-supplier.com",
-  "password": "Admin@123"
+  "password": "your-secure-password"
 }
 ```
 
@@ -589,7 +589,7 @@ All endpoints return consistent error responses:
 ```bash
 curl -X POST http://localhost:5000/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@electrical-supplier.com","password":"Admin@123"}'
+  -d '{"email":"admin@electrical-supplier.com","password":"your-admin-password"}'
 ```
 
 ### Get Products Example:

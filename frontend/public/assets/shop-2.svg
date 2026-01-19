@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="Showroom interior illustration">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#0f1b33"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <rect x="80" y="80" width="1040" height="740" rx="28" fill="#111c33" stroke="#334155" stroke-width="6"/>
+
+  <g transform="translate(190, 210)" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+    <rect x="0" y="0" width="820" height="520" rx="26" fill="#ffffff" opacity="0.05" stroke="#94a3b8"/>
+
+    <!-- Shelves -->
+    <g opacity="0.75">
+      <path d="M90 120h640" />
+      <path d="M90 220h640" />
+      <path d="M90 320h640" />
+      <path d="M90 420h640" />
+    </g>
+
+    <!-- Boxes/products on shelves -->
+    <g opacity="0.85" stroke="url(#accent)">
+      <rect x="130" y="82" width="90" height="40" rx="10" />
+      <rect x="270" y="78" width="110" height="44" rx="12" />
+      <rect x="430" y="84" width="100" height="38" rx="10" />
+
+      <rect x="160" y="182" width="120" height="44" rx="12" />
+      <rect x="330" y="178" width="90" height="48" rx="12" />
+      <rect x="470" y="186" width="130" height="40" rx="12" />
+
+      <rect x="140" y="282" width="110" height="40" rx="12" />
+      <rect x="290" y="278" width="130" height="44" rx="12" />
+      <rect x="460" y="286" width="100" height="36" rx="10" />
+    </g>
+
+    <!-- Floor line -->
+    <path d="M60 500h700" opacity="0.55" />
+  </g>
+
+  <g opacity="0.12" fill="#ffffff">
+    <circle cx="240" cy="160" r="90" />
+    <circle cx="1010" cy="730" r="150" />
+  </g>
+</svg>

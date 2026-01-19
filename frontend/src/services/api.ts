@@ -1,10 +1,11 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosError } from "axios";
+import { tokenStore } from "./tokenStore";
 
 // Use relative URL so it works on the same port as the backend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
-const CSRF_STORAGE_KEY = 'csrfToken';
-const CSRF_HEADER_NAME = 'x-csrf-token';
+const CSRF_STORAGE_KEY = "csrfToken";
+const CSRF_HEADER_NAME = "x-csrf-token";
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -12,16 +13,14 @@ const apiClient: AxiosInstance = axios.create({
   timeout: 10000,
   withCredentials: true, // Enable sending/receiving cookies
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor - Add auth token if available
 apiClient.interceptors.request.use(
-  async (config) => {
-    // Import authService dynamically to avoid circular dependency
-    const { authService } = await import('./auth.service');
-    const token = authService.getToken();
+  (config) => {
+    const token = tokenStore.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -36,7 +35,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor - Handle errors globally with auto-refresh
@@ -44,7 +43,7 @@ apiClient.interceptors.response.use(
   (response) => {
     // Capture CSRF token from response header (if present)
     const csrfToken = (response.headers as any)?.[CSRF_HEADER_NAME];
-    if (csrfToken && typeof csrfToken === 'string') {
+    if (csrfToken && typeof csrfToken === "string") {
       sessionStorage.setItem(CSRF_STORAGE_KEY, csrfToken);
     }
     return response;
@@ -65,35 +64,37 @@ apiClient.interceptors.response.use(
           {
             withCredentials: true,
             headers: csrfToken ? { [CSRF_HEADER_NAME]: csrfToken } : undefined,
-          }
+          },
         );
 
         const { token } = refreshResponse.data.data;
 
         // Update CSRF token if backend rotated it
-        const newCsrfToken = (refreshResponse.headers as any)?.[CSRF_HEADER_NAME];
-        if (newCsrfToken && typeof newCsrfToken === 'string') {
+        const newCsrfToken = (refreshResponse.headers as any)?.[
+          CSRF_HEADER_NAME
+        ];
+        if (newCsrfToken && typeof newCsrfToken === "string") {
           sessionStorage.setItem(CSRF_STORAGE_KEY, newCsrfToken);
         }
-        
+
         // Update token in memory only
-        const { authService } = await import('./auth.service');
-        authService.setToken(token);
+        tokenStore.setToken(token);
 
         // Retry the original request with new token
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
         // Refresh failed, clear token and optionally redirect to login
-        const { authService } = await import('./auth.service');
-        authService.setToken(null);
+        tokenStore.setToken(null);
+        localStorage.removeItem("adminUser");
+        sessionStorage.removeItem(CSRF_STORAGE_KEY);
         // window.location.href = '/admin/login';
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

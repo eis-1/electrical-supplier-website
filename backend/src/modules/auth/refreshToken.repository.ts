@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { logger } from '../../utils/logger';
+import { PrismaClient } from "@prisma/client";
+import { logger } from "../../utils/logger";
 
 const prisma = new PrismaClient();
 
@@ -46,7 +46,7 @@ export class RefreshTokenRepository {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
@@ -61,8 +61,8 @@ export class RefreshTokenRepository {
     });
 
     logger.security({
-      type: 'auth',
-      action: 'refresh_token_revoked',
+      type: "auth",
+      action: "refresh_token_revoked",
       details: { tokenId },
     });
 
@@ -82,8 +82,8 @@ export class RefreshTokenRepository {
     });
 
     logger.security({
-      type: 'auth',
-      action: 'all_refresh_tokens_revoked',
+      type: "auth",
+      action: "all_refresh_tokens_revoked",
       userId: adminId,
       details: { count: result.count },
     });

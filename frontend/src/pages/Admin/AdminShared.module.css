@@ -13,25 +13,25 @@
   /* Background */
   --admin-bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
   --admin-header-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  
+
   /* Shadows */
   --admin-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
   --admin-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
   --admin-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
   --admin-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
-  
+
   /* Border Radius */
   --admin-radius-sm: 8px;
   --admin-radius-md: 12px;
   --admin-radius-lg: 16px;
-  
+
   /* Spacing */
   --admin-spacing-xs: 8px;
   --admin-spacing-sm: 12px;
   --admin-spacing-md: 16px;
   --admin-spacing-lg: 24px;
   --admin-spacing-xl: 32px;
-  
+
   /* Transitions */
   --admin-transition-fast: 0.2s ease;
   --admin-transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,18 +59,30 @@
   border-radius: var(--admin-radius-sm);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 300px;
-  animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 3.7s forwards;
+  animation:
+    slideInRight 0.3s ease-out,
+    fadeOut 0.3s ease-in 3.7s forwards;
   pointer-events: auto;
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(400px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 /* Loading System (reusable) */
@@ -93,8 +105,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Page Layout (reusable) */
@@ -159,13 +175,25 @@ select:focus {
 
 /* Smooth Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { transform: translateX(-20px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .animate-fadeIn {

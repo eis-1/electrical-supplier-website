@@ -1,5 +1,6 @@
 .aboutPage {
-  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl)
+    var(--spacing-2xl);
 }
 
 .pageTitle {
@@ -29,6 +30,16 @@
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-lg);
   margin-top: var(--spacing-xl);
+}
+
+.shopPhoto {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-tertiary);
 }
 
 .photoPlaceholder {
@@ -69,7 +80,8 @@
 
 @media (max-width: 768px) {
   .aboutPage {
-    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md)
+      var(--spacing-2xl);
   }
 
   .section p {

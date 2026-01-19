@@ -9,6 +9,7 @@ export default [
       'node_modules/**',
       'uploads/**',
       'prisma/migrations/**',
+      'coverage/**',
     ],
   },
   {

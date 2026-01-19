@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response } from "express";
 
 interface SuccessResponse<T = any> {
   success: true;
@@ -27,7 +27,7 @@ export class ApiResponse {
     res: Response,
     data: T,
     message?: string,
-    statusCode: number = 200
+    statusCode: number = 200,
   ): Response {
     const response: SuccessResponse<T> = {
       success: true,
@@ -45,7 +45,7 @@ export class ApiResponse {
     res: Response,
     error: string,
     statusCode: number = 400,
-    details?: any
+    details?: any,
   ): Response {
     const response: ErrorResponse = {
       success: false,
@@ -59,15 +59,18 @@ export class ApiResponse {
     return this.error(res, error, 400, details);
   }
 
-  static unauthorized(res: Response, error: string = 'Unauthorized'): Response {
+  static unauthorized(res: Response, error: string = "Unauthorized"): Response {
     return this.error(res, error, 401);
   }
 
-  static forbidden(res: Response, error: string = 'Forbidden'): Response {
+  static forbidden(res: Response, error: string = "Forbidden"): Response {
     return this.error(res, error, 403);
   }
 
-  static notFound(res: Response, error: string = 'Resource not found'): Response {
+  static notFound(
+    res: Response,
+    error: string = "Resource not found",
+  ): Response {
     return this.error(res, error, 404);
   }
 
@@ -75,7 +78,10 @@ export class ApiResponse {
     return this.error(res, error, 409);
   }
 
-  static serverError(res: Response, error: string = 'Internal server error'): Response {
+  static serverError(
+    res: Response,
+    error: string = "Internal server error",
+  ): Response {
     return this.error(res, error, 500);
   }
 
@@ -84,7 +90,7 @@ export class ApiResponse {
     items: T[],
     page: number,
     limit: number,
-    total: number
+    total: number,
   ): Response {
     const totalPages = Math.ceil(total / limit);
     const paginatedData: PaginationData<T> = {

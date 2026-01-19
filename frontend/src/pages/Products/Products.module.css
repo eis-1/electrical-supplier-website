@@ -1,5 +1,6 @@
 .productsPage {
-  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl)
+    var(--spacing-2xl);
 }
 
 .pageTitle {
@@ -184,7 +185,8 @@
 
 @media (max-width: 768px) {
   .productsPage {
-    padding: calc(var(--navbar-height) + var(--spacing-xl)) var(--spacing-md) var(--spacing-xl);
+    padding: calc(var(--navbar-height) + var(--spacing-xl)) var(--spacing-md)
+      var(--spacing-xl);
   }
 
   .searchForm {
@@ -226,7 +228,8 @@
 
 @media (max-width: 480px) {
   .productsPage {
-    padding: calc(var(--navbar-height) + var(--spacing-md)) var(--spacing-sm) var(--spacing-md);
+    padding: calc(var(--navbar-height) + var(--spacing-md)) var(--spacing-sm)
+      var(--spacing-md);
   }
 
   .searchForm {

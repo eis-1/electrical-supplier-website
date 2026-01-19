@@ -1,19 +1,20 @@
-import apiClient from './api';
-import type { ApiResponse, QuoteRequest } from '@/types';
+import apiClient from "./api";
+import type { ApiResponse, QuoteRequest } from "@/types";
 
 export const quoteService = {
   // Submit quote request (Public)
-  async submit(data: QuoteRequest): Promise<{ id: string; referenceNumber: string }> {
-    const response = await apiClient.post<ApiResponse<{ id: string; referenceNumber: string }>>(
-      '/quotes',
-      data
-    );
+  async submit(
+    data: QuoteRequest,
+  ): Promise<{ id: string; referenceNumber: string }> {
+    const response = await apiClient.post<
+      ApiResponse<{ id: string; referenceNumber: string }>
+    >("/quotes", data);
     return response.data.data;
   },
 
   // Get all quotes (Admin)
   async getAll(filters?: { status?: string; page?: number; limit?: number }) {
-    const response = await apiClient.get('/quotes', { params: filters });
+    const response = await apiClient.get("/quotes", { params: filters });
     return response.data.data;
   },
 

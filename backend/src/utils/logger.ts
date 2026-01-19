@@ -1,7 +1,16 @@
-type LogLevel = 'info' | 'warn' | 'error' | 'debug' | 'security';
+import pino from "pino";
+import pretty from "pino-pretty";
 
 interface SecurityEventData {
-  type: 'auth' | 'upload' | 'quote' | 'admin_action' | 'rate_limit' | 'validation' | 'captcha' | 'csrf';
+  type:
+    | "auth"
+    | "upload"
+    | "quote"
+    | "admin_action"
+    | "rate_limit"
+    | "validation"
+    | "captcha"
+    | "csrf";
   action: string;
   userId?: string;
   ip?: string;
@@ -20,85 +29,111 @@ interface LogMetadata {
   [key: string]: any;
 }
 
+/**
+ * Redact sensitive fields from logs to prevent credential leaks
+ */
+const redact = {
+  paths: [
+    'password',
+    '*.password',
+    'req.body.password',
+    'token',
+    '*.token',
+    'req.body.token',
+    'secret',
+    '*.secret',
+    'authorization',
+    '*.authorization',
+    'cookie',
+    '*.cookie',
+    'req.headers.cookie',
+    'req.headers.authorization',
+    'apiKey',
+    '*.apiKey',
+    'accessToken',
+    '*.accessToken',
+    'refreshToken',
+    '*.refreshToken',
+    'csrfToken',
+    '*.csrfToken',
+  ],
+  censor: '[REDACTED]',
+};
+
+/**
+ * Configure Pino logger with environment-aware settings
+ * - Production: Fast JSON output for log aggregation (ELK, DataDog, Splunk)
+ * - Development: Pretty-printed human-readable logs
+ */
+const createPinoLogger = () => {
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const logLevel = process.env.LOG_LEVEL || (isDevelopment ? "debug" : "info");
+
+  const baseConfig: pino.LoggerOptions = {
+    level: logLevel,
+    base: {
+      service: "electrical-supplier-api",
+      environment: process.env.NODE_ENV || "development",
+      version: process.env.npm_package_version || "1.0.0",
+    },
+    timestamp: pino.stdTimeFunctions.isoTime,
+    redact, // Apply redaction to all logs
+    formatters: {
+      level: (label) => {
+        return { level: label.toUpperCase() };
+      },
+    },
+  };
+
+  // Development: Pretty-printed logs
+  if (isDevelopment && process.env.LOG_FORMAT !== "json") {
+    const prettyStream = pretty({
+      colorize: true,
+      translateTime: "SYS:standard",
+      ignore: "pid,hostname",
+      singleLine: false,
+    });
+    return pino(baseConfig, prettyStream);
+  }
+
+  // Production: JSON logs for aggregation
+  return pino(baseConfig);
+};
+
+const pinoLogger = createPinoLogger();
+
+/**
+ * Enhanced logger with Pino integration and backward compatibility
+ */
 class Logger {
-  private getTimestamp(): string {
-    return new Date().toISOString();
-  }
-
-  /**
-   * Check if we should output structured JSON logs (for production log aggregation)
-   */
-  private isStructuredLogging(): boolean {
-    return process.env.LOG_FORMAT === 'json' || process.env.NODE_ENV === 'production';
-  }
-
-  /**
-   * Output structured JSON log (for ELK, DataDog, Splunk, etc.)
-   */
-  private outputStructuredLog(level: LogLevel, message: string, metadata?: LogMetadata): void {
-    const logEntry = {
-      timestamp: this.getTimestamp(),
-      level: level.toUpperCase(),
-      message,
-      service: 'electrical-supplier-api',
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
-      ...metadata,
-    };
-    console.log(JSON.stringify(logEntry));
-  }
-
-  /**
-   * Output human-readable log (for development)
-   */
-  private formatMessage(level: LogLevel, message: string, metadata?: LogMetadata): string {
-    const timestamp = this.getTimestamp();
-    const metaStr = metadata ? ' ' + JSON.stringify(metadata) : '';
-    return `[${timestamp}] [${level.toUpperCase()}] ${message}${metaStr}`;
-  }
+  private pino = pinoLogger;
 
   info(message: string, metadata?: LogMetadata): void {
-    if (this.isStructuredLogging()) {
-      this.outputStructuredLog('info', message, metadata);
-    } else {
-      console.log(this.formatMessage('info', message, metadata));
-    }
+    this.pino.info(metadata || {}, message);
   }
 
   warn(message: string, metadata?: LogMetadata): void {
-    if (this.isStructuredLogging()) {
-      this.outputStructuredLog('warn', message, metadata);
-    } else {
-      console.warn(this.formatMessage('warn', message, metadata));
-    }
+    this.pino.warn(metadata || {}, message);
   }
 
   error(message: string, error?: Error | any, metadata?: LogMetadata): void {
-    const errorMeta = error ? {
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        code: error.code,
-      },
-      ...metadata,
-    } : metadata;
+    const errorMeta = error
+      ? {
+          err: {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+          },
+          ...metadata,
+        }
+      : metadata;
 
-    if (this.isStructuredLogging()) {
-      this.outputStructuredLog('error', message, errorMeta);
-    } else {
-      console.error(this.formatMessage('error', message, errorMeta));
-    }
+    this.pino.error(errorMeta || {}, message);
   }
 
   debug(message: string, metadata?: LogMetadata): void {
-    if (process.env.NODE_ENV === 'development') {
-      if (this.isStructuredLogging()) {
-        this.outputStructuredLog('debug', message, metadata);
-      } else {
-        console.debug(this.formatMessage('debug', message, metadata));
-      }
-    }
+    this.pino.debug(metadata || {}, message);
   }
 
   /**
@@ -106,14 +141,13 @@ class Logger {
    * These logs should be sent to a centralized logging system in production.
    */
   security(event: SecurityEventData): void {
-    const logData = {
-      timestamp: this.getTimestamp(),
-      level: 'SECURITY',
-      service: 'electrical-supplier-api',
-      environment: process.env.NODE_ENV || 'development',
-      ...event,
-    };
-    console.log(JSON.stringify(logData));
+    this.pino.info(
+      {
+        logType: "security",
+        ...event,
+      },
+      `Security event: ${event.type} - ${event.action}`,
+    );
   }
 
   /**
@@ -121,7 +155,7 @@ class Logger {
    */
   audit(action: string, adminId: string, details?: Record<string, any>): void {
     this.security({
-      type: 'admin_action',
+      type: "admin_action",
       action,
       userId: adminId,
       details,
@@ -132,16 +166,15 @@ class Logger {
    * Log performance metrics (request duration, DB query time, etc.)
    */
   metric(metricName: string, value: number, metadata?: LogMetadata): void {
-    const metricData = {
-      timestamp: this.getTimestamp(),
-      level: 'METRIC',
-      service: 'electrical-supplier-api',
-      environment: process.env.NODE_ENV || 'development',
-      metric: metricName,
-      value,
-      ...metadata,
-    };
-    console.log(JSON.stringify(metricData));
+    this.pino.info(
+      {
+        logType: "metric",
+        metric: metricName,
+        value,
+        ...metadata,
+      },
+      `Metric: ${metricName} = ${value}`,
+    );
   }
 
   /**
@@ -149,6 +182,13 @@ class Logger {
    */
   child(defaultMetadata: LogMetadata): RequestLogger {
     return new RequestLogger(this, defaultMetadata);
+  }
+
+  /**
+   * Get underlying Pino logger instance for direct access
+   */
+  getPinoLogger() {
+    return this.pino;
   }
 }
 
@@ -158,7 +198,7 @@ class Logger {
 class RequestLogger {
   constructor(
     private parent: Logger,
-    private metadata: LogMetadata
+    private metadata: LogMetadata,
   ) {}
 
   info(message: string, additionalMeta?: LogMetadata): void {
@@ -169,7 +209,11 @@ class RequestLogger {
     this.parent.warn(message, { ...this.metadata, ...additionalMeta });
   }
 
-  error(message: string, error?: Error | any, additionalMeta?: LogMetadata): void {
+  error(
+    message: string,
+    error?: Error | any,
+    additionalMeta?: LogMetadata,
+  ): void {
     this.parent.error(message, error, { ...this.metadata, ...additionalMeta });
   }
 

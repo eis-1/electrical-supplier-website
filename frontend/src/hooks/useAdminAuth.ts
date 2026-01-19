@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth.service';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authService } from "../services/auth.service";
 
 export const useAdminAuth = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ export const useAdminAuth = () => {
   useEffect(() => {
     const checkAuth = async () => {
       let token = authService.getToken();
-      const adminUserRaw = localStorage.getItem('adminUser');
+      const adminUserRaw = localStorage.getItem("adminUser");
 
       try {
         // If no token in memory but refresh cookie exists, attempt refresh.
@@ -22,7 +22,7 @@ export const useAdminAuth = () => {
         if (!token) {
           setIsAuthenticated(false);
           setAdmin(null);
-          navigate('/admin/login');
+          navigate("/admin/login");
           return;
         }
 
@@ -32,7 +32,7 @@ export const useAdminAuth = () => {
           await authService.logout();
           setIsAuthenticated(false);
           setAdmin(null);
-          navigate('/admin/login');
+          navigate("/admin/login");
           return;
         }
 
@@ -42,11 +42,11 @@ export const useAdminAuth = () => {
             const parsed = JSON.parse(adminUserRaw);
             setAdmin(parsed);
           } catch {
-            localStorage.setItem('adminUser', JSON.stringify(verifiedAdmin));
+            localStorage.setItem("adminUser", JSON.stringify(verifiedAdmin));
             setAdmin(verifiedAdmin);
           }
         } else {
-          localStorage.setItem('adminUser', JSON.stringify(verifiedAdmin));
+          localStorage.setItem("adminUser", JSON.stringify(verifiedAdmin));
           setAdmin(verifiedAdmin);
         }
 
@@ -55,7 +55,7 @@ export const useAdminAuth = () => {
         await authService.logout();
         setIsAuthenticated(false);
         setAdmin(null);
-        navigate('/admin/login');
+        navigate("/admin/login");
       } finally {
         setIsLoading(false);
       }
@@ -66,7 +66,7 @@ export const useAdminAuth = () => {
 
   const logout = () => {
     authService.logout().finally(() => {
-      navigate('/admin/login');
+      navigate("/admin/login");
     });
   };
 

@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db';
-import { Category } from '@prisma/client';
+import { prisma } from "../../config/db";
+import { Category } from "@prisma/client";
 
 interface CreateCategoryData {
   name: string;
@@ -13,7 +13,7 @@ export class CategoryRepository {
   async findAll(includeInactive: boolean = false): Promise<Category[]> {
     return prisma.category.findMany({
       where: includeInactive ? {} : { isActive: true },
-      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+      orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
   }
 
@@ -35,7 +35,10 @@ export class CategoryRepository {
     });
   }
 
-  async update(id: string, data: Partial<CreateCategoryData>): Promise<Category> {
+  async update(
+    id: string,
+    data: Partial<CreateCategoryData>,
+  ): Promise<Category> {
     return prisma.category.update({
       where: { id },
       data,

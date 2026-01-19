@@ -128,7 +128,7 @@ import { metrics } from "../utils/metrics";
 export function metricsMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const start = Date.now();
 
@@ -186,7 +186,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-changeme}
       - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
     depends_on:
@@ -442,7 +442,7 @@ docker-compose -f docker-compose.monitoring.yml up -d
 
 # Access dashboards
 # Prometheus: http://localhost:9090
-# Grafana: http://localhost:3000 (admin/admin123)
+# Grafana: http://localhost:3000 (admin / password from GRAFANA_ADMIN_PASSWORD env)
 # AlertManager: http://localhost:9093
 ```
 

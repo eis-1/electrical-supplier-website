@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
-import styles from './AdminProducts.module.css';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Modal } from '../../components/ui/Modal';
-import { FileUpload } from '../../components/ui/FileUpload';
-import { AdminNavbar } from '../../components/admin/AdminNavbar';
-import SEO from '../../components/common/SEO';
-import { productService } from '../../services/product.service';
-import { categoryService } from '../../services/category.service';
-import { brandService } from '../../services/brand.service';
-import { uploadService } from '../../services/upload.service';
-import { useAdminAuth } from '../../hooks/useAdminAuth';
-import type { Product, Category, Brand } from '../../types';
+import { useEffect, useState } from "react";
+import styles from "./AdminProducts.module.css";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { Modal } from "../../components/ui/Modal";
+import { FileUpload } from "../../components/ui/FileUpload";
+import { AdminNavbar } from "../../components/admin/AdminNavbar";
+import SEO from "../../components/common/SEO";
+import { productService } from "../../services/product.service";
+import { categoryService } from "../../services/category.service";
+import { brandService } from "../../services/brand.service";
+import { uploadService } from "../../services/upload.service";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
+import { can, getAdminRoleFromUser } from "../../utils/adminRbac";
+import type { Product, Category, Brand } from "../../types";
 
 interface ProductFormData {
   name: string;
@@ -25,7 +26,12 @@ interface ProductFormData {
 }
 
 const AdminProducts = () => {
-  const { isLoading: authLoading, logout } = useAdminAuth();
+  const { isLoading: authLoading, logout, admin } = useAdminAuth();
+  const role = getAdminRoleFromUser(admin);
+
+  const canCreateProduct = can(role, "product", "create");
+  const canUpdateProduct = can(role, "product", "update");
+  const canDeleteProduct = can(role, "product", "delete");
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -34,12 +40,12 @@ const AdminProducts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<ProductFormData>({
-    name: '',
-    model: '',
-    description: '',
-    categoryId: '',
-    brandId: '',
-    datasheetUrl: '',
+    name: "",
+    model: "",
+    description: "",
+    categoryId: "",
+    brandId: "",
+    datasheetUrl: "",
     datasheetFile: null,
     isFeatured: false,
   });
@@ -64,22 +70,26 @@ const AdminProducts = () => {
       setCategories(categoriesData);
       setBrands(brandsData);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      alert('Failed to load data');
+      console.error("Error fetching data:", error);
+      alert("Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
   const openCreateModal = () => {
+    if (!canCreateProduct) {
+      alert("You do not have permission to create products.");
+      return;
+    }
     setEditingProduct(null);
     setFormData({
-      name: '',
-      model: '',
-      description: '',
-      categoryId: '',
-      brandId: '',
-      datasheetUrl: '',
+      name: "",
+      model: "",
+      description: "",
+      categoryId: "",
+      brandId: "",
+      datasheetUrl: "",
       datasheetFile: null,
       isFeatured: false,
     });
@@ -88,14 +98,18 @@ const AdminProducts = () => {
   };
 
   const openEditModal = (product: Product) => {
+    if (!canUpdateProduct) {
+      alert("You do not have permission to edit products.");
+      return;
+    }
     setEditingProduct(product);
     setFormData({
       name: product.name,
-      model: product.model || '',
-      description: product.description || '',
-      categoryId: product.categoryId || '',
-      brandId: product.brandId || '',
-      datasheetUrl: product.datasheetUrl || '',
+      model: product.model || "",
+      description: product.description || "",
+      categoryId: product.categoryId || "",
+      brandId: product.brandId || "",
+      datasheetUrl: product.datasheetUrl || "",
       datasheetFile: null,
       isFeatured: product.isFeatured || false,
     });
@@ -106,16 +120,25 @@ const AdminProducts = () => {
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
-    if (!formData.name.trim()) errors.name = 'Product name is required';
-    if (!formData.categoryId) errors.categoryId = 'Category is required';
-    if (!formData.brandId) errors.brandId = 'Brand is required';
-    if (!formData.description.trim()) errors.description = 'Description is required';
+    if (!formData.name.trim()) errors.name = "Product name is required";
+    if (!formData.categoryId) errors.categoryId = "Category is required";
+    if (!formData.brandId) errors.brandId = "Brand is required";
+    if (!formData.description.trim())
+      errors.description = "Description is required";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async () => {
+    if (editingProduct && !canUpdateProduct) {
+      alert("You do not have permission to update products.");
+      return;
+    }
+    if (!editingProduct && !canCreateProduct) {
+      alert("You do not have permission to create products.");
+      return;
+    }
     if (!validateForm()) return;
 
     setSubmitLoading(true);
@@ -123,7 +146,9 @@ const AdminProducts = () => {
       // Upload datasheet if new file selected
       let datasheetUrl = formData.datasheetUrl;
       if (formData.datasheetFile) {
-        const uploadResult = await uploadService.uploadFile(formData.datasheetFile);
+        const uploadResult = await uploadService.uploadFile(
+          formData.datasheetFile,
+        );
         datasheetUrl = uploadResult.url;
       }
 
@@ -139,43 +164,57 @@ const AdminProducts = () => {
 
       if (editingProduct) {
         await productService.update(editingProduct.id, productData);
-        alert('Product updated successfully!');
+        alert("Product updated successfully!");
       } else {
         await productService.create(productData);
-        alert('Product created successfully!');
+        alert("Product created successfully!");
       }
       setIsModalOpen(false);
       fetchData();
     } catch (error: any) {
-      console.error('Error saving product:', error);
-      alert(error.response?.data?.message || 'Failed to save product');
+      console.error("Error saving product:", error);
+      alert(error.response?.data?.message || "Failed to save product");
     } finally {
       setSubmitLoading(false);
     }
   };
 
   const handleDelete = async (product: Product) => {
-    if (!window.confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
+    if (!canDeleteProduct) {
+      alert("You do not have permission to delete products.");
+      return;
+    }
+    if (
+      !window.confirm(
+        `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
       await productService.delete(product.id);
-      alert('Product deleted successfully!');
+      alert("Product deleted successfully!");
       fetchData();
     } catch (error: any) {
-      console.error('Error deleting product:', error);
-      alert(error.response?.data?.message || 'Failed to delete product');
+      console.error("Error deleting product:", error);
+      alert(error.response?.data?.message || "Failed to delete product");
     }
   };
 
   const toggleFeatured = async (product: Product) => {
+    if (!canUpdateProduct) {
+      alert("You do not have permission to update products.");
+      return;
+    }
     try {
-      await productService.update(product.id, { isFeatured: !product.isFeatured });
+      await productService.update(product.id, {
+        isFeatured: !product.isFeatured,
+      });
       fetchData();
     } catch (error) {
-      console.error('Error toggling featured:', error);
-      alert('Failed to update product');
+      console.error("Error toggling featured:", error);
+      alert("Failed to update product");
     }
   };
 
@@ -212,7 +251,7 @@ const AdminProducts = () => {
             <div className={styles.stat}>
               <span className={styles.statLabel}>Featured</span>
               <span className={styles.statValue}>
-                {products.filter(p => p.isFeatured).length}
+                {products.filter((p) => p.isFeatured).length}
               </span>
             </div>
             <div className={styles.stat}>
@@ -226,7 +265,9 @@ const AdminProducts = () => {
           </div>
 
           <div className={styles.toolbar}>
-            <Button onClick={openCreateModal}>+ Add New Product</Button>
+            {canCreateProduct ? (
+              <Button onClick={openCreateModal}>+ Add New Product</Button>
+            ) : null}
           </div>
 
           <div className={styles.tableContainer}>
@@ -247,35 +288,47 @@ const AdminProducts = () => {
                     <td>
                       <span className={styles.productName}>{product.name}</span>
                     </td>
-                    <td>{product.model || '—'}</td>
+                    <td>{product.model || "—"}</td>
                     <td>
-                      {categories.find(c => c.id === product.categoryId)?.name || '—'}
+                      {categories.find((c) => c.id === product.categoryId)
+                        ?.name || "—"}
                     </td>
                     <td>
-                      {brands.find(b => b.id === product.brandId)?.name || '—'}
+                      {brands.find((b) => b.id === product.brandId)?.name ||
+                        "—"}
                     </td>
                     <td>
                       <button
                         className={`${styles.badge} ${product.isFeatured ? styles.badgeSuccess : styles.badgeDefault}`}
                         onClick={() => toggleFeatured(product)}
+                        disabled={!canUpdateProduct}
+                        title={
+                          canUpdateProduct
+                            ? "Toggle featured"
+                            : "You do not have permission to update products"
+                        }
                       >
-                        {product.isFeatured ? '★ Featured' : 'Not Featured'}
+                        {product.isFeatured ? "★ Featured" : "Not Featured"}
                       </button>
                     </td>
                     <td>
                       <div className={styles.actions}>
-                        <button
-                          className={styles.btnEdit}
-                          onClick={() => openEditModal(product)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className={styles.btnDelete}
-                          onClick={() => handleDelete(product)}
-                        >
-                          Delete
-                        </button>
+                        {canUpdateProduct ? (
+                          <button
+                            className={styles.btnEdit}
+                            onClick={() => openEditModal(product)}
+                          >
+                            Edit
+                          </button>
+                        ) : null}
+                        {canDeleteProduct ? (
+                          <button
+                            className={styles.btnDelete}
+                            onClick={() => handleDelete(product)}
+                          >
+                            Delete
+                          </button>
+                        ) : null}
                       </div>
                     </td>
                   </tr>
@@ -295,9 +348,9 @@ const AdminProducts = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingProduct ? 'Edit Product' : 'Create New Product'}
+        title={editingProduct ? "Edit Product" : "Create New Product"}
         onSubmit={handleSubmit}
-        submitText={editingProduct ? 'Update Product' : 'Create Product'}
+        submitText={editingProduct ? "Update Product" : "Create Product"}
         submitDisabled={submitLoading}
         size="lg"
       >
@@ -306,7 +359,9 @@ const AdminProducts = () => {
             <Input
               label="Product Name *"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               error={formErrors.name}
               placeholder="e.g., Circuit Breaker MCB 32A"
             />
@@ -316,7 +371,9 @@ const AdminProducts = () => {
             <Input
               label="Model Number"
               value={formData.model}
-              onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, model: e.target.value })
+              }
               placeholder="e.g., MCB-32A-C"
             />
           </div>
@@ -327,8 +384,10 @@ const AdminProducts = () => {
               <select
                 id="admin-product-category"
                 value={formData.categoryId}
-                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                className={formErrors.categoryId ? styles.error : ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, categoryId: e.target.value })
+                }
+                className={formErrors.categoryId ? styles.error : ""}
               >
                 <option value="">Select Category</option>
                 {categories.map((cat) => (
@@ -337,7 +396,11 @@ const AdminProducts = () => {
                   </option>
                 ))}
               </select>
-              {formErrors.categoryId && <span className={styles.errorText}>{formErrors.categoryId}</span>}
+              {formErrors.categoryId && (
+                <span className={styles.errorText}>
+                  {formErrors.categoryId}
+                </span>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -345,8 +408,10 @@ const AdminProducts = () => {
               <select
                 id="admin-product-brand"
                 value={formData.brandId}
-                onChange={(e) => setFormData({ ...formData, brandId: e.target.value })}
-                className={formErrors.brandId ? styles.error : ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, brandId: e.target.value })
+                }
+                className={formErrors.brandId ? styles.error : ""}
               >
                 <option value="">Select Brand</option>
                 {brands.map((brand) => (
@@ -355,7 +420,9 @@ const AdminProducts = () => {
                   </option>
                 ))}
               </select>
-              {formErrors.brandId && <span className={styles.errorText}>{formErrors.brandId}</span>}
+              {formErrors.brandId && (
+                <span className={styles.errorText}>{formErrors.brandId}</span>
+              )}
             </div>
           </div>
 
@@ -364,12 +431,18 @@ const AdminProducts = () => {
               <label>Description *</label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Detailed product description..."
                 rows={4}
-                className={formErrors.description ? styles.error : ''}
+                className={formErrors.description ? styles.error : ""}
               />
-              {formErrors.description && <span className={styles.errorText}>{formErrors.description}</span>}
+              {formErrors.description && (
+                <span className={styles.errorText}>
+                  {formErrors.description}
+                </span>
+              )}
             </div>
           </div>
 
@@ -378,9 +451,21 @@ const AdminProducts = () => {
               label="Product Datasheet (PDF)"
               accept=".pdf"
               maxSizeMB={10}
-              onFileSelect={(file) => setFormData({ ...formData, datasheetFile: file })}
-              onFileRemove={() => setFormData({ ...formData, datasheetFile: null, datasheetUrl: '' })}
-              currentFileUrl={formData.datasheetUrl && !formData.datasheetFile ? uploadService.getFileUrl(formData.datasheetUrl) : undefined}
+              onFileSelect={(file) =>
+                setFormData({ ...formData, datasheetFile: file })
+              }
+              onFileRemove={() =>
+                setFormData({
+                  ...formData,
+                  datasheetFile: null,
+                  datasheetUrl: "",
+                })
+              }
+              currentFileUrl={
+                formData.datasheetUrl && !formData.datasheetFile
+                  ? uploadService.getFileUrl(formData.datasheetUrl)
+                  : undefined
+              }
             />
           </div>
 
@@ -389,7 +474,9 @@ const AdminProducts = () => {
               <input
                 type="checkbox"
                 checked={formData.isFeatured}
-                onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                onChange={(e) =>
+                  setFormData({ ...formData, isFeatured: e.target.checked })
+                }
               />
               <span>Feature this product on homepage</span>
             </label>

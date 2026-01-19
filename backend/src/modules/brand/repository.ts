@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db';
-import { Brand } from '@prisma/client';
+import { prisma } from "../../config/db";
+import { Brand } from "@prisma/client";
 
 interface CreateBrandData {
   name: string;
@@ -15,7 +15,7 @@ export class BrandRepository {
   async findAll(includeInactive: boolean = false): Promise<Brand[]> {
     return prisma.brand.findMany({
       where: includeInactive ? {} : { isActive: true },
-      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+      orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
   }
 

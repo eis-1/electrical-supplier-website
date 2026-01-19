@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db';
-import { Product, Prisma } from '@prisma/client';
+import { prisma } from "../../config/db";
+import { Product, Prisma } from "@prisma/client";
 
 export interface ProductWithRelations extends Product {
   category?: any;
@@ -33,10 +33,15 @@ export class ProductRepository {
   async findAll(
     filters: ProductFilters,
     page: number = 1,
-    limit: number = 12
-  ): Promise<{ items: ProductWithRelations[]; total: number; page: number; limit: number }> {
+    limit: number = 12,
+  ): Promise<{
+    items: ProductWithRelations[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const skip = (page - 1) * limit;
-    
+
     const where: Prisma.ProductWhereInput = { isActive: true };
 
     // Category filter
@@ -74,7 +79,7 @@ export class ProductRepository {
           category: true,
           brand: true,
         },
-        orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+        orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
         skip,
         take: limit,
       }),
@@ -96,7 +101,7 @@ export class ProductRepository {
         category: true,
         brand: true,
         specs: {
-          orderBy: { displayOrder: 'asc' },
+          orderBy: { displayOrder: "asc" },
         },
       },
     });
@@ -109,7 +114,7 @@ export class ProductRepository {
         category: true,
         brand: true,
         specs: {
-          orderBy: { displayOrder: 'asc' },
+          orderBy: { displayOrder: "asc" },
         },
       },
     });
@@ -121,11 +126,12 @@ export class ProductRepository {
     return prisma.product.create({
       data: {
         ...productData,
-        ...(specs && specs.length > 0 && {
-          specs: {
-            create: specs,
-          },
-        }),
+        ...(specs &&
+          specs.length > 0 && {
+            specs: {
+              create: specs,
+            },
+          }),
       },
       include: {
         category: true,
@@ -149,11 +155,12 @@ export class ProductRepository {
       where: { id },
       data: {
         ...productData,
-        ...(specs && specs.length > 0 && {
-          specs: {
-            create: specs,
-          },
-        }),
+        ...(specs &&
+          specs.length > 0 && {
+            specs: {
+              create: specs,
+            },
+          }),
       },
       include: {
         category: true,

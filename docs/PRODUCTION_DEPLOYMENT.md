@@ -245,7 +245,8 @@ services:
     environment:
       POSTGRES_DB: electrical_supplier
       POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      # Set POSTGRES_PASSWORD in your environment/.env (do not use weak defaults)
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -261,7 +262,7 @@ services:
       - "5000:5000"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://user:password@postgres:5432/electrical_supplier
+      DATABASE_URL: postgresql://user:${POSTGRES_PASSWORD}@postgres:5432/electrical_supplier
       REDIS_URL: redis://redis:6379
     depends_on:
       - postgres

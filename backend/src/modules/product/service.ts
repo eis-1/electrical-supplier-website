@@ -1,5 +1,5 @@
-import { ProductRepository, ProductWithRelations } from './repository';
-import { AppError } from '../../middlewares/error.middleware';
+import { ProductRepository, ProductWithRelations } from "./repository";
+import { AppError } from "../../middlewares/error.middleware";
 
 interface ProductFilters {
   category?: string;
@@ -31,13 +31,13 @@ export class ProductService {
   }
 
   private slugify(input: string): string {
-    return (input || '')
+    return (input || "")
       .toLowerCase()
       .trim()
-      .replace(/['"]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/['"]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   }
 
   private async generateUniqueSlug(base: string): Promise<string> {
@@ -56,7 +56,16 @@ export class ProductService {
     return `${fallback}-${Date.now()}`;
   }
 
-  async getAllProducts(filters: ProductFilters, page: number = 1, limit: number = 12): Promise<{ items: ProductWithRelations[]; total: number; page: number; limit: number }> {
+  async getAllProducts(
+    filters: ProductFilters,
+    page: number = 1,
+    limit: number = 12,
+  ): Promise<{
+    items: ProductWithRelations[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     return this.repository.findAll(filters, page, limit);
   }
 
@@ -64,7 +73,7 @@ export class ProductService {
     const product = await this.repository.findById(id);
 
     if (!product) {
-      throw new AppError(404, 'Product not found');
+      throw new AppError(404, "Product not found");
     }
 
     return product;
@@ -74,15 +83,15 @@ export class ProductService {
     const product = await this.repository.findBySlug(slug);
 
     if (!product) {
-      throw new AppError(404, 'Product not found');
+      throw new AppError(404, "Product not found");
     }
 
     return product;
   }
 
   async createProduct(data: CreateProductData) {
-    const desiredSlug = (data.slug || '').trim();
-    const baseForSlug = [data.name, data.model].filter(Boolean).join(' ');
+    const desiredSlug = (data.slug || "").trim();
+    const baseForSlug = [data.name, data.model].filter(Boolean).join(" ");
 
     const slug = desiredSlug
       ? this.slugify(desiredSlug)
@@ -92,7 +101,7 @@ export class ProductService {
     if (desiredSlug) {
       const existing = await this.repository.findBySlug(slug);
       if (existing) {
-        throw new AppError(409, 'Product with this slug already exists');
+        throw new AppError(409, "Product with this slug already exists");
       }
     }
 
@@ -107,12 +116,12 @@ export class ProductService {
     await this.getProductById(id);
 
     // Check if slug is being updated and if it's already taken
-    if (typeof data.slug === 'string' && data.slug.trim().length > 0) {
+    if (typeof data.slug === "string" && data.slug.trim().length > 0) {
       const normalizedSlug = this.slugify(data.slug);
       data.slug = normalizedSlug;
       const existing = await this.repository.findBySlug(normalizedSlug);
       if (existing && existing.id !== id) {
-        throw new AppError(409, 'Product with this slug already exists');
+        throw new AppError(409, "Product with this slug already exists");
       }
     }
 

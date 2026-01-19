@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db';
-import { QuoteRequest } from '@prisma/client';
+import { prisma } from "../../config/db";
+import { QuoteRequest } from "@prisma/client";
 
 interface CreateQuoteData {
   name: string;
@@ -37,11 +37,14 @@ export class QuoteRepository {
         phone,
         createdAt: { gte: since },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
-  async countByEmailSince(params: { email: string; since: Date }): Promise<number> {
+  async countByEmailSince(params: {
+    email: string;
+    since: Date;
+  }): Promise<number> {
     const { email, since } = params;
     return prisma.quoteRequest.count({
       where: {
@@ -55,8 +58,8 @@ export class QuoteRepository {
     filters: QuoteFilters,
     page: number = 1,
     limit: number = 20,
-    sortBy: string = 'createdAt',
-    order: 'asc' | 'desc' = 'desc'
+    sortBy: string = "createdAt",
+    order: "asc" | "desc" = "desc",
   ): Promise<{ quotes: QuoteRequest[]; total: number }> {
     const skip = (page - 1) * limit;
     const where: any = {};

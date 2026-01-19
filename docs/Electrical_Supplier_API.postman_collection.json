@@ -36,6 +36,16 @@
       "key": "productId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@electricalsupplier.com",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -120,7 +130,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@electricalsupplier.com\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}{{apiPrefix}}/auth/login",
@@ -341,7 +351,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@electricalsupplier.com\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}{{apiPrefix}}/auth/login",

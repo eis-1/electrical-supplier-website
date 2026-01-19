@@ -1,0 +1,265 @@
+openapi: 3.0.3
+info:
+  title: Electrical Supplier API
+  version: 1.0.0
+  description: |
+    Minimal OpenAPI spec used by automated contract tests.
+
+servers:
+  - url: http://localhost:5000
+
+tags:
+  - name: Health
+  - name: Auth
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginSuccessResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/auth/verify:
+    post:
+      tags: [Auth]
+      summary: Verify access token
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Token verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifySuccessResponse"
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      description: Requires refreshToken cookie + CSRF header.
+      responses:
+        "200":
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshSuccessResponse"
+
+  /api/v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      description: Requires refreshToken cookie + CSRF header.
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutSuccessResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, timestamp, uptime, memory, security]
+      properties:
+        status:
+          type: string
+          example: ok
+        timestamp:
+          type: string
+          format: date-time
+        uptime:
+          type: number
+          description: Process uptime in seconds
+        memory:
+          type: object
+          additionalProperties: false
+          required: [heapUsed, heapTotal, rss]
+          properties:
+            heapUsed:
+              type: string
+              example: 12MB
+            heapTotal:
+              type: string
+              example: 48MB
+            rss:
+              type: string
+              example: 90MB
+        security:
+          type: object
+          additionalProperties: false
+          required: [hsts, helmet, rateLimiting, requestId]
+          properties:
+            hsts:
+              type: boolean
+            helmet:
+              type: boolean
+            rateLimiting:
+              type: boolean
+            requestId:
+              type: boolean
+
+    AdminUser:
+      type: object
+      additionalProperties: false
+      required: [id, email, name, role]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          description: Admin role
+          enum: [superadmin, admin, editor, viewer]
+
+    AdminTokenClaims:
+      type: object
+      additionalProperties: false
+      description: |
+        JWT payload returned by /api/v1/auth/verify.
+        Includes standard JWT timestamps (iat/exp).
+      required: [id, email, role, iat, exp]
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          description: Admin role
+          enum: [superadmin, admin, editor, viewer]
+        iat:
+          type: integer
+          description: Issued-at timestamp (seconds since epoch)
+        exp:
+          type: integer
+          description: Expiration timestamp (seconds since epoch)
+
+    ApiSuccessBase:
+      type: object
+      additionalProperties: false
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        message:
+          type: string
+        data: {}
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+        details: {}
+
+    LoginSuccessResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiSuccessBase"
+        - type: object
+          properties:
+            data:
+              type: object
+              additionalProperties: false
+              required: [token, admin]
+              properties:
+                token:
+                  type: string
+                admin:
+                  $ref: "#/components/schemas/AdminUser"
+
+    VerifySuccessResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiSuccessBase"
+        - type: object
+          properties:
+            data:
+              type: object
+              additionalProperties: false
+              required: [valid, admin]
+              properties:
+                valid:
+                  type: boolean
+                  enum: [true]
+                admin:
+                  $ref: "#/components/schemas/AdminTokenClaims"
+
+    RefreshSuccessResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiSuccessBase"
+        - type: object
+          properties:
+            data:
+              type: object
+              additionalProperties: false
+              required: [token]
+              properties:
+                token:
+                  type: string
+
+    LogoutSuccessResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiSuccessBase"
+        - type: object
+          properties:
+            data:
+              nullable: true

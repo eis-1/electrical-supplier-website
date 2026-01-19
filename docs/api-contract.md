@@ -31,7 +31,7 @@ Admin login
 ```json
 {
   "email": "admin@example.com",
-  "password": "securePassword123"
+  "password": "your-secure-password"
 }
 ```
 

@@ -1,15 +1,15 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import styles from './Products.module.css';
-import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { Input } from '../../components/ui/Input';
-import { LazyImage } from '../../components/ui/LazyImage';
-import SEO from '../../components/common/SEO';
-import { productService } from '../../services/product.service';
-import { categoryService } from '../../services/category.service';
-import { brandService } from '../../services/brand.service';
-import type { Product, Category, Brand } from '../../types/index';
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import styles from "./Products.module.css";
+import { Button } from "../../components/ui/Button";
+import { Card } from "../../components/ui/Card";
+import { Input } from "../../components/ui/Input";
+import { LazyImage } from "../../components/ui/LazyImage";
+import SEO from "../../components/common/SEO";
+import { productService } from "../../services/product.service";
+import { categoryService } from "../../services/category.service";
+import { brandService } from "../../services/brand.service";
+import type { Product, Category, Brand } from "../../types/index";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,31 +17,56 @@ const Products = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
-  const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, totalPages: 0 });
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") || "",
+  );
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0,
+  });
 
-  const selectedCategory = useMemo(() => searchParams.get('category') || '', [searchParams]);
-  const selectedBrands = useMemo(() => searchParams.getAll('brand'), [searchParams]);
-  const selectedBrandsKey = useMemo(() => selectedBrands.join(','), [selectedBrands]);
-  const searchQuery = useMemo(() => searchParams.get('search') || '', [searchParams]);
-  const currentPage = useMemo(() => parseInt(searchParams.get('page') || '1', 10), [searchParams]);
+  const selectedCategory = useMemo(
+    () => searchParams.get("category") || "",
+    [searchParams],
+  );
+  const selectedBrands = useMemo(
+    () => searchParams.getAll("brand"),
+    [searchParams],
+  );
+  const selectedBrandsKey = useMemo(
+    () => selectedBrands.join(","),
+    [selectedBrands],
+  );
+  const searchQuery = useMemo(
+    () => searchParams.get("search") || "",
+    [searchParams],
+  );
+  const currentPage = useMemo(
+    () => parseInt(searchParams.get("page") || "1", 10),
+    [searchParams],
+  );
 
   const seoTitle = useMemo(() => {
     if (searchQuery) return `Search: ${searchQuery}`;
     if (selectedCategory) {
-      const cat = categories.find(c => c.id === selectedCategory);
-      return cat ? `${cat.name} Products` : 'Products';
+      const cat = categories.find((c) => c.slug === selectedCategory);
+      return cat ? `${cat.name} Products` : "Products";
     }
-    return 'Products';
+    return "Products";
   }, [searchQuery, selectedCategory, categories]);
 
   const seoDescription = useMemo(() => {
-    if (searchQuery) return `Search results for "${searchQuery}" - industrial electrical products and components.`;
+    if (searchQuery)
+      return `Search results for "${searchQuery}" - industrial electrical products and components.`;
     if (selectedCategory) {
-      const cat = categories.find(c => c.id === selectedCategory);
-      return cat ? `Browse ${cat.name.toLowerCase()} from top brands - quality industrial electrical components.` : 'Browse our complete range of industrial electrical products.';
+      const cat = categories.find((c) => c.slug === selectedCategory);
+      return cat
+        ? `Browse ${cat.name.toLowerCase()} from top brands - quality industrial electrical components.`
+        : "Browse our complete range of industrial electrical products.";
     }
-    return 'Browse our complete range of industrial electrical products, automation components, and solutions from authorized brands.';
+    return "Browse our complete range of industrial electrical products, automation components, and solutions from authorized brands.";
   }, [searchQuery, selectedCategory, categories]);
 
   useEffect(() => {
@@ -54,7 +79,7 @@ const Products = () => {
         setCategories(categoriesData);
         setBrands(brandsData);
       } catch (error) {
-        console.error('Error fetching filters:', error);
+        console.error("Error fetching filters:", error);
       }
     };
     fetchFilters();
@@ -74,56 +99,73 @@ const Products = () => {
         setProducts(data.items);
         setPagination(data.pagination);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, [selectedCategory, selectedBrands, selectedBrandsKey, searchQuery, currentPage]);
+  }, [
+    selectedCategory,
+    selectedBrands,
+    selectedBrandsKey,
+    searchQuery,
+    currentPage,
+  ]);
 
-  const handleCategoryFilter = useCallback((slug: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (slug === selectedCategory) {
-      newParams.delete('category');
-    } else {
-      newParams.set('category', slug);
-    }
-    newParams.delete('page');
-    setSearchParams(newParams);
-  }, [searchParams, selectedCategory, setSearchParams]);
+  const handleCategoryFilter = useCallback(
+    (slug: string) => {
+      const newParams = new URLSearchParams(searchParams);
+      if (slug === selectedCategory) {
+        newParams.delete("category");
+      } else {
+        newParams.set("category", slug);
+      }
+      newParams.delete("page");
+      setSearchParams(newParams);
+    },
+    [searchParams, selectedCategory, setSearchParams],
+  );
 
-  const handleBrandFilter = useCallback((slug: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    const currentBrands = newParams.getAll('brand');
+  const handleBrandFilter = useCallback(
+    (slug: string) => {
+      const newParams = new URLSearchParams(searchParams);
+      const currentBrands = newParams.getAll("brand");
 
-    if (currentBrands.includes(slug)) {
-      newParams.delete('brand');
-      currentBrands.filter(b => b !== slug).forEach(b => newParams.append('brand', b));
-    } else {
-      newParams.append('brand', slug);
-    }
-    newParams.delete('page');
-    setSearchParams(newParams);
-  }, [searchParams, setSearchParams]);
+      if (currentBrands.includes(slug)) {
+        newParams.delete("brand");
+        currentBrands
+          .filter((b) => b !== slug)
+          .forEach((b) => newParams.append("brand", b));
+      } else {
+        newParams.append("brand", slug);
+      }
+      newParams.delete("page");
+      setSearchParams(newParams);
+    },
+    [searchParams, setSearchParams],
+  );
 
-  const handleSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    const newParams = new URLSearchParams(searchParams);
-    if (searchInput.trim()) {
-      newParams.set('search', searchInput.trim());
-    } else {
-      newParams.delete('search');
-    }
-    newParams.delete('page');
-    setSearchParams(newParams);
-  }, [searchInput, searchParams, setSearchParams]);
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const newParams = new URLSearchParams(searchParams);
+      if (searchInput.trim()) {
+        newParams.set("search", searchInput.trim());
+      } else {
+        newParams.delete("search");
+      }
+      newParams.delete("page");
+      setSearchParams(newParams);
+    },
+    [searchInput, searchParams, setSearchParams],
+  );
 
   const clearSearch = useCallback(() => {
-    setSearchInput('');
+    setSearchInput("");
     const newParams = new URLSearchParams(searchParams);
-    newParams.delete('search');
-    newParams.delete('page');
+    newParams.delete("search");
+    newParams.delete("page");
     setSearchParams(newParams);
   }, [searchParams, setSearchParams]);
 
@@ -199,7 +241,9 @@ const Products = () => {
           {/* Products Grid */}
           <main className={styles.productsMain}>
             {loading ? (
-              <div className="loading"><div className="spinner"></div></div>
+              <div className="loading">
+                <div className="spinner"></div>
+              </div>
             ) : products.length === 0 ? (
               <div className={styles.noResults}>
                 <p>No products found matching your criteria.</p>
@@ -208,29 +252,51 @@ const Products = () => {
               <>
                 <div className={styles.productsGrid}>
                   {products.map((product) => {
-                    const productName = `${product.name}${product.model ? ` - ${product.model}` : ''}`;
+                    const productName = `${product.name}${product.model ? ` - ${product.model}` : ""}`;
                     const quoteParams = new URLSearchParams({ productName });
                     const quoteLink = `/quote?${quoteParams.toString()}`;
 
                     return (
                       <Card key={product.id} hoverable>
                         <div className={styles.productCard}>
-                          <Link to={`/products/${product.slug}`} className={styles.productLink}>
+                          <Link
+                            to={`/products/${product.slug}`}
+                            className={styles.productLink}
+                          >
                             <div className={styles.productImage}>
-                              {product.image ? (
-                                <LazyImage src={product.image} alt={product.name} />
-                              ) : (
-                                <div className={styles.imagePlaceholder}>No Image</div>
-                              )}
+                              <LazyImage
+                                src={
+                                  product.image ||
+                                  "/assets/product-placeholder.svg"
+                                }
+                                alt={product.name}
+                                placeholderSrc="/assets/product-placeholder.svg"
+                                fallbackSrc="/assets/product-placeholder.svg"
+                              />
                             </div>
                             <div className={styles.productInfo}>
                               <h3>{product.name}</h3>
-                              {product.brand && <p className={styles.brand}>{product.brand.name}</p>}
-                              {product.model && <p className={styles.model}>Model: {product.model}</p>}
+                              {product.brand && (
+                                <p className={styles.brand}>
+                                  {product.brand.name}
+                                </p>
+                              )}
+                              {product.model && (
+                                <p className={styles.model}>
+                                  Model: {product.model}
+                                </p>
+                              )}
                             </div>
                           </Link>
                           <div className={styles.productActions}>
-                            <Button as="link" to={quoteLink} fullWidth size="sm">Request Quote</Button>
+                            <Button
+                              as="link"
+                              to={quoteLink}
+                              fullWidth
+                              size="sm"
+                            >
+                              Request Quote
+                            </Button>
                           </div>
                         </div>
                       </Card>
@@ -241,13 +307,16 @@ const Products = () => {
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
                   <div className={styles.pagination}>
-                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                    {Array.from(
+                      { length: pagination.totalPages },
+                      (_, i) => i + 1,
+                    ).map((page) => (
                       <button
                         key={page}
-                        className={`${styles.pageButton} ${page === currentPage ? styles.active : ''}`}
+                        className={`${styles.pageButton} ${page === currentPage ? styles.active : ""}`}
                         onClick={() => {
                           const newParams = new URLSearchParams(searchParams);
-                          newParams.set('page', page.toString());
+                          newParams.set("page", page.toString());
                           setSearchParams(newParams);
                         }}
                       >

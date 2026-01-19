@@ -1,8 +1,8 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useRef, useState, useEffect } from 'react';
-import { Button } from '../ui/Button';
-import styles from './AdminNavbar.module.css';
-import { useNavbarHeightCssVar } from '../../hooks/useNavbarHeight';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
+import { Button } from "../ui/Button";
+import styles from "./AdminNavbar.module.css";
+import { useNavbarHeightCssVar } from "../../hooks/useNavbarHeight";
 
 interface AdminNavbarProps {
   onLogout: () => void;
@@ -16,7 +16,11 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Keep `--navbar-height` in sync with the actual admin navbar height (wraps on small screens).
-  useNavbarHeightCssVar(navRef, [location.pathname, isScrolled, isMobileMenuOpen]);
+  useNavbarHeightCssVar(navRef, [
+    location.pathname,
+    isScrolled,
+    isMobileMenuOpen,
+  ]);
 
   // Scroll effect
   useEffect(() => {
@@ -24,8 +28,8 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
       setIsScrolled(window.scrollY > 20);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close mobile menu on route change
@@ -34,10 +38,10 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
   }, [location]);
 
   const navItems = [
-    { path: '/admin/dashboard', label: '📊 Dashboard', icon: '📊' },
-    { path: '/admin/products', label: '📦 Products', icon: '📦' },
-    { path: '/admin/quotes', label: '💼 Quotes', icon: '💼' },
-    { path: '/admin/categories', label: '🏷️ Categories', icon: '🏷️' },
+    { path: "/admin/dashboard", label: "📊 Dashboard", icon: "📊" },
+    { path: "/admin/products", label: "📦 Products", icon: "📦" },
+    { path: "/admin/quotes", label: "💼 Quotes", icon: "💼" },
+    { path: "/admin/categories", label: "🏷️ Categories", icon: "🏷️" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -45,7 +49,7 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
   return (
     <nav
       ref={navRef}
-      className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''} ${isMobileMenuOpen ? styles.menuOpen : ''}`}
+      className={`${styles.navbar} ${isScrolled ? styles.scrolled : ""} ${isMobileMenuOpen ? styles.menuOpen : ""}`}
     >
       <div className="container">
         <div className={styles.navContent}>
@@ -53,7 +57,7 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
             <button
               type="button"
               className={styles.logo}
-              onClick={() => navigate('/admin/dashboard')}
+              onClick={() => navigate("/admin/dashboard")}
               aria-label="Go to Admin Dashboard"
               title="Go to Dashboard"
             >
@@ -66,10 +70,12 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
                   key={item.path}
                   type="button"
                   onClick={() => navigate(item.path)}
-                  className={`${styles.navLink} ${isActive(item.path) ? styles.navLinkActive : ''}`}
+                  className={`${styles.navLink} ${isActive(item.path) ? styles.navLinkActive : ""}`}
                 >
                   <span className={styles.navIcon}>{item.icon}</span>
-                  <span className={styles.navLabel}>{item.label.replace(/^\p{Emoji}\s*/u, '')}</span>
+                  <span className={styles.navLabel}>
+                    {item.label.replace(/^\p{Emoji}\s*/u, "")}
+                  </span>
                 </button>
               ))}
             </div>
@@ -78,7 +84,7 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className={styles.navButton}
             >
               🏠 Visit Site
@@ -117,10 +123,10 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
                   navigate(item.path);
                   setIsMobileMenuOpen(false);
                 }}
-                className={`${styles.mobileNavLink} ${isActive(item.path) ? styles.mobileNavLinkActive : ''}`}
+                className={`${styles.mobileNavLink} ${isActive(item.path) ? styles.mobileNavLinkActive : ""}`}
               >
                 <span className={styles.mobileNavIcon}>{item.icon}</span>
-                <span>{item.label.replace(/^\p{Emoji}\s*/u, '')}</span>
+                <span>{item.label.replace(/^\p{Emoji}\s*/u, "")}</span>
               </button>
             ))}
             <div className={styles.mobileMenuActions}>
@@ -128,7 +134,7 @@ export const AdminNavbar = ({ onLogout }: AdminNavbarProps) => {
                 variant="outline"
                 size="md"
                 onClick={() => {
-                  navigate('/');
+                  navigate("/");
                   setIsMobileMenuOpen(false);
                 }}
                 fullWidth

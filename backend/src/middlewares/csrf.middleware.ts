@@ -1,37 +1,37 @@
-import { Request, Response, NextFunction } from 'express';
-import crypto from 'crypto';
-import { ApiResponse } from '../utils/response';
-import { logger } from '../utils/logger';
+import { Request, Response, NextFunction } from "express";
+import crypto from "crypto";
+import { ApiResponse } from "../utils/response";
+import { logger } from "../utils/logger";
 
 /**
  * CSRF (Cross-Site Request Forgery) Protection Middleware
- * 
+ *
  * Implements Double Submit Cookie pattern:
  * 1. Server generates a random CSRF token
  * 2. Token is sent both as a cookie and expected in request header/body
  * 3. Server validates both match for state-changing operations
- * 
+ *
  * Use this for any endpoint that:
  * - Uses cookies for authentication (refresh token)
  * - Performs state-changing operations (POST/PUT/PATCH/DELETE)
  */
 
 const CSRF_TOKEN_LENGTH = 32;
-const CSRF_COOKIE_NAME = 'csrf-token';
-const CSRF_HEADER_NAME = 'x-csrf-token';
-const CSRF_BODY_FIELD = 'csrfToken';
+const CSRF_COOKIE_NAME = "csrf-token";
+const CSRF_HEADER_NAME = "x-csrf-token";
+const CSRF_BODY_FIELD = "csrfToken";
 
 /**
  * Generate a cryptographically secure CSRF token
  */
 function generateCsrfToken(): string {
-  return crypto.randomBytes(CSRF_TOKEN_LENGTH).toString('hex');
+  return crypto.randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
 }
 
 /**
  * Middleware: Generate and set CSRF token
  * Call this on routes that need CSRF protection (usually auth routes)
- * 
+ *
  * The token is set as:
  * 1. HttpOnly cookie (for server-side validation)
  * 2. Response header (for client to read and include in subsequent requests)
@@ -43,8 +43,8 @@ export function setCsrfToken(_req: Request, res: Response, next: NextFunction) {
   // Set as HttpOnly cookie (secure in production)
   res.cookie(CSRF_COOKIE_NAME, csrfToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   });
 
@@ -57,7 +57,7 @@ export function setCsrfToken(_req: Request, res: Response, next: NextFunction) {
 /**
  * Middleware: Validate CSRF token
  * Use this to protect state-changing operations
- * 
+ *
  * Expects token in either:
  * - Request header: x-csrf-token
  * - Request body: csrfToken
@@ -65,10 +65,10 @@ export function setCsrfToken(_req: Request, res: Response, next: NextFunction) {
 export function validateCsrfToken(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   // Skip CSRF validation for safe methods (GET, HEAD, OPTIONS)
-  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  const safeMethods = ["GET", "HEAD", "OPTIONS"];
   if (safeMethods.includes(req.method)) {
     return next();
   }
@@ -78,41 +78,40 @@ export function validateCsrfToken(
 
   // Get token from request (header or body)
   const requestToken =
-    req.headers[CSRF_HEADER_NAME.toLowerCase()] ||
-    req.body?.[CSRF_BODY_FIELD];
+    req.headers[CSRF_HEADER_NAME.toLowerCase()] || req.body?.[CSRF_BODY_FIELD];
 
   // Validate both tokens exist
   if (!cookieToken) {
     logger.security({
-      type: 'csrf',
-      action: 'missing_cookie_token',
+      type: "csrf",
+      action: "missing_cookie_token",
       details: { method: req.method, path: req.path, ip: req.ip },
     });
-    return ApiResponse.forbidden(res, 'CSRF token missing in cookie');
+    return ApiResponse.forbidden(res, "CSRF token missing in cookie");
   }
 
   if (!requestToken) {
     logger.security({
-      type: 'csrf',
-      action: 'missing_request_token',
+      type: "csrf",
+      action: "missing_request_token",
       details: { method: req.method, path: req.path, ip: req.ip },
     });
-    return ApiResponse.forbidden(res, 'CSRF token missing in request');
+    return ApiResponse.forbidden(res, "CSRF token missing in request");
   }
 
   // Validate tokens match (constant-time comparison to prevent timing attacks)
   const isValid = crypto.timingSafeEqual(
     Buffer.from(cookieToken),
-    Buffer.from(requestToken as string)
+    Buffer.from(requestToken as string),
   );
 
   if (!isValid) {
     logger.security({
-      type: 'csrf',
-      action: 'token_mismatch',
+      type: "csrf",
+      action: "token_mismatch",
       details: { method: req.method, path: req.path, ip: req.ip },
     });
-    return ApiResponse.forbidden(res, 'Invalid CSRF token');
+    return ApiResponse.forbidden(res, "Invalid CSRF token");
   }
 
   // Token is valid, proceed
@@ -127,10 +126,10 @@ export function validateCsrfToken(
 export function csrfProtection(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   // For safe methods or if token doesn't exist yet, generate one
-  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  const safeMethods = ["GET", "HEAD", "OPTIONS"];
   if (safeMethods.includes(req.method) || !req.cookies[CSRF_COOKIE_NAME]) {
     return setCsrfToken(req, res, next);
   }
@@ -153,7 +152,7 @@ export function getCsrfToken(req: Request): string | undefined {
 export function clearCsrfToken(res: Response): void {
   res.clearCookie(CSRF_COOKIE_NAME, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
   });
 }

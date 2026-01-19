@@ -7,7 +7,10 @@
 ## Prerequisites
 
 - Node.js 18+ installed
-- PostgreSQL installed and running
+- One of:
+  - Docker (recommended for PostgreSQL + Redis via `../docker-compose.yml`)
+  - PostgreSQL installed and running (for production-like local setup)
+  - SQLite (default for local dev)
 - npm or yarn package manager
 
 ---
@@ -33,7 +36,11 @@ Edit `.env` and update with your configuration:
 
 ```env
 # Database Connection
-DATABASE_URL="postgresql://username:password@localhost:5432/electrical_supplier?schema=public"
+# Default dev (SQLite):
+DATABASE_URL="file:./dev.db"
+
+# Recommended (PostgreSQL):
+# DATABASE_URL="postgresql://username:password@localhost:5432/electrical_supplier?schema=public"
 
 # JWT Secret (generate a strong random string)
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -48,6 +55,15 @@ ADMIN_EMAIL=admin@yourdomain.com
 
 ### 3. Setup Database
 
+## Recommended: Docker Compose (PostgreSQL + Redis)
+
+From the repo root (`electrical-supplier-website/`):
+
+1. Copy `../.env.docker.example` → `../.env` and set strong secrets
+2. Start containers with Docker Compose
+
+This uses PostgreSQL and automatically applies schema on container start.
+
 **Option A: If PostgreSQL is running locally**
 
 Create a new database:
@@ -58,16 +74,18 @@ CREATE DATABASE electrical_supplier;
 
 **Option B: Update DATABASE_URL in .env**
 
-Run migrations to create tables:
+If you choose PostgreSQL (recommended), use the PostgreSQL Prisma schema/scripts:
 
 ```bash
-npm run prisma:migrate
+npm run prisma:generate:pg
+npm run prisma:deploy:pg
 ```
 
-Generate Prisma Client:
+If you use SQLite (default dev):
 
 ```bash
 npm run prisma:generate
+npm run prisma:migrate
 ```
 
 ### 4. Seed Initial Data
@@ -81,9 +99,10 @@ npm run prisma:seed
 **Default Admin Credentials:**
 
 - Email: `admin@electricalsupplier.com`
-- Password: `admin123`
 
-⚠️ **IMPORTANT:** Change the default password after first login!
+The admin password is controlled by `SEED_ADMIN_PASSWORD` (recommended). Avoid relying on any default password, and **never** use a default password in production.
+
+⚠️ **IMPORTANT:** Set a strong password before deployment and rotate it if it is ever exposed.
 
 ---
 
@@ -140,7 +159,7 @@ Full API documentation: [docs/api-contract.md](../docs/api-contract.md)
 ```bash
 curl -X POST http://localhost:5000/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@electricalsupplier.com","password":"admin123"}'
+  -d '{"email":"admin@electricalsupplier.com","password":"YOUR_ADMIN_PASSWORD"}'
 ```
 
 **Get Categories:**

@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 
 interface SEOProps {
   title?: string;
@@ -18,16 +18,17 @@ const SEO: React.FC<SEOProps> = ({
   description,
   keywords,
   ogImage,
-  ogType = 'website',
+  ogType = "website",
   canonical,
   noIndex = false,
   noFollow = false,
 }) => {
-  const defaultTitle = import.meta.env.VITE_COMPANY_NAME || 'Electrical Supplier';
+  const defaultTitle =
+    import.meta.env.VITE_COMPANY_NAME || "Electrical Supplier";
   const defaultDescription =
-    'Leading B2B supplier of industrial electrical components, automation solutions, and genuine branded products. Authorized distributor for Siemens, Schneider, ABB, and more.';
+    "Leading B2B supplier of industrial electrical components, automation solutions, and genuine branded products. Authorized distributor for Siemens, Schneider, ABB, and more.";
   const defaultKeywords =
-    'electrical supplier, industrial electrical, automation, circuit breakers, cables, switches, contactors, MCB, MCCB, RCCB';
+    "electrical supplier, industrial electrical, automation, circuit breakers, cables, switches, contactors, MCB, MCCB, RCCB";
 
   const siteTitle = title ? `${title} | ${defaultTitle}` : defaultTitle;
   const siteDescription = description || defaultDescription;
@@ -37,8 +38,8 @@ const SEO: React.FC<SEOProps> = ({
     try {
       const url = new URL(window.location.href);
       // Canonical should be stable: no query/hash.
-      url.search = '';
-      url.hash = '';
+      url.search = "";
+      url.hash = "";
       return url.toString();
     } catch {
       return `${window.location.origin}${window.location.pathname}`;
@@ -50,38 +51,45 @@ const SEO: React.FC<SEOProps> = ({
 
   const robotsContent = (() => {
     if (noIndex) {
-      return 'noindex, nofollow, noarchive';
+      return "noindex, nofollow, noarchive";
     }
 
-    const followToken = noFollow ? 'nofollow' : 'follow';
+    const followToken = noFollow ? "nofollow" : "follow";
     return `index, ${followToken}, max-image-preview:large, max-snippet:-1, max-video-preview:-1`;
   })();
 
   // Enhanced LocalBusiness structured data with complete schema
   const localBusinessSchema: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: import.meta.env.VITE_COMPANY_NAME || 'Electrical Supplier',
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: import.meta.env.VITE_COMPANY_NAME || "Electrical Supplier",
     description: defaultDescription,
     url: siteUrl,
     address: {
-      '@type': 'PostalAddress',
-      streetAddress: import.meta.env.VITE_COMPANY_ADDRESS || '',
-      addressCountry: 'BD',
+      "@type": "PostalAddress",
+      streetAddress: import.meta.env.VITE_COMPANY_ADDRESS || "",
+      addressCountry: "BD",
     },
     openingHoursSpecification: [
       {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        opens: '09:00',
-        closes: '18:00',
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ],
+        opens: "09:00",
+        closes: "18:00",
       },
     ],
-    priceRange: '$$',
+    priceRange: "$$",
     image: `${siteUrl}/logo.png`,
     sameAs: [
-      import.meta.env.VITE_COMPANY_FACEBOOK || '',
-      import.meta.env.VITE_COMPANY_LINKEDIN || '',
+      import.meta.env.VITE_COMPANY_FACEBOOK || "",
+      import.meta.env.VITE_COMPANY_LINKEDIN || "",
     ].filter(Boolean),
   };
 
@@ -100,7 +108,7 @@ const SEO: React.FC<SEOProps> = ({
   const lng = import.meta.env.VITE_COMPANY_LNG;
   if (lat && lng) {
     localBusinessSchema.geo = {
-      '@type': 'GeoCoordinates',
+      "@type": "GeoCoordinates",
       latitude: lat,
       longitude: lng,
     };

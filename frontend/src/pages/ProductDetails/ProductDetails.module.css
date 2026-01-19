@@ -1,5 +1,11 @@
 .productDetails {
-  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl)
+    var(--spacing-2xl);
+}
+
+.notFound {
+  padding: 4rem 0;
+  text-align: center;
 }
 
 .breadcrumb {
@@ -52,7 +58,9 @@
   margin: 0;
 }
 
-.brand, .model, .category {
+.brand,
+.model,
+.category {
   font-size: var(--font-size-lg);
   color: var(--color-text-secondary);
   margin: 0;
@@ -219,7 +227,8 @@
 
 @media (max-width: 768px) {
   .productDetails {
-    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md)
+      var(--spacing-2xl);
   }
 
   .productLayout {

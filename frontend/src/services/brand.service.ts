@@ -1,11 +1,13 @@
-import apiClient from './api';
-import type { ApiResponse, Brand } from '@/types';
+import apiClient from "./api";
+import type { ApiResponse, Brand } from "@/types";
 
 export const brandService = {
   // Get all brands
   async getAll(includeInactive?: boolean): Promise<Brand[]> {
     const params = includeInactive ? { includeInactive: true } : {};
-    const response = await apiClient.get<ApiResponse<Brand[]>>('/brands', { params });
+    const response = await apiClient.get<ApiResponse<Brand[]>>("/brands", {
+      params,
+    });
     return response.data.data;
   },
 
@@ -17,13 +19,16 @@ export const brandService = {
 
   // Create brand (Admin)
   async create(data: Partial<Brand>): Promise<Brand> {
-    const response = await apiClient.post<ApiResponse<Brand>>('/brands', data);
+    const response = await apiClient.post<ApiResponse<Brand>>("/brands", data);
     return response.data.data;
   },
 
   // Update brand (Admin)
   async update(id: string, data: Partial<Brand>): Promise<Brand> {
-    const response = await apiClient.put<ApiResponse<Brand>>(`/brands/${id}`, data);
+    const response = await apiClient.put<ApiResponse<Brand>>(
+      `/brands/${id}`,
+      data,
+    );
     return response.data.data;
   },
 

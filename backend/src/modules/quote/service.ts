@@ -1,9 +1,9 @@
-import { QuoteRepository } from './repository';
-import { AppError } from '../../middlewares/error.middleware';
-import { emailService } from '../../utils/email.service';
-import { QuoteRequest } from '@prisma/client';
-import { env } from '../../config/env';
-import { logger } from '../../utils/logger';
+import { QuoteRepository } from "./repository";
+import { AppError } from "../../middlewares/error.middleware";
+import { emailService } from "../../utils/email.service";
+import { QuoteRequest } from "@prisma/client";
+import { env } from "../../config/env";
+import { logger } from "../../utils/logger";
 
 interface CreateQuoteData {
   name: string;
@@ -38,8 +38,8 @@ export class QuoteService {
     filters: QuoteFilters,
     page: number = 1,
     limit: number = 20,
-    sortBy: string = 'createdAt',
-    order: 'asc' | 'desc' = 'desc'
+    sortBy: string = "createdAt",
+    order: "asc" | "desc" = "desc",
   ) {
     return this.repository.findAll(filters, page, limit, sortBy, order);
   }
@@ -48,7 +48,7 @@ export class QuoteService {
     const quote = await this.repository.findById(id);
 
     if (!quote) {
-      throw new AppError(404, 'Quote request not found');
+      throw new AppError(404, "Quote request not found");
     }
 
     return quote;
@@ -58,14 +58,21 @@ export class QuoteService {
     // Anti-spam: per-email daily cap
     if (data.email) {
       const now = new Date();
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfDay = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      );
       const countToday = await this.repository.countByEmailSince({
         email: data.email,
         since: startOfDay,
       });
 
       if (countToday >= env.QUOTE_MAX_PER_EMAIL_PER_DAY) {
-        throw new AppError(429, 'Too many quote submissions. Please try again later.');
+        throw new AppError(
+          429,
+          "Too many quote submissions. Please try again later.",
+        );
       }
     }
 
@@ -79,19 +86,22 @@ export class QuoteService {
       });
       if (recent) {
         logger.security({
-          type: 'quote',
-          action: 'spam_blocked_duplicate',
+          type: "quote",
+          action: "spam_blocked_duplicate",
           ip: data.ipAddress,
           details: { email: data.email },
         });
-        throw new AppError(429, 'We already received your request. Please wait for our response.');
+        throw new AppError(
+          429,
+          "We already received your request. Please wait for our response.",
+        );
       }
     }
 
     const quote = await this.repository.create(data);
 
     // Generate reference number from ID
-    const referenceNumber = `QR-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${quote.id.substring(0, 6).toUpperCase()}`;
+    const referenceNumber = `QR-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${quote.id.substring(0, 6).toUpperCase()}`;
 
     // Send email notifications
     try {
@@ -108,7 +118,7 @@ export class QuoteService {
 
       await emailService.sendQuoteConfirmation(quote.email, referenceNumber);
     } catch (error) {
-      logger.error('Failed to send quote notification email', error as Error, {
+      logger.error("Failed to send quote notification email", error as Error, {
         quoteId: quote.id,
         email: data.email,
         referenceNumber,

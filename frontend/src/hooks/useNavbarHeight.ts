@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 /**
  * Keeps a CSS variable in sync with the visible navbar offset from the top.
@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 export function useNavbarHeightCssVar(
   navRef: React.RefObject<HTMLElement>,
   deps: readonly unknown[] = [],
-  cssVarName = '--navbar-height'
+  cssVarName = "--navbar-height",
 ): void {
   useEffect(() => {
     const el = navRef.current;
@@ -33,12 +33,12 @@ export function useNavbarHeightCssVar(
     scheduleUpdate();
 
     const onResize = () => scheduleUpdate();
-    window.addEventListener('resize', onResize);
-    window.addEventListener('orientationchange', onResize);
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
 
     // ResizeObserver catches CSS-driven size changes (e.g. scrolled padding, wrap).
     let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
+    if (typeof ResizeObserver !== "undefined") {
       ro = new ResizeObserver(() => scheduleUpdate());
       ro.observe(el);
     }
@@ -46,17 +46,17 @@ export function useNavbarHeightCssVar(
     // Some browsers can change the visual viewport without firing a normal resize.
     const vv = window.visualViewport;
     if (vv) {
-      vv.addEventListener('resize', onResize);
-      vv.addEventListener('scroll', onResize);
+      vv.addEventListener("resize", onResize);
+      vv.addEventListener("scroll", onResize);
     }
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('orientationchange', onResize);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
       if (vv) {
-        vv.removeEventListener('resize', onResize);
-        vv.removeEventListener('scroll', onResize);
+        vv.removeEventListener("resize", onResize);
+        vv.removeEventListener("scroll", onResize);
       }
       if (ro) ro.disconnect();
     };

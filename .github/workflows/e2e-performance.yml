@@ -1,0 +1,219 @@
+name: E2E & Performance Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      NODE_ENV: test
+      PORT: 5000
+      DATABASE_URL: file:./dev.db
+      JWT_SECRET: ci-test-secret-change-me
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci || npm install
+          cd backend && npm ci || npm install
+          cd ../frontend && npm ci || npm install
+
+      - name: Setup database
+        working-directory: ./backend
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run prisma:seed
+          npm run prisma:seed
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload test traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 14
+
+  lighthouse-ci:
+    name: Lighthouse CI (Performance Budget)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: file:./dev.db
+      JWT_SECRET: ci-test-secret-change-me
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci || npm install
+          cd backend && npm ci || npm install
+          cd ../frontend && npm ci || npm install
+
+      - name: Setup database
+        working-directory: ./backend
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run prisma:seed
+
+      - name: Build frontend (production)
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Build backend (production)
+        working-directory: ./backend
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        run: npm run lighthouse
+
+  k6-smoke:
+    name: Load Test (k6 smoke)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      NODE_ENV: test
+      PORT: 5000
+      DATABASE_URL: file:./dev.db
+      JWT_SECRET: ci-test-secret-change-me
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci || npm install
+
+      - name: Setup database
+        working-directory: ./backend
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      - name: Start backend (background)
+        working-directory: ./backend
+        run: |
+          npm run start &
+
+      - name: Wait for backend health
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:5000/health >/dev/null; then
+              echo "Backend is up";
+              exit 0;
+            fi
+            echo "Waiting for backend... ($i/30)";
+            sleep 2;
+          done
+          echo "Backend failed to start";
+          exit 1
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run k6 smoke (health)
+        uses: grafana/run-k6-action@v1
+        with:
+          path: load-tests/01-health-smoke.js
+          flags: --summary-export=k6-health-summary.json
+
+      - name: Run k6 smoke (public browse)
+        uses: grafana/run-k6-action@v1
+        with:
+          path: load-tests/02-public-browse-smoke.js
+          flags: --summary-export=k6-browse-summary.json
+
+      - name: Upload k6 summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-summaries
+          path: |
+            k6-health-summary.json
+            k6-browse-summary.json
+          retention-days: 30
+
+  test-summary:
+    name: E2E & Performance Summary
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, lighthouse-ci, k6-smoke]
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          echo "=== Test Results Summary ==="
+          echo "E2E Tests (Playwright): ${{ needs.e2e-tests.result }}"
+          echo "Lighthouse CI (Performance): ${{ needs.lighthouse-ci.result }}"
+          echo "k6 Smoke (Load): ${{ needs.k6-smoke.result }}"
+
+          if [ "${{ needs.e2e-tests.result }}" == "failure" ] || \
+             [ "${{ needs.lighthouse-ci.result }}" == "failure" ] || \
+             [ "${{ needs.k6-smoke.result }}" == "failure" ]; then
+            echo "❌ Some tests failed. Please review the artifacts."
+            exit 1
+          else
+            echo "✅ All E2E and performance tests passed!"
+          fi

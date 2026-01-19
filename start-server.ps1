@@ -30,7 +30,7 @@ Write-Host "📍 Health Check:    http://localhost:5000/health" -ForegroundColor
 Write-Host ""
 Write-Host "🔐 Admin Credentials:" -ForegroundColor Yellow
 Write-Host "   Email:    admin@electricalsupplier.com"
-Write-Host "   Password: admin123"
+Write-Host "   Password: (set via SEED_ADMIN_PASSWORD)"
 Write-Host ""
 Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Gray
 Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan

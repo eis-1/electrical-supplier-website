@@ -1,22 +1,23 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './Home.module.css';
-import { Button } from '@components/ui/Button';
-import { Card } from '@components/ui/Card';
-import SEO from '@components/common/SEO';
-import { categoryService } from '@services/category.service';
-import { brandService } from '@services/brand.service';
-import type { Category, Brand } from '@/types';
+import { useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import styles from "./Home.module.css";
+import { Button } from "@components/ui/Button";
+import { Card } from "@components/ui/Card";
+import SEO from "@components/common/SEO";
+import { categoryService } from "@services/category.service";
+import { brandService } from "@services/brand.service";
+import type { Category, Brand } from "@/types";
 
 const Home = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const companyWhatsApp = import.meta.env.VITE_COMPANY_WHATSAPP || '+1234567890';
+  const companyWhatsApp =
+    import.meta.env.VITE_COMPANY_WHATSAPP || "+1234567890";
   const whatsappUrl = useMemo(
-    () => `https://wa.me/${companyWhatsApp.replace(/[^0-9]/g, '')}`,
-    [companyWhatsApp]
+    () => `https://wa.me/${companyWhatsApp.replace(/[^0-9]/g, "")}`,
+    [companyWhatsApp],
   );
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const Home = () => {
         setCategories(categoriesData.slice(0, 6));
         setBrands(brandsData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -49,11 +50,6 @@ const Home = () => {
   return (
     <div className={styles.home}>
       <SEO
-        title="Home"
-        description="Leading B2B supplier of industrial electrical components, automation solutions, and genuine branded products. Authorized distributor for Siemens, Schneider, ABB, and more."
-        keywords="electrical supplier, industrial electrical, automation, circuit breakers, cables, switches, contactors"
-      />
-      <SEO
         title="Home - B2B Electrical & Industrial Supplier"
         description="Leading B2B supplier of industrial electrical components, automation solutions, circuit breakers, cables, switches, and genuine branded products. Authorized distributor for Siemens, Schneider, ABB, Legrand, and more."
         keywords="electrical supplier, industrial electrical, automation, circuit breakers, cables, switches, contactors, MCB, MCCB, RCCB, B2B electrical"
@@ -68,7 +64,9 @@ const Home = () => {
                 Quality Electrical Solutions for Your Business
               </h1>
               <p className={styles.heroSubtitle}>
-                Professional B2B supplier of electrical and electronics products. Authorized dealer of leading brands with competitive pricing and reliable delivery.
+                Professional B2B supplier of electrical and electronics
+                products. Authorized dealer of leading brands with competitive
+                pricing and reliable delivery.
               </p>
               <div className={styles.heroActions}>
                 <Button as="link" to="/quote" size="lg">
@@ -81,14 +79,14 @@ const Home = () => {
             </div>
             <div className={styles.heroRight}>
               <div className={styles.heroImage}>
-                {/* Placeholder for hero image */}
                 <div className={styles.imagePlaceholder}>
-                  <svg width="100%" height="100%" viewBox="0 0 400 400" fill="none">
-                    <rect width="400" height="400" fill="#f3f4f6"/>
-                    <text x="50%" y="50%" textAnchor="middle" fill="#6b7280" fontSize="24">
-                      Hero Image
-                    </text>
-                  </svg>
+                  <img
+                    src="/assets/hero.svg"
+                    alt="Electrical supplier hero"
+                    loading="eager"
+                    width={1200}
+                    height={900}
+                  />
                 </div>
               </div>
             </div>
@@ -133,7 +131,10 @@ const Home = () => {
           </p>
           <div className={styles.categoryGrid}>
             {categories.map((category) => (
-              <Link key={category.id} to={`/products?category=${category.slug}`}>
+              <Link
+                key={category.id}
+                to={`/products?category=${category.slug}`}
+              >
                 <Card hoverable>
                   <div className={styles.categoryCard}>
                     <div className={styles.categoryIcon}>📦</div>
@@ -208,12 +209,13 @@ const Home = () => {
             </div>
             <div className={styles.whyRight}>
               <div className={styles.imagePlaceholder}>
-                <svg width="100%" height="100%" viewBox="0 0 400 300" fill="none">
-                  <rect width="400" height="300" fill="#f3f4f6"/>
-                  <text x="50%" y="50%" textAnchor="middle" fill="#6b7280" fontSize="20">
-                    Business Image
-                  </text>
-                </svg>
+                <img
+                  src="/assets/business.svg"
+                  alt="Business and warehouse showcase"
+                  loading="lazy"
+                  width={1200}
+                  height={900}
+                />
               </div>
             </div>
           </div>
@@ -225,7 +227,10 @@ const Home = () => {
         <div className="container">
           <div className={styles.ctaContent}>
             <h2>Ready to Get Started?</h2>
-            <p>Request a quote for your project and get competitive pricing from our team</p>
+            <p>
+              Request a quote for your project and get competitive pricing from
+              our team
+            </p>
             <Button as="link" to="/quote" variant="primary" size="lg">
               Request a Quote Now
             </Button>

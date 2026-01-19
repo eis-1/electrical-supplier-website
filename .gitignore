@@ -49,6 +49,13 @@ backend/server-output*.txt
 admin-quotes-test.png
 backend/nul
 
+# Local HTTP cookie jars / scratch
+cookies.txt
+
+# Local security/perf scratch files
+*-audit-local.json
+k6-*-summary.json
+
 # Database
 *.sqlite
 *.sqlite3
@@ -61,6 +68,9 @@ public/uploads/
 # Testing
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
 
 # Temporary files
 tmp/

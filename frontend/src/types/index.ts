@@ -97,7 +97,7 @@ export interface QuoteRequest {
 
 export interface Quote extends QuoteRequest {
   id: string;
-  status: 'new' | 'contacted' | 'quoted' | 'closed';
+  status: "new" | "contacted" | "quoted" | "closed";
   notes?: string;
   ipAddress?: string;
   userAgent?: string;

@@ -1,5 +1,6 @@
 .contactPage {
-  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl) var(--spacing-2xl);
+  padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-xl)
+    var(--spacing-2xl);
   min-height: var(--app-height, 100vh);
   background: var(--color-bg-primary);
 }
@@ -54,7 +55,7 @@
 }
 
 .infoCard::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: var(--color-bg-secondary);
@@ -225,6 +226,14 @@
   gap: var(--spacing-lg);
 }
 
+.mapPlaceholderImage {
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+  border-radius: 12px;
+  display: block;
+}
+
 .placeholderIcon {
   font-size: 4rem;
   opacity: 0.5;
@@ -256,7 +265,8 @@
 
 @media (max-width: 768px) {
   .contactPage {
-    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md) var(--spacing-2xl);
+    padding: calc(var(--navbar-height) + var(--spacing-2xl)) var(--spacing-md)
+      var(--spacing-2xl);
   }
 
   .pageHeader h1 {
@@ -273,7 +283,8 @@
     gap: var(--spacing-xs);
   }
 
-  .mapWrapper, .mapPlaceholder {
+  .mapWrapper,
+  .mapPlaceholder {
     height: 350px;
   }
 }
