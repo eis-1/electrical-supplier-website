@@ -1,6 +1,6 @@
-import nodemailer from 'nodemailer';
-import { env } from '../config/env';
-import { logger } from '../utils/logger';
+import nodemailer from "nodemailer";
+import { env } from "../config/env";
+import { logger } from "../utils/logger";
 
 export interface EmailOptions {
   to: string;
@@ -20,17 +20,24 @@ class EmailService {
     try {
       // Check if SMTP is configured
       const looksLikePlaceholder = (value: string) => {
-        const v = (value || '').trim().toLowerCase();
-        return v.includes('your-email') || v.includes('your-app-password');
+        const v = (value || "").trim().toLowerCase();
+        return v.includes("your-email") || v.includes("your-app-password");
       };
 
       if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASS) {
-        logger.warn('SMTP credentials not configured. Email notifications disabled.');
+        logger.warn(
+          "SMTP credentials not configured. Email notifications disabled.",
+        );
         return;
       }
 
-      if (looksLikePlaceholder(env.SMTP_USER) || looksLikePlaceholder(env.SMTP_PASS)) {
-        logger.warn('SMTP credentials appear to be placeholders. Email notifications disabled.');
+      if (
+        looksLikePlaceholder(env.SMTP_USER) ||
+        looksLikePlaceholder(env.SMTP_PASS)
+      ) {
+        logger.warn(
+          "SMTP credentials appear to be placeholders. Email notifications disabled.",
+        );
         return;
       }
 
@@ -48,40 +55,84 @@ class EmailService {
         },
       });
 
-      logger.info('Email service initialized successfully');
+      logger.info("Email service initialized successfully");
     } catch (error) {
-      logger.error('Failed to initialize email service:', error);
+      logger.error("Failed to initialize email service:", error);
     }
   }
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     if (!this.transporter) {
-      logger.warn('Email service not available. Skipping email send.');
+      logger.warn("Email service not available. Skipping email send.");
       return false;
     }
 
     try {
       const sendPromise = this.transporter.sendMail({
-        from: `"${env.COMPANY_NAME || 'Electrical Supplier'}" <${env.EMAIL_FROM}>`,
+        from: `"${env.COMPANY_NAME || "Electrical Supplier"}" <${env.EMAIL_FROM}>`,
         to: options.to,
         subject: options.subject,
         text: options.text,
         html: options.html,
       });
 
-      const info = await Promise.race([
-        sendPromise,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Email send timeout')), 12000)
-        ),
-      ]);
+      // IMPORTANT: Always clear timeouts created for Promise.race.
+      // Otherwise the timer stays alive even when sendMail resolves, which can
+      // keep Jest workers alive and trigger "failed to exit gracefully".
+      let timeoutId: NodeJS.Timeout | undefined;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(
+          () => reject(new Error("Email send timeout")),
+          12000,
+        );
+        // Don't keep the event loop alive just for this timeout.
+        (timeoutId as any)?.unref?.();
+      });
+
+      let info: unknown;
+      try {
+        info = await Promise.race([sendPromise, timeoutPromise]);
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+      }
 
       // info can be unknown due to Promise.race typing
       const messageId = (info as any)?.messageId;
-      logger.info(`Email sent successfully: ${messageId || 'unknown'}`);
+      logger.info(`Email sent successfully: ${messageId || "unknown"}`);
       return true;
     } catch (error) {
-      logger.error('Failed to send email:', error);
+      logger.error("Failed to send email:", error);
+      return false;
+    }
+  }
+
+  async verifyConnection(): Promise<boolean> {
+    if (!this.transporter) {
+      logger.warn("Email service not available. Skipping SMTP verify.");
+      return false;
+    }
+
+    try {
+      const verifyPromise = this.transporter.verify();
+      let timeoutId: NodeJS.Timeout | undefined;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(
+          () => reject(new Error("SMTP verify timeout")),
+          8000,
+        );
+        (timeoutId as any)?.unref?.();
+      });
+
+      try {
+        await Promise.race([verifyPromise, timeoutPromise]);
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+      }
+
+      logger.info("SMTP verify OK");
+      return true;
+    } catch (error) {
+      logger.error("SMTP verify failed:", error);
       return false;
     }
   }
@@ -99,17 +150,17 @@ class EmailService {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1e3a8a;">New Quote Request Received</h2>
-        
+
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <p><strong>Reference Number:</strong> ${quoteData.referenceNumber}</p>
           <p><strong>Name:</strong> ${quoteData.name}</p>
-          ${quoteData.company ? `<p><strong>Company:</strong> ${quoteData.company}</p>` : ''}
+          ${quoteData.company ? `<p><strong>Company:</strong> ${quoteData.company}</p>` : ""}
           <p><strong>Phone:</strong> ${quoteData.phone}</p>
           <p><strong>Email:</strong> ${quoteData.email}</p>
-          ${quoteData.productName ? `<p><strong>Product:</strong> ${quoteData.productName}</p>` : ''}
-          ${quoteData.quantity ? `<p><strong>Quantity:</strong> ${quoteData.quantity}</p>` : ''}
+          ${quoteData.productName ? `<p><strong>Product:</strong> ${quoteData.productName}</p>` : ""}
+          ${quoteData.quantity ? `<p><strong>Quantity:</strong> ${quoteData.quantity}</p>` : ""}
         </div>
-        
+
         ${
           quoteData.projectDetails
             ? `
@@ -118,9 +169,9 @@ class EmailService {
             <p style="white-space: pre-wrap;">${quoteData.projectDetails}</p>
           </div>
         `
-            : ''
+            : ""
         }
-        
+
         <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
           This is an automated notification. Please respond to the customer at ${quoteData.email}.
         </p>
@@ -131,13 +182,13 @@ class EmailService {
 New Quote Request - ${quoteData.referenceNumber}
 
 Name: ${quoteData.name}
-${quoteData.company ? `Company: ${quoteData.company}` : ''}
+${quoteData.company ? `Company: ${quoteData.company}` : ""}
 Phone: ${quoteData.phone}
 Email: ${quoteData.email}
-${quoteData.productName ? `Product: ${quoteData.productName}` : ''}
-${quoteData.quantity ? `Quantity: ${quoteData.quantity}` : ''}
+${quoteData.productName ? `Product: ${quoteData.productName}` : ""}
+${quoteData.quantity ? `Quantity: ${quoteData.quantity}` : ""}
 
-${quoteData.projectDetails ? `Project Details:\n${quoteData.projectDetails}` : ''}
+${quoteData.projectDetails ? `Project Details:\n${quoteData.projectDetails}` : ""}
     `;
 
     return this.sendEmail({
@@ -148,31 +199,34 @@ ${quoteData.projectDetails ? `Project Details:\n${quoteData.projectDetails}` : '
     });
   }
 
-  async sendQuoteConfirmation(customerEmail: string, referenceNumber: string): Promise<boolean> {
+  async sendQuoteConfirmation(
+    customerEmail: string,
+    referenceNumber: string,
+  ): Promise<boolean> {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1e3a8a;">Quote Request Received</h2>
-        
+
         <p>Thank you for your inquiry!</p>
-        
+
         <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <p>Your quote request has been received with reference number:</p>
           <p style="font-size: 24px; font-weight: bold; color: #1e3a8a; text-align: center;">
             ${referenceNumber}
           </p>
         </div>
-        
+
         <p>Our team will review your request and get back to you within 24 hours.</p>
-        
+
         <p style="margin-top: 30px;">
           <strong>Need immediate assistance?</strong><br>
-          Call us: ${env.COMPANY_PHONE || 'Contact us'}<br>
-          WhatsApp: ${env.COMPANY_WHATSAPP || 'Available'}
+          Call us: ${env.COMPANY_PHONE || "Contact us"}<br>
+          WhatsApp: ${env.COMPANY_WHATSAPP || "Available"}
         </p>
-        
+
         <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-          ${env.COMPANY_NAME || 'Electrical Supplier'}<br>
-          ${env.COMPANY_ADDRESS || ''}
+          ${env.COMPANY_NAME || "Electrical Supplier"}<br>
+          ${env.COMPANY_ADDRESS || ""}
         </p>
       </div>
     `;
@@ -187,11 +241,11 @@ Your quote request reference number: ${referenceNumber}
 Our team will review your request and get back to you within 24 hours.
 
 Need immediate assistance?
-Call us: ${env.COMPANY_PHONE || 'Contact us'}
-WhatsApp: ${env.COMPANY_WHATSAPP || 'Available'}
+Call us: ${env.COMPANY_PHONE || "Contact us"}
+WhatsApp: ${env.COMPANY_WHATSAPP || "Available"}
 
-${env.COMPANY_NAME || 'Electrical Supplier'}
-${env.COMPANY_ADDRESS || ''}
+${env.COMPANY_NAME || "Electrical Supplier"}
+${env.COMPANY_ADDRESS || ""}
     `;
 
     return this.sendEmail({
