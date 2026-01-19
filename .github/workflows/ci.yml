@@ -28,14 +28,14 @@ jobs:
           cache: 'npm'
 
       - name: Install root dependencies
-        run: npm ci || npm install
+        run: npm ci
 
       - name: Validate OpenAPI spec
         run: npx @apidevtools/swagger-cli validate docs/openapi.yaml
 
       - name: Install backend dependencies
         working-directory: ./backend
-        run: npm ci || npm install
+        run: npm ci
 
       - name: Prisma generate
         working-directory: ./backend
@@ -47,7 +47,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm ci || npm install
+        run: npm ci
 
       - name: Lint backend
         working-directory: ./backend
@@ -68,7 +68,8 @@ jobs:
       - name: Start backend (background)
         working-directory: ./backend
         run: |
-          npm run start &
+          nohup npm run start > ../ci-backend.log 2>&1 &
+          echo $! > ../ci-backend.pid
 
       - name: Wait for backend health
         run: |
@@ -81,6 +82,8 @@ jobs:
             sleep 2;
           done
           echo "Backend failed to start";
+          echo "---- backend log (tail) ----";
+          tail -n 200 ci-backend.log || true
           exit 1
 
       - name: Backend tests (integration)
@@ -94,6 +97,13 @@ jobs:
         env:
           BASE_URL: http://localhost:5000
         run: npm run test:coverage
+
+      - name: Stop backend
+        if: always()
+        run: |
+          if [ -f ci-backend.pid ]; then
+            kill "$(cat ci-backend.pid)" || true
+          fi
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4

@@ -146,14 +146,15 @@ After starting the server:
 
 ### Default Admin Credentials (development)
 
-These are printed by the start scripts:
+The seeded admin account email is:
 
 ```text
 Email:    admin@electricalsupplier.com
-Password: admin123
 ```
 
-Important: change credentials for any real deployment.
+The admin password is controlled by `SEED_ADMIN_PASSWORD` (recommended) in `backend/.env`.
+
+Important: always use a strong password and rotate it for any real deployment.
 
 ---
 
@@ -168,7 +169,7 @@ electrical-supplier-website/
 └── docs/      # Project documentation
 ```
 
-For a detailed, navigable layout, see: **[`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md)**.
+For a high-level architecture overview, see: **[`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md)**.
 
 ---
 
@@ -206,7 +207,6 @@ This project includes comprehensive testing tools:
 
 ```bash
 cd backend
-npm install --save-dev jest axios speakeasy
 npm test  # Runs the integration test suite
 npm run test:coverage  # With coverage report
 ```
@@ -247,7 +247,6 @@ Available docs:
 ### Project Information
 
 - **Project Overview**: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) - Architecture and design decisions
-- **Project Structure**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Detailed folder layout
 - **API Documentation**: [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) - Full API specification
 - **API Contract**: [docs/api-contract.md](docs/api-contract.md) - Request/response schemas
 - **Database Schema**: [docs/db-schema.md](docs/db-schema.md) - Database design and relationships
@@ -257,13 +256,12 @@ Available docs:
 ### Security Documentation
 
 - **Security Overview**: [SECURITY.md](SECURITY.md) - Security policies and reporting
-- **Security Improvements**: [SECURITY_IMPROVEMENTS.md](SECURITY_IMPROVEMENTS.md) - Implemented security features
-- **Security Audit**: [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) - Security assessment results
+- **Security Checklist**: [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) - Deployment/security hardening checklist
+- **Security Review**: [docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md) - Security review notes
 
 ### Additional Resources
 
-- **Completion Summary**: [PROJECT_COMPLETION_SUMMARY.md](PROJECT_COMPLETION_SUMMARY.md) - Project milestones
-- **Mobile Responsive Guide**: [MOBILE_RESPONSIVE_GUIDE.md](MOBILE_RESPONSIVE_GUIDE.md) - Mobile optimization details
+- **Completion Summary**: [PROJECT_COMPLETION_FINAL.md](PROJECT_COMPLETION_FINAL.md) - Final completion summary
 - **Contributing Guidelines**: [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md) - Version history
 
