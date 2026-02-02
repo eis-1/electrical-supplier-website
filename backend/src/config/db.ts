@@ -35,6 +35,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { logger } from "../utils/logger";
+import { env } from "./env";
 
 /**
  * Prisma Client Singleton Factory
@@ -52,7 +53,7 @@ declare global {
 
 export const prisma = globalThis.prisma ?? prismaClientSingleton();
 
-if (process.env.NODE_ENV !== "production") {
+if (env.NODE_ENV !== "production") {
   globalThis.prisma = prisma;
 }
 

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { logger } from "../utils/logger";
 import { captureException } from "../config/sentry";
 import { ApiResponse } from "../utils/response";
+import { env } from "../config/env";
 
 /**
  * AppError - Custom error class for operational errors
@@ -161,7 +162,7 @@ export const errorHandler = (
   // Default error
   const statusCode = 500;
   const message =
-    process.env.NODE_ENV === "production"
+    env.NODE_ENV === "production"
       ? "Internal server error"
       : err.message;
 

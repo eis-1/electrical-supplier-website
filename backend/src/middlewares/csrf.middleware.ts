@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 import { ApiResponse } from "../utils/response";
 import { logger } from "../utils/logger";
+import { env } from "../config/env";
 
 /**
  * CSRF (Cross-Site Request Forgery) Protection Middleware
@@ -43,7 +44,7 @@ export function setCsrfToken(_req: Request, res: Response, next: NextFunction) {
   // Set as HttpOnly cookie (secure in production)
   res.cookie(CSRF_COOKIE_NAME, csrfToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   });
@@ -152,7 +153,7 @@ export function getCsrfToken(req: Request): string | undefined {
 export function clearCsrfToken(res: Response): void {
   res.clearCookie(CSRF_COOKIE_NAME, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "strict",
   });
 }
