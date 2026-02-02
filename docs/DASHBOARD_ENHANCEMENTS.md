@@ -1,6 +1,5 @@
 # Admin Dashboard Enhancements
 
-**Date:** February 3, 2026  
 **Version:** 2.0.0  
 **Status:** ✅ Complete
 
@@ -468,7 +467,7 @@ feat: Enhance admin dashboard with real-time stats and recent quotes
 
 ## Changelog
 
-### v2.0.0 - February 3, 2026
+### v2.0.0
 
 - ✨ Added recent quotes preview
 - ✨ Added system health monitoring

@@ -1,8 +1,8 @@
 # User Acceptance Testing (UAT) Execution Checklist
 
 **Project**: Electrical Supplier Website  
-**Version**: 1.0.0  
-**Date**: January 19, 2026  
+**Version**: 1.0.0
+
 **Environment**: Production Build (localhost:5000)
 
 ---

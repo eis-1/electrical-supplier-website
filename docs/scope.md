@@ -2,8 +2,6 @@
 
 ## Electrical Supplier Website - B2B Lead Generation Platform
 
-**Last Updated**: January 8, 2026
-
 ---
 
 ## Project Type

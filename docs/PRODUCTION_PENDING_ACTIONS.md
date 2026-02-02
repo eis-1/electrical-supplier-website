@@ -1,7 +1,5 @@
 # Production Pending Actions (What local code cannot prove)
 
-**Date**: January 19, 2026
-
 This document lists the items that remain **deployment/production responsibilities**. They cannot be “fully completed” inside the repo because they require real infrastructure (SMTP provider, secret storage, production DB, DNS, etc.).
 
 ---

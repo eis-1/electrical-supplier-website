@@ -501,5 +501,4 @@ aws cloudwatch put-metric-alarm \
 
 ---
 
-**Last Updated:** January 18, 2026  
 **Maintained By:** DevOps Team

@@ -207,14 +207,14 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 ### Secret Rotation Schedule:
 
-| Secret Type        | Rotation Frequency | Last Rotated |
-| ------------------ | ------------------ | ------------ |
-| JWT_SECRET         | 90 days            | Feb 3, 2026  |
-| JWT_REFRESH_SECRET | 90 days            | Feb 3, 2026  |
-| COOKIE_SECRET      | 90 days            | Feb 3, 2026  |
-| ADMIN_PASSWORD     | 90 days            | Feb 3, 2026  |
+| Secret Type        | Rotation Frequency | Status     |
+| ------------------ | ------------------ | ---------- |
+| JWT_SECRET         | 90 days            | Configured |
+| JWT_REFRESH_SECRET | 90 days            | Configured |
+| COOKIE_SECRET      | 90 days            | Configured |
+| ADMIN_PASSWORD     | 90 days            | Configured |
 
-**Next Rotation Due:** May 3, 2026
+**Recommended:** Rotate all secrets every 90 days
 
 ---
 
@@ -310,4 +310,4 @@ The application is now **production-ready from a security perspective**, with en
 **Security Hardening Status:** Complete  
 **Applied By:** Security Automation System  
 **Status:** ✅ PRODUCTION READY  
-**Next Review:** May 3, 2026 (90-day rotation)
+**Next Review:** 90-day rotation interval

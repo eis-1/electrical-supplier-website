@@ -1,8 +1,8 @@
 # Engineering Architecture & Design Decisions
 
 **Project:** Electrical Supplier B2B E-commerce Platform  
-**Author:** Development Team  
-**Date:** February 2026  
+**Author:** Development Team
+
 **Purpose:** Explain WHY architectural decisions were made, not just WHAT was implemented
 
 ---
@@ -828,6 +828,7 @@ prisma.product.findMany(); // No filter
    - Alternative: `SAMEORIGIN` if iframes needed
 
 4. **Strict-Transport-Security (HSTS):**
+
    ```typescript
    max-age=31536000; includeSubDomains; preload
    ```

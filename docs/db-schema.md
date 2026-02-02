@@ -716,7 +716,7 @@ npm run test:smoke
 
 ---
 
-**Document Version:** 2.0  
-**Last Updated:** February 3, 2026  
+**Document Version:** 2.0
+
 **Maintained By:** Engineering Team  
 **Related:** [ENGINEERING_NOTES.md](./ENGINEERING_NOTES.md), [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)

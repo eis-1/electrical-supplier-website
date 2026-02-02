@@ -352,5 +352,4 @@ Consider:
 
 ---
 
-**Last Updated:** January 2026  
 **Review Frequency:** Every deployment + quarterly audit
