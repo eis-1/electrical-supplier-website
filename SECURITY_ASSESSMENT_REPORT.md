@@ -420,18 +420,18 @@ Audit: All actions logged
 
 ## 📊 Security Score by Category
 
-| Category                 | Status                | Notes                                      |
-| ------------------------ | --------------------- | ------------------------------------------ |
-| **Authentication**       | ✅ Excellent          | 2FA implemented, strong credentials        |
-| **Authorization**        | ✅ Excellent          | RBAC with comprehensive audit logging      |
-| **Data Protection**      | ✅ Excellent          | Encryption, validation, ORM implementation |
-| **Network Security**     | ✅ Excellent          | Rate limiting, CORS, security headers      |
-| **Secrets Management**   | ✅ Excellent          | Strong cryptographic secrets implemented   |
-| **Input Validation**     | ✅ Excellent          | Comprehensive validation framework         |
-| **Error Handling**       | ✅ Good               | No information disclosure                  |
-| **Logging & Monitoring** | ✅ Excellent          | Structured logs, audit trail               |
-| **File Security**        | ✅ Excellent          | Magic bytes, path validation               |
-| **Session Management**   | ✅ Excellent          | Secure cookies, appropriate expiry         |
+| Category                 | Status       | Notes                                      |
+| ------------------------ | ------------ | ------------------------------------------ |
+| **Authentication**       | ✅ Excellent | 2FA implemented, strong credentials        |
+| **Authorization**        | ✅ Excellent | RBAC with comprehensive audit logging      |
+| **Data Protection**      | ✅ Excellent | Encryption, validation, ORM implementation |
+| **Network Security**     | ✅ Excellent | Rate limiting, CORS, security headers      |
+| **Secrets Management**   | ✅ Excellent | Strong cryptographic secrets implemented   |
+| **Input Validation**     | ✅ Excellent | Comprehensive validation framework         |
+| **Error Handling**       | ✅ Good      | No information disclosure                  |
+| **Logging & Monitoring** | ✅ Excellent | Structured logs, audit trail               |
+| **File Security**        | ✅ Excellent | Magic bytes, path validation               |
+| **Session Management**   | ✅ Excellent | Secure cookies, appropriate expiry         |
 
 **Overall Security Status:** Production ready with secrets management properly configured
 
@@ -589,15 +589,15 @@ Audit: All actions logged
 
 ### Security Control Effectiveness:
 
-| Attack Category      | Protection Level | Implementation Details                |
-| -------------------- | ---------------- | ------------------------------------- |
-| **Network Scanning** | ✅ Strong        | Minimal exposed services              |
-| **Authentication**   | ✅ Strong        | Strong credentials + 2FA              |
-| **SQL Injection**    | ✅ Strong        | ORM-based parameterized queries       |
-| **XSS Attacks**      | ✅ Strong        | Framework escaping and CSP headers    |
-| **CSRF Attacks**     | ✅ Strong        | Token-based protection                |
-| **Token Security**   | ✅ Strong        | 32-byte cryptographic secrets         |
-| **Brute Force**      | ✅ Strong        | Rate limiting + strong passwords      |
+| Attack Category      | Protection Level | Implementation Details             |
+| -------------------- | ---------------- | ---------------------------------- |
+| **Network Scanning** | ✅ Strong        | Minimal exposed services           |
+| **Authentication**   | ✅ Strong        | Strong credentials + 2FA           |
+| **SQL Injection**    | ✅ Strong        | ORM-based parameterized queries    |
+| **XSS Attacks**      | ✅ Strong        | Framework escaping and CSP headers |
+| **CSRF Attacks**     | ✅ Strong        | Token-based protection             |
+| **Token Security**   | ✅ Strong        | 32-byte cryptographic secrets      |
+| **Brute Force**      | ✅ Strong        | Rate limiting + strong passwords   |
 
 ### Assessment Summary:
 
