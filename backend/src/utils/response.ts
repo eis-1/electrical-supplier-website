@@ -1,17 +1,26 @@
 import { Response } from "express";
 
+/**
+ * Standardized success response format
+ */
 interface SuccessResponse<T = any> {
   success: true;
   data: T;
   message?: string;
 }
 
+/**
+ * Standardized error response format
+ */
 interface ErrorResponse {
   success: false;
   error: string;
   details?: any;
 }
 
+/**
+ * Paginated response data structure
+ */
 interface PaginationData<T = any> {
   items: T[];
   pagination: {
@@ -22,6 +31,40 @@ interface PaginationData<T = any> {
   };
 }
 
+/**
+ * ApiResponse - Standardized HTTP response formatter
+ *
+ * Purpose:
+ * - Enforce consistent response structure across all endpoints
+ * - Simplify response creation in controllers
+ * - Provide clear success/error indicators
+ * - Include standard HTTP status codes
+ *
+ * Response Format:
+ * Success: { success: true, data: T, message?: string }
+ * Error: { success: false, error: string, details?: any }
+ * Paginated: { success: true, data: { items: T[], pagination: {...} } }
+ *
+ * Benefits:
+ * - Frontend can check response.success for all endpoints
+ * - Consistent error handling across API
+ * - Type-safe responses with TypeScript
+ * - Standard pagination format
+ *
+ * Usage:
+ * @example
+ * // Success response
+ * return ApiResponse.success(res, product, 'Product found');
+ *
+ * // Created response (201)
+ * return ApiResponse.created(res, product, 'Product created');
+ *
+ * // Error response
+ * return ApiResponse.badRequest(res, 'Invalid input');
+ *
+ * // Paginated response
+ * return ApiResponse.paginated(res, products, 1, 12, 100);
+ */
 export class ApiResponse {
   static success<T>(
     res: Response,

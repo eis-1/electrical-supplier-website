@@ -4,6 +4,27 @@ import { ApiResponse } from "../../utils/response";
 import { asyncHandler } from "../../middlewares/error.middleware";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 
+/**
+ * CategoryController - HTTP request handlers for category endpoints
+ *
+ * Responsibilities:
+ * - Handle category CRUD operations
+ * - Manage active/inactive category filtering
+ * - Coordinate with service layer for business logic
+ *
+ * Endpoints:
+ * - GET /api/v1/categories - List all categories
+ * - GET /api/v1/categories/:id - Get category by ID
+ * - POST /api/v1/categories - Create category (admin only)
+ * - PUT /api/v1/categories/:id - Update category (admin only)
+ * - DELETE /api/v1/categories/:id - Delete category (admin only)
+ *
+ * Categories are used to:
+ * - Organize products into logical groups
+ * - Enable category-based navigation
+ * - Display category icons in UI
+ * - Control product display order
+ */
 export class CategoryController {
   private service: CategoryService;
 
@@ -11,6 +32,15 @@ export class CategoryController {
     this.service = new CategoryService();
   }
 
+  /**
+   * Get all categories
+   *
+   * Query Parameters:
+   * - includeInactive: Include inactive categories (admin view)
+   *
+   * @route GET /api/v1/categories
+   * @access Public
+   */
   getAll = asyncHandler(async (req: Request, res: Response) => {
     const includeInactive = req.query.includeInactive === "true";
     const categories = await this.service.getAllCategories(includeInactive);

@@ -4,6 +4,26 @@ import { ApiResponse } from "../../utils/response";
 import { asyncHandler } from "../../middlewares/error.middleware";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 
+/**
+ * BrandController - HTTP request handlers for brand endpoints
+ *
+ * Responsibilities:
+ * - Handle brand CRUD operations
+ * - Manage authorized brand status
+ * - Filter active/inactive brands
+ *
+ * Endpoints:
+ * - GET /api/v1/brands - List all brands
+ * - GET /api/v1/brands/:id - Get brand by ID
+ * - POST /api/v1/brands - Create brand (admin only)
+ * - PUT /api/v1/brands/:id - Update brand (admin only)
+ * - DELETE /api/v1/brands/:id - Delete brand (admin only)
+ *
+ * Brands represent:
+ * - Electrical equipment manufacturers
+ * - Authorized distributors
+ * - Product filtering options
+ */
 export class BrandController {
   private service: BrandService;
 

@@ -1,7 +1,45 @@
+/**
+ * Database Configuration
+ *
+ * Prisma ORM client initialization with singleton pattern.
+ *
+ * **Singleton Pattern:**
+ * Ensures only one Prisma Client instance exists throughout application lifecycle.
+ * Critical for:
+ * - Connection pooling (Prisma manages internal connection pool)
+ * - Memory efficiency (avoids multiple client instances)
+ * - Hot reload support in development (prevents connection leaks)
+ *
+ * **Development Mode:**
+ * - Stores client in global scope to survive hot reloads
+ * - Next.js/Nodemon can trigger multiple module loads
+ * - Global assignment prevents connection pool exhaustion
+ *
+ * **Production Mode:**
+ * - Creates new client instance on each deploy
+ * - No global assignment needed (single initialization)
+ *
+ * **Logging:**
+ * - error: Logs query errors
+ * - warn: Logs warnings (slow queries, etc.)
+ * - info, query: Disabled by default for performance
+ *
+ * **Connection Management:**
+ * - connectDatabase(): Called on server startup
+ * - disconnectDatabase(): Called on graceful shutdown (SIGTERM, SIGINT)
+ * - $connect() is lazy - first query triggers actual connection
+ *
+ * @see {@link https://www.prisma.io/docs/guides/performance-and-optimization/connection-management Prisma Connection Management}
+ * @module DatabaseConfig
+ */
+
 import { PrismaClient } from "@prisma/client";
 import { logger } from "../utils/logger";
 
-// Prisma Client Singleton
+/**
+ * Prisma Client Singleton Factory
+ * Creates Prisma Client instance with logging configuration
+ */
 const prismaClientSingleton = () => {
   return new PrismaClient({
     log: ["error", "warn"],

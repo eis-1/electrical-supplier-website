@@ -1,28 +1,59 @@
 import { prisma } from "../../config/db";
 import { QuoteRequest } from "@prisma/client";
 
+/**
+ * Quote creation data structure
+ * Captures customer details, product inquiry, and security metadata
+ */
 interface CreateQuoteData {
-  name: string;
-  company?: string;
-  phone: string;
-  whatsapp?: string;
-  email: string;
-  productName?: string;
-  quantity?: string;
-  projectDetails?: string;
-  ipAddress?: string;
-  userAgent?: string;
+  name: string;           // Customer name
+  company?: string;       // Optional company name
+  phone: string;          // Contact phone number
+  whatsapp?: string;      // Optional WhatsApp number
+  email: string;          // Contact email
+  productName?: string;   // Product of interest
+  quantity?: string;      // Desired quantity
+  projectDetails?: string; // Additional project information
+  ipAddress?: string;     // Client IP for spam detection
+  userAgent?: string;     // Browser info for spam detection
 }
 
+/**
+ * Quote update data structure
+ * Fields admin can modify when processing quote
+ */
 interface UpdateQuoteData {
-  status?: string;
-  notes?: string;
+  status?: string;  // Quote status (new, contacted, closed)
+  notes?: string;   // Admin notes for internal tracking
 }
 
+/**
+ * Quote filtering options for admin list view
+ */
 interface QuoteFilters {
-  status?: string;
+  status?: string;  // Filter by status value
 }
 
+/**
+ * Quote Repository
+ *
+ * Database access layer for quote request operations.
+ * Handles spam detection queries and admin management functions.
+ *
+ * **Spam Detection Queries:**
+ * - findRecentDuplicate: Checks for duplicate submissions from same email+phone
+ * - countByEmailSince: Counts submissions from email within timeframe
+ *
+ * **Admin Features:**
+ * - Status filtering (new, contacted, closed)
+ * - Sorting by any field (default: createdAt desc)
+ * - Pagination for large quote lists
+ *
+ * **Security Metadata:**
+ * - Stores ipAddress and userAgent for abuse tracking
+ * - Enables rate limit bypass analysis
+ * - Helps identify bot patterns
+ */
 export class QuoteRepository {
   async findRecentDuplicate(params: {
     email: string;

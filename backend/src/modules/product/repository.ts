@@ -1,19 +1,30 @@
 import { prisma } from "../../config/db";
 import { Product, Prisma } from "@prisma/client";
 
+/**
+ * Product with related entities loaded
+ * Extends base Product model with optional category, brand, and specs relations
+ */
 export interface ProductWithRelations extends Product {
   category?: any;
   brand?: any;
   specs?: any[];
 }
 
+/**
+ * Product filtering options for search and pagination
+ */
 interface ProductFilters {
-  category?: string;
-  brand?: string[];
-  search?: string;
-  featured?: boolean;
+  category?: string;      // Filter by category slug
+  brand?: string[];       // Filter by array of brand slugs (OR condition)
+  search?: string;        // Search in name, model, description
+  featured?: boolean;     // Filter by isFeatured flag
 }
 
+/**
+ * Product creation data structure
+ * All fields needed to create a new product in database
+ */
 interface CreateProductData {
   name: string;
   slug: string;
@@ -29,6 +40,31 @@ interface CreateProductData {
   specs?: Array<{ specKey: string; specValue: string; displayOrder?: number }>;
 }
 
+/**
+ * Product Repository
+ *
+ * Database access layer for product-related operations.
+ * Handles all Prisma queries for products including:
+ * - Filtering by category, brand, search terms, featured status
+ * - Pagination with configurable page size
+ * - Related entity loading (category, brand, specs)
+ * - CRUD operations with validation
+ *
+ * **Query Optimization:**
+ * - Uses parallel Promise.all for count + data queries
+ * - Limits included relations to avoid N+1 problems
+ * - Indexes on slug fields for fast lookups
+ *
+ * **Filtering Logic:**
+ * - Active products only (isActive: true) unless specified
+ * - Multiple brands use SQL IN clause (OR condition)
+ * - Search uses OR across name/model/description
+ * - Results ordered by: featured first, then newest
+ *
+ * **Security:**
+ * - All queries filter by isActive to prevent inactive product leaks
+ * - Slug-based lookups prevent UUID enumeration
+ */
 export class ProductRepository {
   async findAll(
     filters: ProductFilters,

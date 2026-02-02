@@ -49,6 +49,32 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
 
 /**
  * Check if admin role has required permission
+ *
+ * Implements hierarchical permission checking:
+ * - Superadmin with wildcard (*) resource and "manage" action has all permissions
+ * - Exact match: role has specific resource + action permission
+ * - Manage action: "manage" on a resource grants all actions (create/read/update/delete)
+ *
+ * **Permission Hierarchy:**
+ * ```
+ * superadmin > admin > editor > viewer
+ * ```
+ *
+ * **Action Hierarchy:**
+ * ```
+ * manage > create/read/update/delete
+ * ```
+ *
+ * @param adminRole - The role string from admin record (e.g., 'admin', 'editor')
+ * @param required - Permission object with resource and action to check
+ * @returns true if role has permission, false otherwise
+ *
+ * @example
+ * ```typescript
+ * hasPermission('admin', { resource: 'product', action: 'update' }); // true
+ * hasPermission('viewer', { resource: 'product', action: 'delete' }); // false
+ * hasPermission('superadmin', { resource: 'anything', action: 'manage' }); // true
+ * ```
  */
 function hasPermission(adminRole: string, required: Permission): boolean {
   const role = adminRole as AdminRole;
@@ -94,10 +120,41 @@ export function authorizeRoles(...allowedRoles: AdminRole[]) {
 
 /**
  * Middleware: Require specific permission (resource + action)
- * More granular than role-based; recommended for fine-grained control
+ *
+ * More granular than role-based authorization. Checks if authenticated admin
+ * has permission to perform specific action on specific resource.
+ *
+ * **Recommended approach** for fine-grained access control as it decouples
+ * route protection from role hierarchy changes.
+ *
+ * **Permission Semantics:**
+ * - resource: The entity being accessed ('product', 'category', 'quote', etc.)
+ * - action: The operation being performed ('create', 'read', 'update', 'delete', 'manage')
+ *
+ * **Failure Cases:**
+ * - 401 Unauthorized: No authenticated admin in request
+ * - 403 Forbidden: Admin authenticated but lacks required permission
+ *
+ * @param resource - The resource being accessed (e.g., 'product', 'quote')
+ * @param action - The action being performed (e.g., 'create', 'update', 'delete')
+ * @returns Express middleware that checks permission and blocks or allows request
  *
  * @example
- * router.post('/products', authenticateAdmin, authorizePermission('product', 'create'), createProduct);
+ * ```typescript
+ * // Only admins with 'product' create permission can access
+ * router.post('/products',
+ *   authenticateAdmin,
+ *   authorizePermission('product', 'create'),
+ *   productController.create
+ * );
+ *
+ * // Viewer role can read but not delete
+ * router.delete('/products/:id',
+ *   authenticateAdmin,
+ *   authorizePermission('product', 'delete'), // Viewer will be blocked
+ *   productController.delete
+ * );
+ * ```
  * router.delete('/products/:id', authenticateAdmin, authorizePermission('product', 'delete'), deleteProduct);
  */
 export function authorizePermission(

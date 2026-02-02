@@ -2,6 +2,31 @@ import { prisma } from "../../config/db";
 import bcrypt from "bcryptjs";
 import { Admin } from "@prisma/client";
 
+/**
+ * Auth Repository
+ *
+ * Database access layer for authentication operations.
+ * Handles admin account management and password security.
+ *
+ * **Password Security:**
+ * - Uses bcryptjs for password hashing
+ * - Configurable salt rounds from environment (BCRYPT_ROUNDS)
+ * - Passwords never stored in plain text
+ * - Comparison done through bcrypt.compare (timing-safe)
+ *
+ * **Admin Management:**
+ * - Lookup by email (for login)
+ * - Lookup by ID (for session validation)
+ * - Account creation with hashed password
+ * - Account updates (profile, password changes)
+ *
+ * **Security Best Practices:**
+ * - Email lookups are case-sensitive (normalized at service layer)
+ * - Password verification uses timing-safe comparison
+ * - Hash rounds configurable for performance vs security tradeoff
+ *
+ * @see {@link https://github.com/kelektiv/node.bcrypt.js bcryptjs documentation}
+ */
 export class AuthRepository {
   async findAdminByEmail(email: string): Promise<Admin | null> {
     return prisma.admin.findUnique({

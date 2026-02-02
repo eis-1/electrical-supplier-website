@@ -6,6 +6,29 @@ import { AuthRequest } from "../../middlewares/auth.middleware";
 import { logger } from "../../utils/logger";
 import { env } from "../../config/env";
 
+/**
+ * ProductController - HTTP request handlers for product endpoints
+ *
+ * Responsibilities:
+ * - Parse and validate request parameters
+ * - Call service layer for business logic
+ * - Format and return HTTP responses
+ * - Handle pagination and filtering
+ *
+ * Endpoints:
+ * - GET /api/v1/products - List products with filters and pagination
+ * - GET /api/v1/products/:id - Get product by ID
+ * - GET /api/v1/products/slug/:slug - Get product by slug
+ * - POST /api/v1/products - Create product (admin only)
+ * - PUT /api/v1/products/:id - Update product (admin only)
+ * - DELETE /api/v1/products/:id - Delete product (admin only)
+ *
+ * Security:
+ * - Public endpoints: getAll, getById, getBySlug
+ * - Protected endpoints: create, update, delete (require JWT authentication)
+ * - Input validation via DTOs (see product/dto.ts)
+ * - Pagination limits enforced to prevent overflow attacks
+ */
 export class ProductController {
   private service: ProductService;
 
@@ -13,6 +36,24 @@ export class ProductController {
     this.service = new ProductService();
   }
 
+  /**
+   * Get all products with filtering, search, and pagination
+   *
+   * Query Parameters:
+   * - category: Filter by category slug
+   * - brand: Filter by brand slug (can be array)
+   * - search: Full-text search in name, model, description
+   * - featured: Filter featured products (true/false)
+   * - page: Page number (default: 1)
+   * - limit: Items per page (default: 12, max: env.MAX_PAGE_SIZE)
+   *
+   * Security:
+   * - Enforces max page size to prevent memory overflow
+   * - Validates numeric inputs
+   *
+   * @route GET /api/v1/products
+   * @access Public
+   */
   getAll = asyncHandler(async (req: Request, res: Response) => {
     const {
       category,

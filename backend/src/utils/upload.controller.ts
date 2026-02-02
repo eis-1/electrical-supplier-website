@@ -1,3 +1,46 @@
+/**
+ * Upload Controller
+ *
+ * Secure file upload handling with multi-layer validation and storage support.
+ *
+ * **Security Pipeline:**
+ * 1. Multer file size limit (10MB default)
+ * 2. MIME type whitelist validation
+ * 3. Extension sanitization (removes path traversal characters)
+ * 4. Magic byte verification (file-type library)
+ * 5. Malware scanning (VirusTotal, ClamAV, or none)
+ * 6. Storage upload (local, S3, or Cloudflare R2)
+ *
+ * **File Type Support:**
+ * - Images: JPG, PNG, WebP, GIF (configurable via ALLOWED_IMAGE_TYPES)
+ * - Documents: PDF (configurable via ALLOWED_DOC_TYPES)
+ *
+ * **Storage Providers:**
+ * - local: Filesystem storage in UPLOAD_DIR
+ * - s3: Amazon S3 compatible storage
+ * - r2: Cloudflare R2 storage
+ *
+ * **Attack Prevention:**
+ * - Double extension attacks: Sanitized extension extraction
+ * - Path traversal: Extension sanitization removes ../ and special chars
+ * - MIME type spoofing: Magic byte verification with file-type
+ * - Malware uploads: Optional VirusTotal/ClamAV scanning
+ * - Zip bombs/large files: Multer size limit enforcement
+ *
+ * **Workflow:**
+ * 1. Client uploads file to /api/upload endpoint
+ * 2. Multer saves to temp location with size check
+ * 3. MIME type filtered by whitelist
+ * 4. File extension sanitized
+ * 5. Magic bytes verified (prevents MIME type spoofing)
+ * 6. Malware scan performed (if configured)
+ * 7. File uploaded to storage provider
+ * 8. Temp file cleaned up
+ * 9. URL returned to client
+ *
+ * @module UploadController
+ */
+
 import { Request, Response, NextFunction } from "express";
 import multer from "multer";
 import path from "path";
@@ -9,13 +52,29 @@ import { logger } from "./logger";
 import { storageService } from "./storage.service";
 import { malwareService } from "./malware.service";
 
-// Ensure upload directory exists
+/**
+ * Ensure upload directory exists
+ * Creates directory structure if not present (uploads/images, uploads/documents)
+ */
 const uploadDir = path.resolve(env.UPLOAD_DIR);
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Storage configuration
+/**
+ * Multer Storage Configuration
+ *
+ * **Destination Strategy:**
+ * - Images: uploads/images/
+ * - Documents: uploads/documents/
+ * - Creates subfolders automatically if missing
+ *
+ * **Filename Strategy:**
+ * - Pattern: {fieldname}-{timestamp}-{random}.{ext}
+ * - Example: avatar-1703001234567-987654321.jpg
+ * - Ensures uniqueness to prevent overwrites
+ * - Sanitizes extension to prevent path traversal (removes ../)
+ */
 const storage = multer.diskStorage({
   destination: (_req, file, cb) => {
     const subfolder = file.mimetype.startsWith("image/")
@@ -41,7 +100,20 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter
+/**
+ * Multer File Filter
+ *
+ * First-pass MIME type validation before file is saved.
+ * Rejects disallowed file types immediately to save processing.
+ *
+ * **Allowed File Types:**
+ * - Images: Configured via ALLOWED_IMAGE_TYPES (default: image/jpeg, image/png, image/webp, image/gif)
+ * - Documents: application/pdf only
+ *
+ * **Note:**
+ * This is not sufficient security alone - MIME types can be spoofed.
+ * Magic byte verification happens after upload (see verifyFileType middleware).
+ */
 const fileFilter = (
   _req: Request,
   file: Express.Multer.File,

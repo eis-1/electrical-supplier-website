@@ -9,8 +9,17 @@ import path from "path";
 import { env } from "../config/env";
 import { logger } from "./logger";
 
+/**
+ * Storage provider types
+ * - local: Filesystem storage
+ * - s3: Amazon S3 or S3-compatible storage
+ * - r2: Cloudflare R2 (S3-compatible)
+ */
 export type StorageProvider = "local" | "s3" | "r2";
 
+/**
+ * Upload result returned by all storage providers
+ */
 interface UploadResult {
   key: string;
   url: string;
@@ -18,6 +27,22 @@ interface UploadResult {
   mimetype: string;
 }
 
+/**
+ * Storage Service Class
+ *
+ * Provides unified interface for file storage across multiple backends.
+ *
+ * **Initialization:**
+ * - Reads STORAGE_PROVIDER from environment
+ * - Configures S3 client if using s3 or r2 provider
+ * - R2 uses forcePathStyle for compatibility
+ *
+ * **Methods:**
+ * - upload(): Store file and return URL
+ * - delete(): Remove file from storage
+ * - exists(): Check if file exists
+ * - getSignedUrl(): Generate temporary access URL (S3/R2 only)
+ */
 class StorageService {
   private s3Client?: S3Client;
   private provider: StorageProvider;

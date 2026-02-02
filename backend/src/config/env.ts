@@ -2,14 +2,43 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 
-// Load environment variables.
-// Preferred: backend/.env (when running from backend folder).
-// Fallback: repo-root .env (older docs/scripts).
+/**
+ * Environment Configuration Loader
+ *
+ * Purpose:
+ * - Load and validate environment variables
+ * - Provide type-safe access to configuration
+ * - Support multiple .env file locations
+ * - Set sensible defaults for optional values
+ *
+ * .env File Loading Strategy:
+ * Tries locations in order:
+ * 1. ./backend/.env (when running from backend folder)
+ * 2. ./.env (when running from repo root)
+ * 3. ../.env (when running from subdirectory)
+ * 4. ../../.env (nested subdirectories)
+ *
+ * This flexible approach supports:
+ * - Running backend independently
+ * - Running from docker-compose (repo root)
+ * - Running tests from various locations
+ *
+ * Usage:
+ * @example
+ * import { env } from './config/env';
+ *
+ * const port = env.PORT; // Type-safe number
+ * const isDev = env.NODE_ENV === 'development';
+ * const secret = env.JWT_SECRET; // Required, will error if missing
+ */
+
+// Load environment variables from .env file
+// Tries multiple locations to support different execution contexts
 const envCandidates = [
-  path.resolve(process.cwd(), ".env"),
-  path.resolve(process.cwd(), "../.env"),
-  path.resolve(__dirname, "../../.env"),
-  path.resolve(__dirname, "../../../.env"),
+  path.resolve(process.cwd(), ".env"), // Current working directory
+  path.resolve(process.cwd(), "../.env"), // Parent directory
+  path.resolve(__dirname, "../../.env"), // Relative to this file
+  path.resolve(__dirname, "../../../.env"), // Repo root
 ];
 
 for (const candidate of envCandidates) {
@@ -19,6 +48,13 @@ for (const candidate of envCandidates) {
   }
 }
 
+/**
+ * Environment configuration interface
+ *
+ * All configuration values with types and descriptions.
+ * Required values will cause startup error if missing.
+ * Optional values have sensible defaults.
+ */
 interface EnvConfig {
   NODE_ENV: "development" | "production" | "test";
   PORT: number;

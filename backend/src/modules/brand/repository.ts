@@ -1,16 +1,43 @@
 import { prisma } from "../../config/db";
 import { Brand } from "@prisma/client";
 
+/**
+ * Brand creation/update data structure
+ */
 interface CreateBrandData {
-  name: string;
-  slug: string;
-  logo?: string;
-  description?: string;
-  website?: string;
-  isAuthorized?: boolean;
-  displayOrder?: number;
+  name: string;           // Brand display name
+  slug: string;           // URL-safe identifier
+  logo?: string;          // Logo image URL/path
+  description?: string;   // Brand description text
+  website?: string;       // Brand official website
+  isAuthorized?: boolean; // Authorized distributor status
+  displayOrder?: number;  // Sort order for display
 }
 
+/**
+ * Brand Repository
+ *
+ * Database access layer for brand operations.
+ * Manages manufacturer/brand data with authorized distributor status.
+ *
+ * **Ordering Strategy:**
+ * - Primary: displayOrder (ascending) - admin-controlled
+ * - Secondary: name (alphabetical) - for same displayOrder
+ *
+ * **Active/Inactive Filtering:**
+ * - Default: Returns only isActive = true brands
+ * - includeInactive: Admin panels can show all brands
+ *
+ * **Authorized Distributor:**
+ * - isAuthorized flag indicates official partnership
+ * - Can be used in UI to highlight trusted brands
+ * - Helps customers identify official channels
+ *
+ * **Use Cases:**
+ * - Public website: Show active authorized brands prominently
+ * - Product filtering: Filter products by brand slug
+ * - Admin management: CRUD operations for brand catalog
+ */
 export class BrandRepository {
   async findAll(includeInactive: boolean = false): Promise<Brand[]> {
     return prisma.brand.findMany({
