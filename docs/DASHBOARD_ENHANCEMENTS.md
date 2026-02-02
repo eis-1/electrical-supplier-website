@@ -474,9 +474,9 @@ feat: Enhance admin dashboard with real-time stats and recent quotes
 - ✨ Added quick stats cards
 - 🐛 Fixed quote service test type errors
 - 🎨 Redesigned dashboard UI
-- ✅ All 133 tests passing
+- ✅ All tests passing
 
-### v1.0.0 - January 2026
+### v1.0.0
 
 - Initial dashboard release
 - Basic stats display

@@ -379,10 +379,6 @@ In case of critical issues:
 
 ---
 
-## Last Updated
-
-January 2026
-
 **Deployment Status**: ⏳ Pending / ✅ Deployed / ❌ Issues
 
 ---
