@@ -120,6 +120,9 @@ model Product {
   @@index([brandId])
   @@index([isActive])
   @@index([isFeatured])
+  @@index([createdAt])
+  @@index([categoryId, isActive])
+  @@index([brandId, isActive])
   @@map("products")
 }
 
@@ -161,6 +164,7 @@ model QuoteRequest {
   @@index([status])
   @@index([createdAt])
   @@index([email])
+  @@index([status, createdAt])
   @@map("quote_requests")
 }
 

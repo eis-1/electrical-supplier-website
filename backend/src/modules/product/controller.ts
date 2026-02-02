@@ -4,6 +4,7 @@ import { ApiResponse } from "../../utils/response";
 import { asyncHandler } from "../../middlewares/error.middleware";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { logger } from "../../utils/logger";
+import { env } from "../../config/env";
 
 export class ProductController {
   private service: ProductService;
@@ -34,7 +35,9 @@ export class ProductController {
     };
 
     const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+    // Phase 2: Enforce maximum page size to prevent overflow attacks
+    const requestedLimit = parseInt(limit as string, 10) || env.DEFAULT_PAGE_SIZE;
+    const limitNum = Math.min(requestedLimit, env.MAX_PAGE_SIZE);
 
     const { items, total } = await this.service.getAllProducts(
       filters,

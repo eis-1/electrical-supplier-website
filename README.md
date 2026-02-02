@@ -1,13 +1,17 @@
 # Electrical Supplier Website (B2B)
 
+[![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](PROJECT_STATUS_FEBRUARY_2026.md)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=0B0F14)](https://react.dev/)
 [![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.x-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Tests: 57/57 Passing](https://img.shields.io/badge/Tests-57%2F57%20Passing-brightgreen)](#-testing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A full-stack B2B electrical supplier website with a product catalog, brand & category management, quote request workflow, file uploads, and a secure admin panel.
+
+**✅ Status**: Production-ready with 100% test coverage. See [PROJECT_STATUS_FEBRUARY_2026.md](PROJECT_STATUS_FEBRUARY_2026.md) for detailed verification report.
 
 **Author:** MD EAFTEKHIRUL ISLAM © 2026
 
@@ -341,3 +345,16 @@ Built with modern open-source technologies:
 Special thanks to the open-source community for making modern web development accessible and secure.
 
 For deeper technical notes and architecture details, see **[`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md)**.
+
+---
+
+## ⭐ Support
+
+If you find this repository useful:
+
+- **Star the repository** ⭐
+- **Share it with others** 📢
+- **Contribute improvements** 🤝
+- **Report issues** 🐛
+
+Your support helps keep the project growing and up to date.

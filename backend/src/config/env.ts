@@ -71,6 +71,10 @@ interface EnvConfig {
   QUOTE_DEDUP_WINDOW_MS: number;
   QUOTE_MAX_PER_EMAIL_PER_DAY: number;
   BCRYPT_ROUNDS: number;
+  // Pagination limits (Phase 2 - Prevent overflow)
+  MAX_PAGE_SIZE: number;
+  DEFAULT_PAGE_SIZE: number;
+  MAX_QUERY_RESULTS: number;
 }
 
 const INSECURE_DEFAULTS = [
@@ -219,6 +223,10 @@ export const env: EnvConfig = {
   QUOTE_DEDUP_WINDOW_MS: getEnvNumber("QUOTE_DEDUP_WINDOW_MS", 10 * 60 * 1000), // 10 minutes
   QUOTE_MAX_PER_EMAIL_PER_DAY: getEnvNumber("QUOTE_MAX_PER_EMAIL_PER_DAY", 5),
   BCRYPT_ROUNDS: getEnvNumber("BCRYPT_ROUNDS", 10),
+  // Pagination limits (Phase 2 - Prevent overflow attacks)
+  MAX_PAGE_SIZE: getEnvNumber("MAX_PAGE_SIZE", 100),
+  DEFAULT_PAGE_SIZE: getEnvNumber("DEFAULT_PAGE_SIZE", 12),
+  MAX_QUERY_RESULTS: getEnvNumber("MAX_QUERY_RESULTS", 1000),
 };
 
 // CORS safety validation
