@@ -4,8 +4,7 @@
 
 **Database Engine:** SQLite (development) / PostgreSQL (production)  
 **ORM:** Prisma 5.x  
-**Migration System:** Prisma Migrate  
-**Last Updated:** February 3, 2026
+**Migration System:** Prisma Migrate
 
 ---
 
