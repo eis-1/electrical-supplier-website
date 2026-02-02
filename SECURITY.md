@@ -8,7 +8,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within this project, please send an email to security@yourcompany.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within this project, please send an email to eafte1@outlook.com. All security vulnerabilities will be promptly addressed.
 
 Please include the following information:
 

@@ -339,9 +339,9 @@ After deployment:
 Publish security contact information:
 
 ```
-Security issues: security@yourdomain.com
-PGP Key: (optional)
-Response time: Within 24 hours
+Security issues: eafte1@outlook.com
+Response time: Within 24-48 hours
+Project: electrical-supplier-website
 ```
 
 Consider:

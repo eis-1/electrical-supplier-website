@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Frontend for Electrical Supplier B2B Website",
   "license": "MIT",
-  "author": "MD EAFTEKHIRUL ISLAM",
+  "author": "MD EAFTEKHIRUL ISLAM <eafte1@outlook.com>",
   "type": "module",
   "scripts": {
     "dev": "vite",
