@@ -29,6 +29,7 @@
 ### Core Principles
 
 **1. Relational Over Document-Based**
+
 - **Decision:** Use relational database (PostgreSQL/SQLite) instead of NoSQL (MongoDB, DynamoDB)
 - **Rationale:**
   - Strong ACID guarantees for e-commerce operations (quotes must be consistent)
@@ -36,8 +37,9 @@
   - Complex queries with JOINs (filter products by category + brand + specs)
   - Foreign key constraints prevent orphaned records
   - Better for reporting and analytics (product views by category/brand)
-  
+
 **2. Normalized Schema (3NF)**
+
 - **Decision:** Follow Third Normal Form normalization
 - **Rationale:**
   - Eliminate data redundancy (brand info stored once, referenced by products)
@@ -46,6 +48,7 @@
   - Trade-off: Requires JOINs but acceptable for < 100k products
 
 **3. UUIDs for Primary Keys**
+
 - **Decision:** Use UUID v4 instead of auto-increment integers
 - **Rationale:**
   - **Security:** No enumeration attacks (can't guess `/products/1`, `/products/2`)
@@ -55,6 +58,7 @@
   - Trade-off: 16 bytes vs 4 bytes, but negligible for < 1M records
 
 **4. Soft Deletes via Status Flags**
+
 - **Decision:** Use `isActive` boolean instead of hard deletes
 - **Rationale:**
   - **Audit trail:** Can see when category/brand was deactivated
@@ -64,6 +68,7 @@
   - Quote requests use status enum (never deleted for legal/compliance)
 
 **5. Timestamps on Every Table**
+
 - **Decision:** `createdAt` and `updatedAt` on all entities
 - **Rationale:**
   - **Audit compliance:** Track when records created/modified
@@ -78,6 +83,7 @@
 ### SQLite (Development)
 
 **Why SQLite for Development:**
+
 ```prisma
 datasource db {
   provider = "sqlite"
@@ -86,6 +92,7 @@ datasource db {
 ```
 
 **Advantages:**
+
 - ✅ Zero configuration (no Docker, no server process)
 - ✅ Fast setup (developers can start coding immediately)
 - ✅ Portable (entire DB in one file, easy to backup/share)
@@ -94,6 +101,7 @@ datasource db {
 - ✅ Same Prisma queries work in production (abstraction layer)
 
 **Limitations:**
+
 - ❌ No concurrent writes (single-writer lock)
 - ❌ No user authentication (file-based access control)
 - ❌ Limited full-text search (no advanced indexing)
@@ -102,6 +110,7 @@ datasource db {
 ### PostgreSQL (Production)
 
 **Why PostgreSQL for Production:**
+
 ```prisma
 datasource db {
   provider = "postgresql"
@@ -110,6 +119,7 @@ datasource db {
 ```
 
 **Advantages:**
+
 - ✅ **Concurrent writes:** Multiple app instances can write simultaneously
 - ✅ **Connection pooling:** Handle 1000+ concurrent users
 - ✅ **Advanced indexing:** GIN/GiST indexes for full-text search
@@ -119,17 +129,20 @@ datasource db {
 - ✅ **Monitoring:** pg_stat_statements for query optimization
 
 **Production Configuration:**
+
 ```env
 DATABASE_URL=postgresql://user:pass@host:5432/dbname?connection_limit=10&pool_timeout=20
 ```
 
 **Why Not MySQL?**
+
 - PostgreSQL has better JSON support (JSONB vs JSON)
 - PostgreSQL supports more advanced features (CTEs, window functions)
 - Better full-text search (built-in vs requires external engines)
 - More permissive license (PostgreSQL License vs GPL)
 
 **Why Not NoSQL (MongoDB)?**
+
 - No ACID guarantees (eventual consistency not acceptable for quotes)
 - No foreign key constraints (application-level integrity error-prone)
 - Schema flexibility not needed (our data structure is stable)
@@ -141,16 +154,16 @@ DATABASE_URL=postgresql://user:pass@host:5432/dbname?connection_limit=10&pool_ti
 
 **Entity Count:** 8 tables (as of Feb 2026)
 
-| Table | Purpose | Row Estimate | Write Frequency |
-|-------|---------|--------------|-----------------|
-| **Admin** | Authentication & RBAC | ~10 | Rare (onboarding only) |
-| **Category** | Product categorization | ~20 | Rare (setup phase) |
-| **Brand** | Product manufacturer info | ~50 | Occasional (new brands) |
-| **Product** | Main product catalog | ~5,000 | Daily (inventory updates) |
-| **ProductSpec** | Product specifications | ~50,000 | Daily (with products) |
-| **QuoteRequest** | Customer inquiries | ~10,000/year | High (24/7 submissions) |
-| **RefreshToken** | Auth token management | ~1,000 | Very high (every login/refresh) |
-| **AuditLog** | Compliance & security | ~100,000/year | High (all admin actions) |
+| Table            | Purpose                   | Row Estimate  | Write Frequency                 |
+| ---------------- | ------------------------- | ------------- | ------------------------------- |
+| **Admin**        | Authentication & RBAC     | ~10           | Rare (onboarding only)          |
+| **Category**     | Product categorization    | ~20           | Rare (setup phase)              |
+| **Brand**        | Product manufacturer info | ~50           | Occasional (new brands)         |
+| **Product**      | Main product catalog      | ~5,000        | Daily (inventory updates)       |
+| **ProductSpec**  | Product specifications    | ~50,000       | Daily (with products)           |
+| **QuoteRequest** | Customer inquiries        | ~10,000/year  | High (24/7 submissions)         |
+| **RefreshToken** | Auth token management     | ~1,000        | Very high (every login/refresh) |
+| **AuditLog**     | Compliance & security     | ~100,000/year | High (all admin actions)        |
 
 ---
 
@@ -160,24 +173,26 @@ DATABASE_URL=postgresql://user:pass@host:5432/dbname?connection_limit=10&pool_ti
 
 **Purpose:** Store admin user accounts with role-based access control.
 
-| Field     | Type         | Constraints      | Description           |
-| --------- | ------------ | ---------------- | --------------------- |
-| id        | UUID         | PRIMARY KEY      | Unique identifier     |
-| email     | VARCHAR(255) | UNIQUE, NOT NULL | Admin email (login)   |
-| password  | VARCHAR(255) | NOT NULL         | bcrypt hash (cost=12) |
-| name      | VARCHAR(100) | NOT NULL         | Display name          |
+| Field     | Type         | Constraints      | Description                    |
+| --------- | ------------ | ---------------- | ------------------------------ |
+| id        | UUID         | PRIMARY KEY      | Unique identifier              |
+| email     | VARCHAR(255) | UNIQUE, NOT NULL | Admin email (login)            |
+| password  | VARCHAR(255) | NOT NULL         | bcrypt hash (cost=12)          |
+| name      | VARCHAR(100) | NOT NULL         | Display name                   |
 | role      | ENUM         | NOT NULL         | superadmin/admin/editor/viewer |
-| isActive  | BOOLEAN      | DEFAULT true     | Account status        |
-| createdAt | TIMESTAMP    | DEFAULT NOW()    | Creation timestamp    |
-| updatedAt | TIMESTAMP    | DEFAULT NOW()    | Last update timestamp |
+| isActive  | BOOLEAN      | DEFAULT true     | Account status                 |
+| createdAt | TIMESTAMP    | DEFAULT NOW()    | Creation timestamp             |
+| updatedAt | TIMESTAMP    | DEFAULT NOW()    | Last update timestamp          |
 
 **Indexes:**
+
 - `email` (UNIQUE) - Fast login lookups, enforce uniqueness
 - `isActive` - Filter active admins for dashboards
 
 **Design Decisions:**
 
 **Why bcrypt for passwords?**
+
 - Industry standard for password hashing (vs SHA256, MD5)
 - Built-in salt (prevents rainbow table attacks)
 - Adaptive cost factor (can increase as hardware improves)
@@ -185,6 +200,7 @@ DATABASE_URL=postgresql://user:pass@host:5432/dbname?connection_limit=10&pool_ti
 - Alternative considered: Argon2 (better but bcrypt more mature ecosystem)
 
 **Why ENUM for role?**
+
 ```prisma
 enum AdminRole {
   SUPERADMIN  // Full system access + user management
@@ -193,17 +209,20 @@ enum AdminRole {
   VIEWER      // Read-only access (reports, dashboards)
 }
 ```
+
 - Type safety: Can't insert invalid roles
 - Query optimization: Database knows all possible values
 - UI generation: Can auto-generate role dropdowns
 - Permission checking: Simple string comparison in code
 
 **Why no lastLogin field?**
+
 - Stored in RefreshToken table (session-based tracking)
 - Separates authentication data from session data
 - One admin can have multiple active sessions (different devices)
 
 **Why isActive instead of deletedAt?**
+
 - Simpler queries: `WHERE isActive = true` vs `WHERE deletedAt IS NULL`
 - Clear semantics: Active/inactive more intuitive
 - Allows future states: Could add "suspended", "locked" without schema change
@@ -227,6 +246,7 @@ enum AdminRole {
 | updatedAt    | TIMESTAMP    | DEFAULT NOW()    | Last update timestamp |
 
 **Indexes:**
+
 - `slug` (UNIQUE) - Fast URL lookups (`/category/circuit-breakers`)
 - `isActive, displayOrder` (COMPOSITE) - Efficiently fetch sorted active categories
 - `name` - Search autocomplete for admin panel
@@ -234,17 +254,20 @@ enum AdminRole {
 **Design Decisions:**
 
 **Why slug field?**
+
 - **SEO benefit:** `/category/circuit-breakers` vs `/category/a1b2c3d4`
 - **User-friendly URLs:** Readable and memorable
 - **Immutable:** Slug doesn't change even if name changes (avoid broken links)
 - **Unique constraint:** Prevents duplicate URLs
 
 **Why displayOrder instead of alphabetical?**
+
 - Business flexibility: Feature popular categories first
 - Manual control: Marketing can A/B test category order
 - Alternative considered: Auto-sort by product count (rejected - inconsistent UX)
 
 **Why no parent_id (hierarchical categories)?**
+
 - **Current scope:** Flat structure sufficient for ~20 categories
 - **YAGNI principle:** Don't build features before they're needed
 - **Future-proof:** Can add `parentId UUID` if nested categories required
@@ -255,32 +278,35 @@ enum AdminRole {
 
 **Purpose:** Store brand/manufacturer data for product attribution and filtering.
 
-| Field        | Type         | Constraints      | Description              |
-| ------------ | ------------ | ---------------- | ------------------------ |
-| id           | UUID         | PRIMARY KEY      | Unique identifier        |
-| name         | VARCHAR(100) | UNIQUE, NOT NULL | Brand name               |
-| slug         | VARCHAR(100) | UNIQUE, NOT NULL | URL-friendly slug        |
-| logo         | VARCHAR(255) | NULL             | Logo filename            |
-| description  | TEXT         | NULL             | Brand story/info         |
-| website      | VARCHAR(255) | NULL             | Official website         |
-| isAuthorized | BOOLEAN      | DEFAULT true     | Authorized dealer flag   |
-| displayOrder | INTEGER      | DEFAULT 0        | Manual sort order        |
-| isActive     | BOOLEAN      | DEFAULT true     | Visibility toggle        |
-| createdAt    | TIMESTAMP    | DEFAULT NOW()    | Creation timestamp       |
-| updatedAt    | TIMESTAMP    | DEFAULT NOW()    | Last update timestamp    |
+| Field        | Type         | Constraints      | Description            |
+| ------------ | ------------ | ---------------- | ---------------------- |
+| id           | UUID         | PRIMARY KEY      | Unique identifier      |
+| name         | VARCHAR(100) | UNIQUE, NOT NULL | Brand name             |
+| slug         | VARCHAR(100) | UNIQUE, NOT NULL | URL-friendly slug      |
+| logo         | VARCHAR(255) | NULL             | Logo filename          |
+| description  | TEXT         | NULL             | Brand story/info       |
+| website      | VARCHAR(255) | NULL             | Official website       |
+| isAuthorized | BOOLEAN      | DEFAULT true     | Authorized dealer flag |
+| displayOrder | INTEGER      | DEFAULT 0        | Manual sort order      |
+| isActive     | BOOLEAN      | DEFAULT true     | Visibility toggle      |
+| createdAt    | TIMESTAMP    | DEFAULT NOW()    | Creation timestamp     |
+| updatedAt    | TIMESTAMP    | DEFAULT NOW()    | Last update timestamp  |
 
 **Indexes:**
+
 - `slug` (UNIQUE) - Fast URL lookups
 - `isActive, isAuthorized` (COMPOSITE) - Filter authorized active brands
 
 **Design Decisions:**
 
 **Why isAuthorized field?**
+
 - **Business need:** Distinguish official dealers from gray market resellers
 - **Trust indicator:** Display "Authorized Dealer" badge
 - **Legal compliance:** Some manufacturers require dealer authorization disclosure
 
 **Why separate Brand from Product?**
+
 - **Normalization:** One brand → many products (avoid duplicate data)
 - **Consistency:** Change Siemens logo once, affects all 500 products
 - **Analytics:** Count products per brand, track brand performance
@@ -291,25 +317,26 @@ enum AdminRole {
 
 **Purpose:** Core product catalog with relationships to categories and brands.
 
-| Field        | Type         | Constraints      | Description                    |
-| ------------ | ------------ | ---------------- | ------------------------------ |
-| id           | UUID         | PRIMARY KEY      | Unique identifier              |
-| name         | VARCHAR(255) | NOT NULL         | Product name                   |
-| slug         | VARCHAR(255) | UNIQUE, NOT NULL | URL-friendly slug              |
-| model        | VARCHAR(100) | NULL             | Model/part number              |
-| categoryId   | UUID         | FOREIGN KEY      | References Category.id         |
-| brandId      | UUID         | FOREIGN KEY      | References Brand.id            |
-| description  | TEXT         | NULL             | Rich text description          |
-| keyFeatures  | JSON/TEXT    | NULL             | Array of feature strings       |
-| image        | VARCHAR(255) | NULL             | Main product image             |
-| images       | JSON/TEXT    | NULL             | Additional images array        |
-| datasheetUrl | VARCHAR(255) | NULL             | PDF specification sheet        |
-| isActive     | BOOLEAN      | DEFAULT true     | Visibility toggle              |
-| isFeatured   | BOOLEAN      | DEFAULT false    | Homepage/banner display        |
-| createdAt    | TIMESTAMP    | DEFAULT NOW()    | Creation timestamp             |
-| updatedAt    | TIMESTAMP    | DEFAULT NOW()    | Last update timestamp          |
+| Field        | Type         | Constraints      | Description              |
+| ------------ | ------------ | ---------------- | ------------------------ |
+| id           | UUID         | PRIMARY KEY      | Unique identifier        |
+| name         | VARCHAR(255) | NOT NULL         | Product name             |
+| slug         | VARCHAR(255) | UNIQUE, NOT NULL | URL-friendly slug        |
+| model        | VARCHAR(100) | NULL             | Model/part number        |
+| categoryId   | UUID         | FOREIGN KEY      | References Category.id   |
+| brandId      | UUID         | FOREIGN KEY      | References Brand.id      |
+| description  | TEXT         | NULL             | Rich text description    |
+| keyFeatures  | JSON/TEXT    | NULL             | Array of feature strings |
+| image        | VARCHAR(255) | NULL             | Main product image       |
+| images       | JSON/TEXT    | NULL             | Additional images array  |
+| datasheetUrl | VARCHAR(255) | NULL             | PDF specification sheet  |
+| isActive     | BOOLEAN      | DEFAULT true     | Visibility toggle        |
+| isFeatured   | BOOLEAN      | DEFAULT false    | Homepage/banner display  |
+| createdAt    | TIMESTAMP    | DEFAULT NOW()    | Creation timestamp       |
+| updatedAt    | TIMESTAMP    | DEFAULT NOW()    | Last update timestamp    |
 
 **Indexes:**
+
 - `slug` (UNIQUE) - Fast URL lookups
 - `categoryId` - Filter by category
 - `brandId` - Filter by brand
@@ -319,16 +346,19 @@ enum AdminRole {
 **Design Decisions:**
 
 **Why nullable categoryId and brandId?**
+
 - **Flexibility:** Can add products before categorizing (draft mode)
 - **ON DELETE SET NULL:** If category deleted, product survives
 - **Migration safety:** Can import products without all metadata
 
 **Why keyFeatures as JSON?**
+
 - **Read optimization:** Single query gets all features (no JOIN)
 - **Flexibility:** Variable number of features per product
 - **Update simplicity:** Replace entire array vs insert/delete rows
 
 **Why isFeatured flag?**
+
 - **Homepage control:** Marketing can manually select showcase products
 - **Query performance:** `WHERE isFeatured = true LIMIT 6` (instant with index)
 
@@ -349,6 +379,7 @@ enum AdminRole {
 | updatedAt    | TIMESTAMP    | DEFAULT NOW() | Last update timestamp |
 
 **Unique Constraint:**
+
 ```prisma
 @@unique([productId, specKey])
 ```
@@ -356,6 +387,7 @@ enum AdminRole {
 **Design Decisions:**
 
 **Why separate table instead of JSON?**
+
 - ✅ **Filterable:** Can query `WHERE specKey='Voltage' AND specValue='230V'`
 - ✅ **Indexable:** Can create index on specKey for fast lookups
 - ✅ **Sortable:** `ORDER BY displayOrder` for consistent presentation
@@ -367,26 +399,27 @@ enum AdminRole {
 
 **Purpose:** Capture and track customer quote requests with spam prevention.
 
-| Field          | Type         | Constraints   | Description                                   |
-| -------------- | ------------ | ------------- | --------------------------------------------- |
-| id             | UUID         | PRIMARY KEY   | Unique identifier                             |
-| name           | VARCHAR(100) | NOT NULL      | Customer name                                 |
-| company        | VARCHAR(150) | NULL          | Company name                                  |
-| phone          | VARCHAR(20)  | NOT NULL      | Phone number                                  |
-| whatsapp       | VARCHAR(20)  | NULL          | WhatsApp number                               |
-| email          | VARCHAR(255) | NOT NULL      | Email address                                 |
-| productName    | VARCHAR(255) | NULL          | Product/model requested                       |
-| quantity       | VARCHAR(50)  | NULL          | Requested quantity                            |
-| projectDetails | TEXT         | NULL          | Additional details                            |
-| status         | ENUM         | DEFAULT 'new' | new/contacted/quoted/closed                   |
-| notes          | TEXT         | NULL          | Admin notes                                   |
-| ipAddress      | VARCHAR(50)  | NULL          | Submitter IP                                  |
-| userAgent      | VARCHAR(255) | NULL          | Submitter browser                             |
-| createdDay     | STRING       | NOT NULL      | YYYY-MM-DD for duplicate detection            |
-| createdAt      | TIMESTAMP    | DEFAULT NOW() | Submission timestamp                          |
-| updatedAt      | TIMESTAMP    | DEFAULT NOW() | Last update timestamp                         |
+| Field          | Type         | Constraints   | Description                        |
+| -------------- | ------------ | ------------- | ---------------------------------- |
+| id             | UUID         | PRIMARY KEY   | Unique identifier                  |
+| name           | VARCHAR(100) | NOT NULL      | Customer name                      |
+| company        | VARCHAR(150) | NULL          | Company name                       |
+| phone          | VARCHAR(20)  | NOT NULL      | Phone number                       |
+| whatsapp       | VARCHAR(20)  | NULL          | WhatsApp number                    |
+| email          | VARCHAR(255) | NOT NULL      | Email address                      |
+| productName    | VARCHAR(255) | NULL          | Product/model requested            |
+| quantity       | VARCHAR(50)  | NULL          | Requested quantity                 |
+| projectDetails | TEXT         | NULL          | Additional details                 |
+| status         | ENUM         | DEFAULT 'new' | new/contacted/quoted/closed        |
+| notes          | TEXT         | NULL          | Admin notes                        |
+| ipAddress      | VARCHAR(50)  | NULL          | Submitter IP                       |
+| userAgent      | VARCHAR(255) | NULL          | Submitter browser                  |
+| createdDay     | STRING       | NOT NULL      | YYYY-MM-DD for duplicate detection |
+| createdAt      | TIMESTAMP    | DEFAULT NOW() | Submission timestamp               |
+| updatedAt      | TIMESTAMP    | DEFAULT NOW() | Last update timestamp              |
 
 **Unique Constraint:**
+
 ```prisma
 @@unique([email, phone, createdDay])
 ```
@@ -394,17 +427,20 @@ enum AdminRole {
 **Design Decisions:**
 
 **Why unique constraint on email+phone+createdDay?**
+
 - **Duplicate prevention:** Same email+phone can't submit multiple quotes same day
 - **Atomic enforcement:** Database-level constraint prevents race conditions
 - **Why createdDay?** Allow daily quotes but prevent spam minutes apart
 
 **Why store ipAddress and userAgent?**
+
 - **Spam prevention:** Detect bot patterns
 - **Fraud detection:** Identify VPN/proxy usage
 - **Analytics:** Geographic distribution
 - **Legal compliance:** Some jurisdictions require request metadata retention
 
 **Why never delete quotes?**
+
 - **Legal requirement:** Sales records must be retained
 - **Customer history:** See all past interactions
 - **Business intelligence:** Analyze quote-to-order conversion
@@ -434,18 +470,22 @@ QuoteRequest (Independent - no foreign keys)
 ### Foreign Key Constraints
 
 **Product → Category (ON DELETE SET NULL):**
+
 - Deleting category doesn't delete products
 - Products exist independently, category is metadata
 
 **Product → Brand (ON DELETE SET NULL):**
+
 - Deleting brand doesn't delete products
 - Historical data preservation
 
 **ProductSpec → Product (ON DELETE CASCADE):**
+
 - Deleting product deletes all specs
 - Specs meaningless without parent product
 
 **RefreshToken → Admin (ON DELETE CASCADE):**
+
 - Deleting admin invalidates all sessions
 - Security: Prevent token reuse after account deletion
 
@@ -456,18 +496,21 @@ QuoteRequest (Independent - no foreign keys)
 ### Index Types
 
 **1. Unique Indexes (Data Integrity)**
+
 - `Admin.email`
 - `Category.slug`, `Brand.slug`, `Product.slug`
 - `RefreshToken.token`
 - `QuoteRequest(email, phone, createdDay)`
 
 **2. Single-Column Indexes**
+
 - `Admin.isActive`
 - `Product.categoryId`
 - `Product.brandId`
 - `QuoteRequest.status`
 
 **3. Composite Indexes (Complex Queries)**
+
 ```sql
 CREATE INDEX idx_product_featured ON Product(isActive, isFeatured);
 CREATE INDEX idx_category_active_order ON Category(isActive, displayOrder);
@@ -481,11 +524,13 @@ CREATE INDEX idx_audit_admin_time ON AuditLog(adminId, timestamp DESC);
 ### Check Constraints
 
 **Email validation:**
+
 ```sql
 CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$')
 ```
 
 **Future date validation:**
+
 ```sql
 CHECK (expiresAt > createdAt)
 ```
@@ -529,6 +574,7 @@ npm run test:smoke
 ### Zero-Downtime Migrations
 
 **Adding nullable column:**
+
 ```sql
 -- Add column (instant)
 ALTER TABLE Product ADD COLUMN newField TEXT NULL;
@@ -568,10 +614,11 @@ DATABASE_URL=postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeou
 ### 1. SQL Injection Prevention
 
 **Prisma ORM protection:**
+
 ```typescript
 // ✅ Safe: Parameterized
 await prisma.product.findMany({
-  where: { name: { contains: userInput } }
+  where: { name: { contains: userInput } },
 });
 ```
 
@@ -601,26 +648,29 @@ const hash = await bcrypt.hash(password, 12);
 ### Query Patterns
 
 **Avoid N+1 queries:**
+
 ```typescript
 // ✅ Eager load with include
 const products = await prisma.product.findMany({
-  include: { category: true, brand: true }
+  include: { category: true, brand: true },
 });
 ```
 
 **Pagination:**
+
 ```typescript
 // Cursor-based for large datasets
 const products = await prisma.product.findMany({
   take: 20,
-  cursor: { id: lastId }
+  cursor: { id: lastId },
 });
 ```
 
 **Select only needed fields:**
+
 ```typescript
 const products = await prisma.product.findMany({
-  select: { id: true, name: true, slug: true }
+  select: { id: true, name: true, slug: true },
 });
 ```
 
@@ -628,10 +678,10 @@ const products = await prisma.product.findMany({
 
 ```typescript
 // Redis cache (5 min TTL)
-const cached = await redis.get('products:featured');
+const cached = await redis.get("products:featured");
 if (!cached) {
   const data = await prisma.product.findMany({ where: { isFeatured: true } });
-  await redis.setex('products:featured', 300, JSON.stringify(data));
+  await redis.setex("products:featured", 300, JSON.stringify(data));
 }
 ```
 
@@ -649,6 +699,7 @@ aws s3 cp backup_*.sql.gz s3://backups/
 ```
 
 **Retention:**
+
 - Daily: 7 days
 - Weekly: 4 weeks
 - Monthly: 12 months

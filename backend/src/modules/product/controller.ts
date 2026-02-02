@@ -5,6 +5,7 @@ import { asyncHandler } from "../../middlewares/error.middleware";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { logger } from "../../utils/logger";
 import { env } from "../../config/env";
+import { sanitizeObject } from "../../utils/sanitize";
 
 /**
  * ProductController - HTTP request handlers for product endpoints
@@ -102,7 +103,9 @@ export class ProductController {
   });
 
   create = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const product = await this.service.createProduct(req.body);
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject(req.body);
+    const product = await this.service.createProduct(sanitizedBody);
     logger.audit("product_created", req.admin?.id || "unknown", {
       productId: product.id,
       productName: product.name,
@@ -112,7 +115,9 @@ export class ProductController {
 
   update = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const product = await this.service.updateProduct(id, req.body);
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject(req.body);
+    const product = await this.service.updateProduct(id, sanitizedBody);
     logger.audit("product_updated", req.admin?.id || "unknown", {
       productId: id,
       productName: product.name,

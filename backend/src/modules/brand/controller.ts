@@ -3,6 +3,7 @@ import { BrandService } from "./service";
 import { ApiResponse } from "../../utils/response";
 import { asyncHandler } from "../../middlewares/error.middleware";
 import { AuthRequest } from "../../middlewares/auth.middleware";
+import { sanitizeObject } from "../../utils/sanitize";
 
 /**
  * BrandController - HTTP request handlers for brand endpoints
@@ -44,13 +45,17 @@ export class BrandController {
   });
 
   create = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const brand = await this.service.createBrand(req.body);
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject(req.body);
+    const brand = await this.service.createBrand(sanitizedBody);
     return ApiResponse.created(res, brand, "Brand created successfully");
   });
 
   update = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const brand = await this.service.updateBrand(id, req.body);
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject(req.body);
+    const brand = await this.service.updateBrand(id, sanitizedBody);
     return ApiResponse.success(res, brand, "Brand updated successfully");
   });
 

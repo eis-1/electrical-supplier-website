@@ -3,6 +3,7 @@ import { CategoryService } from "./service";
 import { ApiResponse } from "../../utils/response";
 import { asyncHandler } from "../../middlewares/error.middleware";
 import { AuthRequest } from "../../middlewares/auth.middleware";
+import { sanitizeObject } from "../../utils/sanitize";
 
 /**
  * CategoryController - HTTP request handlers for category endpoints
@@ -54,13 +55,17 @@ export class CategoryController {
   });
 
   create = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const category = await this.service.createCategory(req.body);
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject(req.body);
+    const category = await this.service.createCategory(sanitizedBody);
     return ApiResponse.created(res, category, "Category created successfully");
   });
 
   update = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const category = await this.service.updateCategory(id, req.body);
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject(req.body);
+    const category = await this.service.updateCategory(id, sanitizedBody);
     return ApiResponse.success(res, category, "Category updated successfully");
   });
 

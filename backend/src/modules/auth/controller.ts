@@ -5,6 +5,7 @@ import { asyncHandler } from "../../middlewares/error.middleware";
 import { env } from "../../config/env";
 import { clearCsrfToken } from "../../middlewares/csrf.middleware";
 import { logger } from "../../utils/logger";
+import { sanitizeObject } from "../../utils/sanitize";
 
 /**
  * AuthController - Handles admin authentication and session management
@@ -71,7 +72,9 @@ export class AuthController {
    * @access Public
    */
   login = asyncHandler(async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    // Sanitize input to prevent prototype pollution attacks
+    const sanitizedBody = sanitizeObject<{ email: string; password: string }>(req.body);
+    const { email, password } = sanitizedBody;
 
     const result = await this.service.login(
       email,
@@ -218,7 +221,9 @@ export class AuthController {
   });
 
   verify2FA = asyncHandler(async (req: Request, res: Response) => {
-    const { adminId, code } = req.body;
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject<{ adminId: string; code: string }>(req.body);
+    const { adminId, code } = sanitizedBody;
 
     if (!adminId || !code) {
       return ApiResponse.badRequest(res, "Admin ID and 2FA code required");

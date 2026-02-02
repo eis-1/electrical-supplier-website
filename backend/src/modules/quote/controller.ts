@@ -3,6 +3,7 @@ import { QuoteService } from "./service";
 import { ApiResponse } from "../../utils/response";
 import { asyncHandler } from "../../middlewares/error.middleware";
 import { AuthRequest } from "../../middlewares/auth.middleware";
+import { sanitizeObject } from "../../utils/sanitize";
 
 /**
  * QuoteController - HTTP request handlers for quote request endpoints
@@ -56,6 +57,9 @@ export class QuoteController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.headers["user-agent"];
 
+    // Sanitize input to prevent prototype pollution attacks
+    const sanitizedBody = sanitizeObject(req.body);
+
     // Whitelist fields (prevents unexpected body keys from reaching Prisma create)
     const {
       name,
@@ -66,7 +70,7 @@ export class QuoteController {
       productName,
       quantity,
       projectDetails,
-    } = req.body as Record<string, any>;
+    } = sanitizedBody as Record<string, any>;
 
     const quoteData = {
       name,
@@ -130,7 +134,9 @@ export class QuoteController {
 
   update = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const quote = await this.service.updateQuote(id, req.body);
+    // Sanitize input to prevent prototype pollution
+    const sanitizedBody = sanitizeObject(req.body);
+    const quote = await this.service.updateQuote(id, sanitizedBody);
     return ApiResponse.success(res, quote, "Quote updated successfully");
   });
 
