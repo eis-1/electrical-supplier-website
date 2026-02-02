@@ -4,6 +4,10 @@ import { env } from "../config/env";
 import { ApiResponse } from "../utils/response";
 import { asyncHandler } from "./error.middleware";
 
+/**
+ * Extended Request interface with admin information
+ * Used after authentication to access admin details in controllers
+ */
 export interface AuthRequest extends Request {
   admin?: {
     id: string;
@@ -12,6 +16,49 @@ export interface AuthRequest extends Request {
   };
 }
 
+/**
+ * Authenticate Admin Middleware
+ *
+ * Purpose:
+ * - Protect admin routes from unauthorized access
+ * - Validate JWT access token from Authorization header
+ * - Attach admin information to request for use in controllers
+ *
+ * Token Verification:
+ * - Expects: "Authorization: Bearer <token>" header
+ * - Verifies: Signature, expiration, format
+ * - Algorithm: HS256 (HMAC with SHA-256)
+ *
+ * Request Flow:
+ * 1. Extract token from Authorization header
+ * 2. Verify token signature and expiration
+ * 3. Decode admin info (id, email, role)
+ * 4. Attach to req.admin for controller access
+ * 5. Call next() to proceed to route handler
+ *
+ * Error Handling:
+ * - No token: 401 "No token provided"
+ * - Expired token: 401 "Token expired"
+ * - Invalid token: 401 "Invalid token"
+ * - Malformed token: 401 "Invalid token"
+ *
+ * Usage:
+ * @example
+ * // Protect admin routes
+ * router.get('/admin/products', authenticateAdmin, productController.getAll);
+ *
+ * // Access admin info in controller
+ * async getProducts(req: AuthRequest, res: Response) {
+ *   const adminId = req.admin?.id; // Available after authentication
+ *   logger.audit('view_products', adminId);
+ * }
+ *
+ * Security Notes:
+ * - Access tokens are short-lived (24 hours)
+ * - Expired tokens require refresh using /auth/refresh
+ * - Tokens are stateless (no database lookup)
+ * - Secret key must be strong (JWT_SECRET in .env)
+ */
 export const authenticateAdmin = asyncHandler(
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     // Get token from header
