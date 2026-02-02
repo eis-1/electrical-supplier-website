@@ -3,6 +3,7 @@ import { RedisStore } from "rate-limit-redis";
 import { env } from "../config/env";
 import { getRedisClient } from "../config/redis";
 import { logger } from "../utils/logger";
+import { AppError } from "./error.middleware";
 
 /**
  * Rate Limiting Middleware
@@ -252,7 +253,8 @@ export const shutdownRateLimiters = async (): Promise<void> => {
 // Export getter functions instead of direct instances
 export const apiLimiter = (req: any, res: any, next: any) => {
   if (!apiLimiterInstance) {
-    throw new Error(
+    throw new AppError(
+      500,
       "Rate limiters not initialized. Call initializeRateLimiters() first.",
     );
   }
@@ -261,7 +263,8 @@ export const apiLimiter = (req: any, res: any, next: any) => {
 
 export const quoteLimiter = (req: any, res: any, next: any) => {
   if (!quoteLimiterInstance) {
-    throw new Error(
+    throw new AppError(
+      500,
       "Rate limiters not initialized. Call initializeRateLimiters() first.",
     );
   }
@@ -270,7 +273,8 @@ export const quoteLimiter = (req: any, res: any, next: any) => {
 
 export const authLimiter = (req: any, res: any, next: any) => {
   if (!authLimiterInstance) {
-    throw new Error(
+    throw new AppError(
+      500,
       "Rate limiters not initialized. Call initializeRateLimiters() first.",
     );
   }
@@ -279,7 +283,8 @@ export const authLimiter = (req: any, res: any, next: any) => {
 
 export const twoFactorLimiter = (req: any, res: any, next: any) => {
   if (!twoFactorLimiterInstance) {
-    throw new Error(
+    throw new AppError(
+      500,
       "Rate limiters not initialized. Call initializeRateLimiters() first.",
     );
   }

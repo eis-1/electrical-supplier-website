@@ -190,14 +190,17 @@ export class QuoteService {
     }
 
     // Create the quote record in database
-    const quote = await this.repository.create(data);
-
-    // Generate human-readable reference number
-    // Format: QR-YYYYMMDD-XXXXXX (e.g., QR-20260203-A1B2C3)
-    const referenceNumber = `QR-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${quote.id.substring(0, 6).toUpperCase()}`;
-
-    // Send email notifications (non-blocking - don't fail request if email fails)
+    // Database-level unique constraint prevents race conditions
+    // Constraint: unique(email, phone, createdDay) - allows only 1 quote per day
     try {
+      const quote = await this.repository.create(data);
+
+      // Generate human-readable reference number
+      // Format: QR-YYYYMMDD-XXXXXX (e.g., QR-20260203-A1B2C3)
+      const referenceNumber = `QR-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${quote.id.substring(0, 6).toUpperCase()}`;
+
+      // Send email notifications (non-blocking - don't fail request if email fails)
+      try {
       // 1. Notify admin about new quote request
       await emailService.sendQuoteNotification({
         referenceNumber,
@@ -223,6 +226,24 @@ export class QuoteService {
     }
 
     return quote;
+    } catch (error: any) {
+      // Handle Prisma unique constraint violation (P2002)
+      // This occurs when same email+phone+day combination already exists
+      if (error.code === "P2002") {
+        logger.security({
+          type: "quote",
+          action: "spam_blocked_duplicate_db",
+          ip: data.ipAddress,
+          details: { email: data.email, constraintViolation: error.meta?.target },
+        });
+        throw new AppError(
+          429,
+          "We already received your request today. Please wait for our response.",
+        );
+      }
+      // Re-throw other errors
+      throw error;
+    }
   }
 
   /**

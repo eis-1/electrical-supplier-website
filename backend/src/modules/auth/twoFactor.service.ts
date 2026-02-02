@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import crypto from "crypto";
 import { env } from "../../config/env";
 import { logger } from "../../utils/logger";
+import { AppError } from "../../middlewares/error.middleware";
 
 /**
  * Two-Factor Authentication Service
@@ -37,7 +38,7 @@ export class TwoFactorService {
       return await QRCode.toDataURL(otpauthUrl);
     } catch (error) {
       logger.error("Failed to generate QR code:", error);
-      throw new Error("Failed to generate QR code");
+      throw new AppError(500, "Failed to generate QR code for 2FA setup");
     }
   }
 
@@ -160,7 +161,7 @@ export class TwoFactorService {
       return decrypted;
     } catch (error) {
       logger.error("Failed to decrypt 2FA secret:", error);
-      throw new Error("Failed to decrypt 2FA secret");
+      throw new AppError(500, "Failed to decrypt 2FA secret - check encryption configuration");
     }
   }
 }

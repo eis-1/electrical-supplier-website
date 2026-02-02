@@ -186,9 +186,11 @@ export const createApp = (): Application => {
   // Cookie parser (must come before routes that use cookies)
   app.use(cookieParser(env.COOKIE_SECRET));
 
-  // Body parsing middleware
-  app.use(express.json({ limit: "10mb" }));
-  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+  // Body parsing middleware with strict size limits to prevent DoS
+  // 10kb limit for JSON/form data (sufficient for API requests)
+  // File uploads handled separately by multer with higher limits
+  app.use(express.json({ limit: "10kb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
   // Request ID middleware for tracing
   app.use((req: Request, res: Response, next: NextFunction) => {

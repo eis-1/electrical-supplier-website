@@ -119,8 +119,15 @@ export class QuoteRepository {
   }
 
   async create(data: CreateQuoteData): Promise<QuoteRequest> {
+    // Add createdDay field for database-level duplicate prevention
+    const now = new Date();
+    const createdDay = now.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+
     return prisma.quoteRequest.create({
-      data,
+      data: {
+        ...data,
+        createdDay,
+      },
     });
   }
 

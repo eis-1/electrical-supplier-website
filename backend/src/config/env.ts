@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { AppError } from "../middlewares/error.middleware";
 
 /**
  * Environment Configuration Loader
@@ -130,7 +131,7 @@ const getEnvVar = (key: string, defaultValue?: string): string => {
   if (defaultValue !== undefined) {
     return defaultValue;
   }
-  throw new Error(`Missing required environment variable: ${key}`);
+  throw new AppError(500, `Missing required environment variable: ${key}`);
 };
 
 const getSecureEnvVar = (
@@ -142,19 +143,21 @@ const getSecureEnvVar = (
 
   // Never allow empty secrets (even in development)
   if (!value || value.trim().length === 0) {
-    throw new Error(`Missing required environment variable: ${key}`);
+    throw new AppError(500, `Missing required environment variable: ${key}`);
   }
 
   // In production, enforce secure secrets
   if (process.env.NODE_ENV === "production") {
     if (INSECURE_DEFAULTS.includes(value.toLowerCase())) {
-      throw new Error(
+      throw new AppError(
+        500,
         `SECURITY ERROR: ${key} is using an insecure default value. ` +
           `Set a strong secret (min ${minLength} characters) in production.`,
       );
     }
     if (value.length < minLength) {
-      throw new Error(
+      throw new AppError(
+        500,
         `SECURITY ERROR: ${key} must be at least ${minLength} characters in production. Current: ${value.length}`,
       );
     }
@@ -276,7 +279,8 @@ if (env.NODE_ENV === "production") {
     .filter(Boolean);
 
   if (parts.includes("*")) {
-    throw new Error(
+    throw new AppError(
+      500,
       "SECURITY ERROR: CORS_ORIGIN cannot include '*' in production. " +
         "Set explicit allowed origins (comma-separated).",
     );

@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import { env } from "../config/env";
 import { logger } from "./logger";
+import { AppError } from "../middlewares/error.middleware";
 
 /**
  * Storage provider types
@@ -172,7 +173,7 @@ class StorageService {
     const resolvedUploadDir = path.resolve(uploadDir);
 
     if (!resolvedPath.startsWith(resolvedUploadDir)) {
-      throw new Error("Invalid file path");
+      throw new AppError(403, "Invalid file path - path traversal detected");
     }
 
     if (fs.existsSync(filePath)) {
@@ -196,7 +197,7 @@ class StorageService {
     subfolder: string,
   ): Promise<UploadResult> {
     if (!this.s3Client) {
-      throw new Error("S3 client not initialized");
+      throw new AppError(500, "S3 client not initialized - check S3 configuration");
     }
 
     const fileStream = fs.createReadStream(filePath);
@@ -245,7 +246,7 @@ class StorageService {
 
   private async deleteS3(key: string): Promise<void> {
     if (!this.s3Client) {
-      throw new Error("S3 client not initialized");
+      throw new AppError(500, "S3 client not initialized - check S3 configuration");
     }
 
     try {
@@ -268,7 +269,7 @@ class StorageService {
 
   private async existsS3(key: string): Promise<boolean> {
     if (!this.s3Client) {
-      throw new Error("S3 client not initialized");
+      throw new AppError(500, "S3 client not initialized - check S3 configuration");
     }
 
     try {

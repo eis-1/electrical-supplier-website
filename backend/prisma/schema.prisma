@@ -158,6 +158,7 @@ model QuoteRequest {
   notes          String?
   ipAddress      String?
   userAgent      String?
+  createdDay     String   // Format: YYYY-MM-DD for duplicate detection
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -165,6 +166,7 @@ model QuoteRequest {
   @@index([createdAt])
   @@index([email])
   @@index([status, createdAt])
+  @@unique([email, phone, createdDay], name: "unique_quote_per_day")
   @@map("quote_requests")
 }
 
