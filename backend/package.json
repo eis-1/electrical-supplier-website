@@ -34,7 +34,7 @@
     "b2b",
     "api"
   ],
-  "author": "MD EAFTEKHIRUL ISLAM",
+  "author": "MD EAFTEKHIRUL ISLAM <eafte1@outlook.com>",
   "license": "MIT",
   "prisma": {
     "seed": "tsx prisma/seed.ts"

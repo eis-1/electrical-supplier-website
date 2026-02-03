@@ -679,28 +679,15 @@ describe("Quote Requests", () => {
 
 ## Conclusion
 
-The quote request system is **thoroughly protected** against spam and automated attacks with **5 comprehensive security layers**:
+The quote request system is protected against common spam and automated submission patterns using a layered approach:
 
-1. ✅ **Rate Limiting** - IP-based request throttling
-2. ✅ **Honeypot** - Bot detection via hidden field
-3. ✅ **Timing Analysis** - Automated submission detection
-4. ✅ **Duplicate Detection** - Prevents repeated submissions
-5. ✅ **Daily Limits** - Email-based quotas
+1. **Rate limiting** - IP-based request throttling
+2. **Honeypot** - bot detection via hidden field
+3. **Timing analysis** - automated submission detection
+4. **Duplicate detection** - prevents repeated submissions
+5. **Daily limits** - email-based quotas
 
-### Security Grade: **A+ (Excellent)**
+### Operational notes
 
-**Status:** ✅ **Production-ready** and battle-tested
-
-All security features are:
-
-- ✅ Implemented and active
-- ✅ Thoroughly tested
-- ✅ Documented
-- ✅ Configurable
-- ✅ Logged and monitored
-
-**No additional security measures required** for typical B2B website traffic.
-
----
-
-**Next Review:** Recommended after 6 months of production monitoring
+- Ensure logging and alerting are enabled in the deployment environment.
+- Re-validate these controls after major changes to the quote flow, rate limits, or email delivery configuration.

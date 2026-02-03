@@ -305,21 +305,13 @@ curl https://yourdomain.com/api/v1/admin/products
 
 ---
 
-## 📊 Security Score
+## Security readiness review
 
-Grade your security:
-
-- **A+ (90-100%)**: All items checked
-- **A (80-89%)**: Most items checked, minor issues
-- **B (70-79%)**: Good security, some improvements needed
-- **C (60-69%)**: Basic security, multiple improvements needed
-- **F (<60%)**: Critical security issues, DO NOT deploy
-
-**Target: A+ rating before production deployment**
+If any items in this checklist remain incomplete, treat them as deployment blockers unless there is an explicit, documented risk acceptance.
 
 ---
 
-## 🚀 Post-Deployment
+## Post-deployment
 
 After deployment:
 
@@ -334,7 +326,7 @@ After deployment:
 
 ---
 
-## 📞 Security Contact
+## Security contact
 
 Publish security contact information:
 

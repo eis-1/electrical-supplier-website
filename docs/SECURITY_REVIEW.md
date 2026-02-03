@@ -324,22 +324,19 @@ npm run lint
    - Set up alerts for high error rates, auth failures
    - Platform: Sentry, DataDog, or CloudWatch
 
-## Security Score
+## Summary of improvements
 
-**Before:** 88/100  
-**After:** 96/100
+Key improvements reflected in this review include:
 
-### Improvements Made
+- Comprehensive log redaction
+- Enhanced CSP directives
+- Referrer-Policy header
+- X-Permitted-Cross-Domain-Policies
 
-- +4 points: Comprehensive log redaction
-- +2 points: Enhanced CSP directives
-- +1 point: Referrer-Policy header
-- +1 point: X-Permitted-Cross-Domain-Policies
+Minor follow-ups to consider (as applicable to your deployment):
 
-### Remaining Gaps (Minor)
-
-- -2 points: No SRI for external assets (none currently used)
-- -2 points: No automated security scanning in CI (can add Snyk/Dependabot)
+- Subresource Integrity (SRI) for externally loaded assets (if any are introduced)
+- Automated dependency/security scanning in CI (e.g., Dependabot, Snyk)
 
 ## References
 
