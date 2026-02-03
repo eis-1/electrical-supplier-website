@@ -1,13 +1,11 @@
 # Security Vulnerabilities & Limitations Audit
 
-# Security Vulnerability Assessment Report
-
 **Status:** Critical Review Required  
 **Severity:** Mixed (Low to High)
 
 ---
 
-## 🚨 Critical Vulnerabilities Found
+## Critical vulnerabilities identified
 
 ### 1. **CRITICAL: Weak Error Handling - Information Leakage**
 
@@ -196,7 +194,7 @@ create = asyncHandler(async (req: Request, res: Response) => {
 
 ---
 
-## ⚠️ Security Gaps Identified
+## Security gaps identified
 
 ### 6. **No Rate Limit on Password Reset (If Implemented)**
 
@@ -271,40 +269,40 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 ---
 
-## 🔍 Code Ownership & Understanding Gaps
+## Code ownership & understanding gaps
 
 ### Knowledge Depth Issues Found:
 
 **1. Authentication Flow**
 
-- ✅ JWT implementation present
-- ⚠️ Refresh token invalidation logic missing (critical gap)
-- ⚠️ No token rotation on refresh (security best practice missed)
-- ⚠️ No device tracking for refresh tokens
+- JWT implementation present
+- Refresh token invalidation logic missing (critical gap)
+- No token rotation on refresh (security best practice gap)
+- No device tracking for refresh tokens
 
 **2. Quote Security**
 
-- ✅ 5-layer protection documented
-- ❌ Race condition in duplicate detection (fundamental flaw)
-- ⚠️ No distributed locking mechanism for spam protection
+- Multi-layer protection documented
+- Race condition in duplicate detection (fundamental flaw)
+- No distributed locking mechanism for spam protection
 
 **3. File Upload**
 
-- ✅ Multi-layer validation present
-- ⚠️ Malware scanning can be bypassed (fail_open mode dangerous)
-- ⚠️ No file size limits per user/session
-- ⚠️ No cleanup of orphaned temp files
+- Multi-layer validation present
+- Malware scanning can be bypassed (fail_open mode is risky)
+- No file size limits per user/session
+- No cleanup of orphaned temp files
 
 **4. Database Understanding**
 
-- ⚠️ No indexes defined beyond auto-generated
-- ⚠️ No migration strategy for production
-- ⚠️ No backup/restore procedures documented
-- ❌ No understanding of connection pooling limits
+- No indexes defined beyond auto-generated
+- No migration strategy for production
+- No backup/restore procedures documented
+- Connection pooling limits need review
 
 ---
 
-## 📚 Documentation Problems
+## Documentation problems
 
 ### Documents That Should Be Removed (Bloat):
 
@@ -317,15 +315,15 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 7. **VERIFICATION_REPORT.md** - Test results belong in CI/CD, not docs
 8. **TECHNICAL_VERIFICATION_REPORT.md** - Duplicate verification info
 9. **SECURITY_ASSESSMENT_REPORT.md** - Merge with SECURITY_REVIEW.md
-10. **SECURITY_FIXES_APPLIED.md** - Should be in CHANGELOG
-11. **SECURITY_HARDENING_SUMMARY.md** - Merge with SECURITY_CHECKLIST
+10. **SECURITY_FIXES_APPLIED.md** - Removed (contained sensitive example values; content should live in CHANGELOG/SECURITY docs)
+11. **SECURITY_HARDENING_SUMMARY.md** - Removed (contained sensitive example values; use SECURITY_CHECKLIST and PRODUCTION_SETUP)
 12. **CI_LIGHTHOUSE_EXECUTION_RECORD.md** - CI logs, not docs
 13. **MANUAL_UAT_EXECUTION_RECORD.md** - Test execution logs
 14. **DEPLOYMENT_READINESS_SUMMARY.md** - Merge with DEPLOYMENT_CHECKLIST
 15. **OBSERVABILITY_IMPLEMENTATION_COMPLETE.md** - Redundant status
 16. **PRODUCTION_SECURITY_SETUP_COMPLETE.md** - Redundant status
 
-**Estimated Removal:** 16 out of 43 docs (~37% bloat)
+Note: Many documents appear status-oriented and could be archived or consolidated to keep only operational/technical documentation.
 
 ### Documents That Should Remain:
 
@@ -365,68 +363,70 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 ---
 
-## 🎯 Priority Action Items
+## Priority action items
 
 ### Immediate (Fix Today):
 
-1. ✅ Replace all `throw new Error()` with `AppError` - **CRITICAL**
-2. ✅ Implement refresh token blacklist on logout - **HIGH**
-3. ✅ Fix race condition in quote duplicate detection - **HIGH**
-4. ✅ Add request size limits to Express - **MEDIUM**
+### Immediate
+
+1. Replace all `throw new Error()` with `AppError` - **critical**
+2. Implement refresh token invalidation/blacklist on logout - **high**
+3. Fix race condition in quote duplicate detection - **high**
+4. Add request size limits to Express - **medium**
 
 ### Immediate Priority:
 
-5. ✅ Remove 16 redundant documentation files
-6. ✅ Create ENGINEERING_NOTES.md with architecture rationale
-7. ✅ Create DEBUG_LOGS.md with intentional bug scenarios
-8. ✅ Add missing validation in controllers
-9. ✅ Replace all `process.env` with `env` config
+5. Remove redundant documentation files
+6. Create ENGINEERING_NOTES.md with architecture rationale
+7. Create DEBUG_LOGS.md with intentional bug scenarios
+8. Add missing validation in controllers
+9. Replace direct `process.env` usage with validated config
 
-### Within 2 Weeks:
+### Near term
 
-10. ✅ Improve db-schema.md with real explanations
-11. ✅ Add database indexes for performance
-12. ✅ Create BUSINESS_READINESS.md
-13. ✅ Rewrite auth controller manually (proof of ownership)
-14. ✅ Implement token rotation on refresh
-15. ✅ Add device tracking for sessions
+10. Improve `docs/db-schema.md` with clearer explanations
+11. Add database indexes for performance
+12. Create/maintain business readiness notes (if needed)
+13. Rewrite auth controller manually (archived proof)
+14. Implement token rotation on refresh
+15. Add device tracking for sessions
 
 ---
 
-## 📊 Security Assessment
+## Security assessment
 
 **Current State:**
 
-- **Authentication:** Strong JWT implementation with identified areas for enhancement
-- **Input Validation:** DTO validation in place with comprehensive coverage
-- **Error Handling:** Proper error handling with some legacy code requiring updates
-- **Rate Limiting:** Well implemented with comprehensive coverage
-- **File Upload:** Multiple security layers with robust protection
-- **Database Security:** Prisma ORM provides strong protection
+- **Authentication:** JWT implementation present with identified areas for enhancement
+- **Input Validation:** DTO validation present (verify coverage in your environment)
+- **Error Handling:** Mixed patterns; some legacy code requires updates
+- **Rate Limiting:** Implemented; validate configuration against expected traffic and threat model
+- **File Upload:** Multiple layers present; validate fail-closed behavior and quotas
+- **Database Security:** ORM protections present; validate migrations/backups and operational controls
 
-**Overall Security Status:** Production viable with continuous hardening
+**Overall security status:** Environment-dependent; suitable for controlled deployment when paired with appropriate configuration, monitoring, and an ongoing hardening process.
 
 ---
 
-## ✅ What's Actually Good
+## What's in good shape
 
 **Strong Points:**
 
-- ✅ Comprehensive rate limiting with Redis support
-- ✅ RBAC implementation with audit logging
-- ✅ 100% JSDoc code documentation
-- ✅ Multi-layer file upload validation
-- ✅ CSRF protection implemented
-- ✅ Comprehensive test coverage with all tests passing
-- ✅ Prisma ORM prevents basic SQL injection
-- ✅ bcrypt password hashing
+- Rate limiting with Redis support
+- RBAC implementation with audit logging
+- JSDoc documentation report available
+- Multi-layer file upload validation
+- CSRF protection implemented
+- Automated tests available (validate in your environment)
+- ORM-based query safety for common injection classes
+- Password hashing with bcrypt
 
 **The project is NOT broken** - it works and has good bones.
 **BUT** - it needs hardening and true ownership demonstrated.
 
 ---
 
-## 🎓 Final Verdict
+## Final Verdict
 
 **Project Status:** **FUNCTIONAL BUT NEEDS HARDENING**
 
@@ -434,11 +434,11 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 **Security:** C+ (Adequate but vulnerabilities found)  
 **Documentation:** B- (Comprehensive but bloated)  
 **Ownership Depth:** C (Implementation exists, understanding needs proof)  
-**Production Readiness:** 70% (Works but needs fixes before real deployment)
+**Deployment readiness:** Needs fixes and environment-specific verification before real deployment
 
 **Recommendation:**
-Fix the 4 immediate critical/high issues today.
-Complete immediate priority items before production deployment.
-The 2-week items are important for professional polish and true ownership proof.
+Address the immediate critical/high issues as soon as possible.
+Complete the priority items before production deployment.
+The longer-horizon items are important for professional polish and sustained ownership.
 
 This is **not a failure** - it's a strong foundation that needs **refinement**.

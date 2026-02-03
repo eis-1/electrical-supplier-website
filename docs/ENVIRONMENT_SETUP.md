@@ -34,6 +34,12 @@ PORT="5000"
 # CORS allowlist. Supports comma-separated origins.
 # Example: "https://yourdomain.com,https://www.yourdomain.com"
 CORS_ORIGIN="https://yourdomain.com"
+
+# Reverse proxy trust
+# If true, Express will trust X-Forwarded-* headers (req.ip, req.secure, etc.).
+# Set this to true ONLY when running behind a real reverse proxy/load balancer.
+# Defaults: true in production/test, false in development.
+TRUST_PROXY="true"
 ```
 
 ### Optional Variables
@@ -44,6 +50,30 @@ CORS_ORIGIN="https://yourdomain.com"
 REDIS_URL="redis://localhost:6379"
 # If not set, in-memory rate limiting is used
 ```
+
+#### Rate limiting
+
+```bash
+# Global API limiter
+RATE_LIMIT_WINDOW_MS="900000"      # 15 minutes
+RATE_LIMIT_MAX_REQUESTS="100"      # requests per window per IP
+
+# Auth endpoints (login/refresh/etc)
+AUTH_RATE_LIMIT_WINDOW_MS="900000" # 15 minutes
+AUTH_RATE_LIMIT_MAX_REQUESTS="5"   # failed attempts per window per IP
+
+# Two-Factor endpoints (verification)
+TWO_FACTOR_RATE_LIMIT_WINDOW_MS="300000" # 5 minutes
+TWO_FACTOR_RATE_LIMIT_MAX_REQUESTS="5"   # attempts per window per IP/identifier
+
+# Quote submission limiter
+QUOTE_RATE_LIMIT_WINDOW_MS="3600000" # 1 hour
+QUOTE_RATE_LIMIT_MAX_REQUESTS="5"    # submissions per window per IP
+```
+
+Note: the integration tests use `X-Forwarded-For` to simulate distinct client IPs.
+If you set `TRUST_PROXY=false`, rate limiting will fall back to the direct socket IP
+(often `127.0.0.1` locally), which can change rate-limit behavior.
 
 #### Email Service
 
@@ -269,18 +299,18 @@ const requiredVars = [
 const missing = requiredVars.filter((v) => !process.env[v]);
 
 if (missing.length > 0) {
-  console.error("❌ Missing required environment variables:");
+  console.error("Missing required environment variables:");
   missing.forEach((v) => console.error(`   - ${v}`));
   process.exit(1);
 }
 
 // Validate JWT_SECRET length
 if (process.env.JWT_SECRET!.length < 32) {
-  console.error("❌ JWT_SECRET must be at least 32 characters");
+  console.error("JWT_SECRET must be at least 32 characters");
   process.exit(1);
 }
 
-console.log("✅ All required environment variables are set");
+console.log("All required environment variables are set");
 ```
 
 ## References

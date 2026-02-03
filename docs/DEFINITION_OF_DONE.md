@@ -9,7 +9,7 @@ This project has two different “done” meanings:
 
 ---
 
-## A) Feature Done ✅ (Functional completion)
+## A) Feature Done (Functional completion)
 
 A feature is considered **done** only if all points below are true:
 
@@ -103,7 +103,7 @@ Even with CI, contract tests, and E2E tests, we may not yet cover _every_ admin/
 
 ---
 
-## D) Fully Polished / Handover Ready ✅ (Production completion)
+## D) Fully Polished / Handover Ready (Production completion)
 
 This is **Feature Done +**
 

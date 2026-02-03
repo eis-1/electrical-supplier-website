@@ -73,6 +73,15 @@ class EmailService {
    */
   private initialize() {
     try {
+      // In tests, avoid any network SMTP attempts.
+      // Use a JSON transport so sendMail() resolves immediately and remains deterministic.
+      if (env.NODE_ENV === "test") {
+        this.transporter = nodemailer.createTransport({
+          jsonTransport: true,
+        });
+        return;
+      }
+
       // Helper function to detect placeholder/example values in config
       // Prevents attempting to send emails with invalid credentials
       const looksLikePlaceholder = (value: string) => {

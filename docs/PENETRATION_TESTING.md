@@ -41,18 +41,18 @@ nuclei -u http://localhost:5000 \
 
 **What it tests:**
 
-- ✅ A01: Broken Access Control
-- ✅ A02: Cryptographic Failures
-- ✅ A03: Injection vulnerabilities
-- ✅ A04: Insecure Design (rate limiting, anti-spam)
-- ✅ A05: Security Misconfiguration
-- ✅ A06: Vulnerable Components (manual checks)
-- ✅ A07: Authentication Failures
-- ✅ A08: Software/Data Integrity
-- ✅ A09: Security Logging (manual checks)
-- ✅ A10: Server-Side Request Forgery (SSRF)
-- ✅ CORS configuration
-- ✅ CSRF protection
+- A01: Broken Access Control
+- A02: Cryptographic Failures
+- A03: Injection vulnerabilities
+- A04: Insecure Design (rate limiting, anti-spam)
+- A05: Security Misconfiguration
+- A06: Vulnerable Components (manual checks)
+- A07: Authentication Failures
+- A08: Software/Data Integrity
+- A09: Security Logging (manual checks)
+- A10: Server-Side Request Forgery (SSRF)
+- CORS configuration
+- CSRF protection
 
 **Usage:**
 
@@ -65,8 +65,8 @@ TEST_URL=https://staging.yourcompany.com node security-test.js
 
 # With authentication
 TEST_URL=https://staging.yourcompany.com \
-ADMIN_EMAIL=admin@test.com \
-ADMIN_PASSWORD=TestPassword123! \
+ADMIN_EMAIL=<ADMIN_EMAIL> \
+ADMIN_PASSWORD=<ADMIN_PASSWORD> \
 node security-test.js
 ```
 

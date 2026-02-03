@@ -2,7 +2,7 @@
 
 This document provides a comprehensive overview of the testing strategy and how to run all tests.
 
-## 🎯 Testing Philosophy
+## Testing philosophy
 
 This project implements a **multi-layered testing approach** to ensure quality at every level:
 
@@ -12,19 +12,19 @@ This project implements a **multi-layered testing approach** to ensure quality a
 4. **Accessibility Tests** - WCAG 2.1 AA compliance
 5. **Security Tests** - Vulnerability scanning and penetration testing
 
-## 📊 Test Coverage Overview
+## Test coverage overview
 
-| Test Type           | Tool                | Coverage            | Status         |
-| ------------------- | ------------------- | ------------------- | -------------- |
-| Backend Integration | Jest                | 70%+ lines          | ✅ Enforced    |
-| E2E User Flows      | Playwright          | All critical paths  | ✅ Automated   |
-| Performance Budget  | Lighthouse CI       | Desktop + Mobile    | ✅ Enforced    |
-| Accessibility       | axe-core            | WCAG 2.1 AA         | ✅ Automated   |
-| Security Scanning   | CodeQL, Snyk, OWASP | Dependencies + Code | ✅ CI Pipeline |
+| Test Type           | Tool                | Notes                                          | Status      |
+| ------------------- | ------------------- | ---------------------------------------------- | ----------- |
+| Backend Integration | Jest                | Coverage thresholds are configured in the repo | Enforced    |
+| E2E User Flows      | Playwright          | Core user workflows                            | Automated   |
+| Performance Budget  | Lighthouse CI       | Budget depends on your environment/CI          | Enforced    |
+| Accessibility       | axe-core            | Targets depend on the checks you run           | Automated   |
+| Security Scanning   | CodeQL, Snyk, OWASP | Optional tooling depending on setup            | CI/Optional |
 
 ---
 
-## 1️⃣ Backend Integration Tests
+## 1. Backend integration tests
 
 ### Quick Start
 
@@ -35,20 +35,20 @@ npm run test:coverage       # Run with coverage report
 npm run test:watch          # Watch mode for development
 ```
 
-### What's Tested
+### What's tested
 
-- ✅ Health check endpoint
-- ✅ Authentication (login, JWT, refresh tokens)
-- ✅ Two-Factor Authentication (2FA setup, enable, verify, backup codes, disable)
-- ✅ Category management (CRUD)
-- ✅ Product management (CRUD with auto-slug generation)
-- ✅ Quote requests (submit, list, update status)
-- ✅ Upload security (path traversal, magic-byte validation)
-- ✅ Security headers (Helmet)
-- ✅ Rate limiting
-- ✅ Request ID tracking
+- Health check endpoint
+- Authentication (login, JWT, refresh tokens)
+- Two-factor authentication (setup, enable, verify, backup codes, disable)
+- Category management (CRUD)
+- Product management (CRUD with auto-slug generation)
+- Quote requests (submit, list, update status)
+- Upload security (path traversal, magic-byte validation)
+- Security headers (Helmet)
+- Rate limiting
+- Request ID tracking
 
-### Coverage Thresholds (Enforced)
+### Coverage thresholds
 
 ```javascript
 {
@@ -59,7 +59,7 @@ npm run test:watch          # Watch mode for development
 }
 ```
 
-CI will fail if coverage drops below these thresholds.
+If you change thresholds, keep CI and local expectations aligned.
 
 ### Test Files
 
@@ -67,7 +67,7 @@ CI will fail if coverage drops below these thresholds.
 
 ---
 
-## 2️⃣ End-to-End Tests (Playwright)
+## 2. End-to-end tests (Playwright)
 
 ### Quick Start
 
@@ -148,7 +148,7 @@ npx playwright show-report
 
 ---
 
-## 3️⃣ Performance Testing (Lighthouse CI)
+## 3. Performance testing (Lighthouse CI)
 
 ### Quick Start
 
@@ -204,7 +204,7 @@ Lighthouse generates:
 
 ---
 
-## 4️⃣ Accessibility Testing
+## 4. Accessibility testing
 
 ### Automated Checks (axe-core)
 
@@ -216,7 +216,7 @@ npm run test:e2e  # Includes accessibility tests
 
 ### What's Tested
 
-✅ **WCAG 2.1 Level AA Compliance:**
+WCAG 2.1 Level AA (target):
 
 - Color contrast ratios
 - Form labels and ARIA attributes
@@ -247,7 +247,7 @@ In addition to automated tests, manually verify:
 
 ---
 
-## 5️⃣ Security Testing
+## 5. Security testing
 
 ### Automated Security Scans (CI)
 
@@ -301,7 +301,7 @@ Before deployment:
 
 ---
 
-## 🚀 CI/CD Integration
+## CI/CD integration
 
 ### GitHub Actions Workflows
 
@@ -337,18 +337,18 @@ All tests run automatically on push/PR:
 
 CI will **fail** if any of these conditions are not met:
 
-- ❌ Lint errors
-- ❌ Build errors
-- ❌ Test failures
-- ❌ Coverage below threshold (70% lines)
-- ❌ E2E test failures
-- ❌ Performance budget exceeded
-- ❌ Accessibility violations
-- ❌ Security vulnerabilities (high/critical)
+- Lint errors
+- Build errors
+- Test failures
+- Coverage below threshold (70% lines)
+- E2E test failures
+- Performance budget exceeded
+- Accessibility violations
+- Security vulnerabilities (high/critical)
 
 ---
 
-## 📝 Pre-Push Checklist
+## Pre-Push Checklist
 
 Run these commands before pushing:
 
@@ -373,7 +373,7 @@ npm run lighthouse
 
 ---
 
-## 🐛 Debugging Failed Tests
+## Debugging Failed Tests
 
 ### Backend Tests
 
@@ -417,7 +417,7 @@ npx lhci autorun --config=lighthouserc.js
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 ### Documentation
 
@@ -441,7 +441,7 @@ npx lhci autorun --config=lighthouserc.js
 
 ---
 
-## 🎓 Testing Best Practices
+## Testing Best Practices
 
 1. **Write tests first** (TDD) when implementing new features
 2. **Keep tests independent** - no shared state between tests
@@ -454,7 +454,7 @@ npx lhci autorun --config=lighthouserc.js
 
 ---
 
-## 📞 Support
+## Support
 
 If tests fail unexpectedly:
 
@@ -465,4 +465,4 @@ If tests fail unexpectedly:
 5. Run tests locally to reproduce
 6. Consult this guide and linked documentation
 
-**Remember:** Tests are there to help you ship with confidence! 🚀
+Tests are there to help you ship with confidence.

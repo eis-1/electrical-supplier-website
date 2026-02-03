@@ -369,7 +369,7 @@ receivers:
   - name: "slack-warnings"
     slack_configs:
       - channel: "#warnings"
-        title: "⚠️ {{ .GroupLabels.alertname }}"
+        title: "WARNING: {{ .GroupLabels.alertname }}"
         text: "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
 
   - name: "email-info"

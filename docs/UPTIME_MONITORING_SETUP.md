@@ -1,20 +1,19 @@
 # Uptime Monitoring Setup Guide
 
-**Status:** Documentation Complete
+**Status:** Informational
 
 ## Overview
 
-This guide covers setting up 24/7 uptime monitoring for the Electrical Supplier B2B platform. Monitoring ensures rapid detection of outages and performance issues, enabling quick response to incidents.
+This guide covers setting up uptime monitoring for the Electrical Supplier B2B platform. Monitoring helps detect outages and performance issues so the team can respond according to your operational processes.
 
 ## Recommended Monitoring Service: UptimeRobot
 
 **Why UptimeRobot?**
 
-- ✅ Free tier: 50 monitors with 5-minute checks
-- ✅ Multiple alert channels (email, SMS, Slack, webhook)
-- ✅ Status page creation
-- ✅ No credit card required for free plan
-- ✅ 99.9% uptime SLA on paid plans
+- Free and paid tiers (features vary by plan)
+- Multiple alert channels (email, SMS, chat/webhooks)
+- Status page support
+- Commonly used for basic external uptime checks
 
 **Alternative Services:**
 
@@ -39,14 +38,14 @@ This guide covers setting up 24/7 uptime monitoring for the Electrical Supplier 
 
 **Monitor Configuration:**
 
-| Setting                 | Value                              |
-| ----------------------- | ---------------------------------- |
-| **Monitor Type**        | HTTP(s)                            |
-| **Friendly Name**       | "Electrical Supplier API - Health" |
-| **URL**                 | `https://yourdomain.com/health`    |
-| **Monitoring Interval** | 5 minutes (free) / 1 minute (paid) |
-| **Monitor Timeout**     | 30 seconds                         |
-| **HTTP Method**         | GET                                |
+| Setting                 | Value                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| **Monitor Type**        | HTTP(s)                                                                                   |
+| **Friendly Name**       | "Electrical Supplier API - Health"                                                        |
+| **URL**                 | `https://yourdomain.com/health`                                                           |
+| **Monitoring Interval** | Choose an interval appropriate for your needs (shorter intervals may require a paid plan) |
+| **Monitor Timeout**     | 30 seconds                                                                                |
+| **HTTP Method**         | GET                                                                                       |
 
 **Expected Response:**
 
@@ -59,9 +58,9 @@ This guide covers setting up 24/7 uptime monitoring for the Electrical Supplier 
 
 **Advanced Settings:**
 
-- ✅ Enable SSL certificate monitoring
-- ✅ Check keyword: `"status":"ok"`
-- ✅ Alert when keyword is NOT found
+- Enable SSL certificate monitoring (if available)
+- Check keyword: `"status":"ok"`
+- Alert when keyword is NOT found
 
 **Steps:**
 
@@ -265,29 +264,29 @@ app.get("/ready", async (_req, res) => {
 
 **Recommended Settings:**
 
-- **Down Alert:** After 1 failed check (immediate notification)
-- **Up Alert:** After 2 successful checks (avoid false positives)
-- **Interval:** 5 minutes (free) or 1 minute (paid for critical endpoints)
+- **Down alert:** After a small number of consecutive failed checks (configurable)
+- **Up alert:** After a small number of consecutive successful checks (configurable)
+- **Interval:** Configure per endpoint (critical endpoints may use shorter intervals)
 
 ### 2. Notification Schedule
 
-**Business Hours (9 AM - 6 PM):**
+**Business hours:**
 
 - Email alerts: All team members
 - Slack notifications: #general channel
-- Response time: 15 minutes
+- Response time: define in your on-call policy
 
-**After Hours (6 PM - 9 AM):**
+**After hours:**
 
 - Email alerts: On-call engineer only
 - SMS alerts: Critical failures (paid feature)
-- Response time: 30 minutes
+- Response time: define in your on-call policy
 
 **Weekends:**
 
 - Email alerts: On-call rotation
 - SMS alerts: Critical failures only
-- Response time: 1 hour
+- Response time: define in your on-call policy
 
 ### 3. Alert Priorities
 
@@ -334,8 +333,8 @@ app.get("/ready", async (_req, res) => {
 
 ### Weekly Maintenance
 
-- [ ] Review uptime percentages (target: 99.9%)
-- [ ] Check false positive rate (<1%)
+- [ ] Review uptime trends
+- [ ] Check false positive rate and alert fatigue
 - [ ] Review alert response times
 - [ ] Update alert contacts if team changes
 
@@ -353,13 +352,12 @@ app.get("/ready", async (_req, res) => {
 
 ### Key Metrics to Track
 
-| Metric                   | Target    | Alert Threshold |
-| ------------------------ | --------- | --------------- |
-| **Uptime**               | 99.9%     | < 99.5%         |
-| **Response Time (p50)**  | < 200ms   | > 500ms         |
-| **Response Time (p95)**  | < 500ms   | > 1000ms        |
-| **Error Rate**           | < 0.1%    | > 1%            |
-| **SSL Certificate Days** | > 30 days | < 7 days        |
+| Metric                      | Example target        | Example alert threshold            |
+| --------------------------- | --------------------- | ---------------------------------- |
+| **Uptime**                  | Define per SLO        | Alert on sustained degradation     |
+| **Response time (p50/p95)** | Define per endpoint   | Alert on sustained regression      |
+| **Error rate**              | Define per endpoint   | Alert on elevated 5xx/4xx patterns |
+| **SSL certificate**         | Monitor expiry window | Alert well before expiration       |
 
 ### Monthly Uptime Report Template
 
@@ -367,9 +365,9 @@ app.get("/ready", async (_req, res) => {
 Electrical Supplier B2B Platform - Monthly Uptime Report
 Month: [Month Year]
 
-Overall Uptime: 99.95%
-Total Downtime: 21 minutes
-Number of Incidents: 2
+Overall Uptime: [value]
+Total Downtime: [value]
+Number of Incidents: [value]
 
 Incidents:
 1. [Date/Time] - Duration: 15 min - Cause: Database connection timeout
@@ -471,37 +469,14 @@ app.get("/health", async (_req, res) => {
 
 ## Cost Analysis
 
-### UptimeRobot Free Plan
+Monitoring costs vary by provider and plan. When choosing a plan, consider:
 
-- **Cost:** $0/month
-- **Monitors:** 50
-- **Interval:** 5 minutes
-- **Alert Channels:** Email, Webhook
-- **Status Pages:** 1 public page
-- **Suitable For:** Development, small production sites
+- Required check interval and alert latency
+- Alert channels you need (email/webhook/SMS)
+- Status page requirements
+- SSL/keyword/port monitoring features
 
-### UptimeRobot Pro Plan
-
-- **Cost:** $7/month (paid annually)
-- **Monitors:** 50
-- **Interval:** 1 minute
-- **Alert Channels:** Email, SMS, Webhook, Voice
-- **Status Pages:** 10 public pages
-- **Advanced Features:** SSL monitoring, keyword monitoring, port monitoring
-- **Suitable For:** Production sites, critical applications
-
-### Recommended for Production
-
-**UptimeRobot Pro** + **Slack Integration** = **$7/month total**
-
-**ROI Calculation:**
-
-- Average downtime cost: $1,000/hour (B2B e-commerce)
-- Early detection saves: 10-30 minutes per incident
-- Expected incidents: 2-3 per year
-- **Potential savings: $500-1,500/year**
-- **Monitoring cost: $84/year**
-- **Net benefit: $416-1,416/year**
+Pick a plan based on operational requirements rather than fixed cost/ROI assumptions.
 
 ---
 
@@ -559,26 +534,10 @@ app.get("/health", async (_req, res) => {
 
 ## Next Steps
 
-### Immediate (Week 1)
-
-1. ✅ Create UptimeRobot account
-2. ✅ Configure 4 primary monitors
-3. ✅ Set up email alerts
-4. ✅ Test monitoring with simulated downtime
-
-### Short-term (Month 1)
-
-1. Configure Slack integration
-2. Create public status page
-3. Document alert runbook
-4. Train team on monitoring tools
-
-### Long-term (Months 2-3)
-
-1. Consider upgrading to Pro plan for 1-minute checks
-2. Implement Prometheus/Grafana for detailed metrics
-3. Set up log aggregation (CloudWatch/Datadog)
-4. Create automated incident response workflows
+- Configure monitors for critical endpoints
+- Verify alert delivery (email/webhook/SMS as applicable)
+- Add monitoring procedures to the operations runbook
+- Consider deeper internal metrics (e.g., Prometheus/Grafana) and log aggregation as the system grows
 
 ---
 
@@ -595,13 +554,6 @@ app.get("/health", async (_req, res) => {
 
 ## Conclusion
 
-Uptime monitoring is now **documented and ready for implementation**. The free tier of UptimeRobot provides excellent coverage for a B2B electrical supplier platform:
-
-✅ **24/7 monitoring** every 5 minutes  
-✅ **Multiple alert channels** (email, Slack)  
-✅ **Public status page** for customer transparency  
-✅ **Zero cost** to get started
-
-**Action Required:** Create UptimeRobot account and configure monitors following this guide (estimated time: 30 minutes).
+This document describes one approach for setting up uptime monitoring and alerting. Validate the chosen endpoints, intervals, and escalation policies in your environment.
 
 ---

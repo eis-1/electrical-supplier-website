@@ -402,7 +402,7 @@ const client = new CloudWatchLogsClient({ region: "us-east-1" });
 export async function sendToCloudWatch(
   logGroup: string,
   logStream: string,
-  message: any
+  message: any,
 ) {
   const command = new PutLogEventsCommand({
     logGroupName: logGroup,
@@ -439,7 +439,7 @@ const log = logging.log("electrical-supplier-api");
 export function logToGCP(severity: string, message: string, metadata: any) {
   const entry = log.entry(
     { resource: { type: "global" }, severity },
-    { message, ...metadata }
+    { message, ...metadata },
   );
   log.write(entry);
 }
@@ -573,12 +573,12 @@ if (Math.random() < 0.1 || res.statusCode >= 400) {
 
 ## Security Best Practices
 
-- ✅ **Never log sensitive data**: passwords, tokens, credit cards, PII
-- ✅ **Redact sensitive fields**: use log scrubbing/masking
-- ✅ **Encrypt logs in transit**: TLS for log shipping
-- ✅ **Encrypt logs at rest**: in log storage
-- ✅ **Access control**: RBAC for log viewing
-- ✅ **Retention policy**: 90 days hot, 1 year cold, then delete
+- **Never log sensitive data**: passwords, tokens, credit cards, PII
+- **Redact sensitive fields**: use log scrubbing/masking
+- **Encrypt logs in transit**: TLS for log shipping
+- **Encrypt logs at rest**: in log storage
+- **Access control**: RBAC for log viewing
+- **Retention policy**: 90 days hot, 1 year cold, then delete
 
 ---
 

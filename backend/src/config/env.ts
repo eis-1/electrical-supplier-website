@@ -58,6 +58,7 @@ for (const candidate of envCandidates) {
  */
 interface EnvConfig {
   NODE_ENV: "development" | "production" | "test";
+  TRUST_PROXY: boolean;
   PORT: number;
   API_VERSION: string;
   DATABASE_URL: string;
@@ -103,6 +104,10 @@ interface EnvConfig {
   CLAMAV_PORT?: number;
   RATE_LIMIT_WINDOW_MS: number;
   RATE_LIMIT_MAX_REQUESTS: number;
+  AUTH_RATE_LIMIT_WINDOW_MS: number;
+  AUTH_RATE_LIMIT_MAX_REQUESTS: number;
+  TWO_FACTOR_RATE_LIMIT_WINDOW_MS: number;
+  TWO_FACTOR_RATE_LIMIT_MAX_REQUESTS: number;
   QUOTE_RATE_LIMIT_WINDOW_MS: number;
   QUOTE_RATE_LIMIT_MAX_REQUESTS: number;
   QUOTE_DEDUP_WINDOW_MS: number;
@@ -181,6 +186,13 @@ export const env: EnvConfig = {
     | "development"
     | "production"
     | "test",
+  // Trust X-Forwarded-* headers only when you actually run behind a reverse proxy.
+  // Defaults to true in production/test (common in deploy + keeps tests deterministic),
+  // false in development to avoid IP spoofing via client-sent headers.
+  TRUST_PROXY: getEnvBoolean(
+    "TRUST_PROXY",
+    (process.env.NODE_ENV || "development") !== "development",
+  ),
   PORT: getEnvNumber("PORT", 5000),
   API_VERSION: getEnvVar("API_VERSION", "v1"),
   DATABASE_URL: getEnvVar("DATABASE_URL"),
@@ -250,6 +262,19 @@ export const env: EnvConfig = {
   CLAMAV_PORT: getEnvNumber("CLAMAV_PORT", 8080),
   RATE_LIMIT_WINDOW_MS: getEnvNumber("RATE_LIMIT_WINDOW_MS", 900000), // 15 min
   RATE_LIMIT_MAX_REQUESTS: getEnvNumber("RATE_LIMIT_MAX_REQUESTS", 100),
+  AUTH_RATE_LIMIT_WINDOW_MS: getEnvNumber(
+    "AUTH_RATE_LIMIT_WINDOW_MS",
+    15 * 60 * 1000,
+  ),
+  AUTH_RATE_LIMIT_MAX_REQUESTS: getEnvNumber("AUTH_RATE_LIMIT_MAX_REQUESTS", 5),
+  TWO_FACTOR_RATE_LIMIT_WINDOW_MS: getEnvNumber(
+    "TWO_FACTOR_RATE_LIMIT_WINDOW_MS",
+    5 * 60 * 1000,
+  ),
+  TWO_FACTOR_RATE_LIMIT_MAX_REQUESTS: getEnvNumber(
+    "TWO_FACTOR_RATE_LIMIT_MAX_REQUESTS",
+    5,
+  ),
   QUOTE_RATE_LIMIT_WINDOW_MS: getEnvNumber(
     "QUOTE_RATE_LIMIT_WINDOW_MS",
     3600000,

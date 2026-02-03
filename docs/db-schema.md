@@ -92,19 +92,23 @@ datasource db {
 
 **Advantages:**
 
-- ✅ Zero configuration (no Docker, no server process)
-- ✅ Fast setup (developers can start coding immediately)
-- ✅ Portable (entire DB in one file, easy to backup/share)
-- ✅ Sufficient for < 100k records (typical for this app)
-- ✅ Supports transactions, foreign keys, indexes
-- ✅ Same Prisma queries work in production (abstraction layer)
+Pros:
+
+- Zero configuration (no Docker, no server process)
+- Fast setup (developers can start coding quickly)
+- Portable (entire DB in one file, easy to backup/share)
+- Often sufficient for smaller datasets (for example, < 100k records)
+- Supports transactions, foreign keys, indexes
+- Same Prisma queries work in production (abstraction layer)
 
 **Limitations:**
 
-- ❌ No concurrent writes (single-writer lock)
-- ❌ No user authentication (file-based access control)
-- ❌ Limited full-text search (no advanced indexing)
-- ❌ Not suitable for production with multiple app instances
+Cons:
+
+- No concurrent writes (single-writer lock)
+- No user authentication (file-based access control)
+- Limited full-text search (no advanced indexing)
+- Not suitable for production with multiple app instances
 
 ### PostgreSQL (Production)
 
@@ -119,13 +123,15 @@ datasource db {
 
 **Advantages:**
 
-- ✅ **Concurrent writes:** Multiple app instances can write simultaneously
-- ✅ **Connection pooling:** Handle 1000+ concurrent users
-- ✅ **Advanced indexing:** GIN/GiST indexes for full-text search
-- ✅ **JSONB type:** Efficient storage for `keyFeatures`, `images` arrays
-- ✅ **Replication:** Master-slave setup for high availability
-- ✅ **Backup tools:** pg_dump, point-in-time recovery
-- ✅ **Monitoring:** pg_stat_statements for query optimization
+Pros:
+
+- **Concurrent writes:** Multiple app instances can write simultaneously
+- **Connection pooling:** Supports high concurrency (depends on configuration)
+- **Advanced indexing:** GIN/GiST indexes for full-text search
+- **JSONB type:** Efficient storage for `keyFeatures`, `images` arrays
+- **Replication:** Supports HA patterns (for example, primary/replica)
+- **Backup tools:** pg_dump, point-in-time recovery
+- **Monitoring:** pg_stat_statements for query optimization
 
 **Production Configuration:**
 
@@ -387,10 +393,10 @@ enum AdminRole {
 
 **Why separate table instead of JSON?**
 
-- ✅ **Filterable:** Can query `WHERE specKey='Voltage' AND specValue='230V'`
-- ✅ **Indexable:** Can create index on specKey for fast lookups
-- ✅ **Sortable:** `ORDER BY displayOrder` for consistent presentation
-- ✅ **Future-proof:** Can add units, data types, min/max ranges later
+- **Filterable:** Can query `WHERE specKey='Voltage' AND specValue='230V'`
+- **Indexable:** Can create index on specKey for fast lookups
+- **Sortable:** `ORDER BY displayOrder` for consistent presentation
+- **Future-proof:** Can add units, data types, min/max ranges later
 
 ---
 
@@ -615,7 +621,7 @@ DATABASE_URL=postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeou
 **Prisma ORM protection:**
 
 ```typescript
-// ✅ Safe: Parameterized
+// Safe: parameterized
 await prisma.product.findMany({
   where: { name: { contains: userInput } },
 });
@@ -649,7 +655,7 @@ const hash = await bcrypt.hash(password, 12);
 **Avoid N+1 queries:**
 
 ```typescript
-// ✅ Eager load with include
+// Eager load with include
 const products = await prisma.product.findMany({
   include: { category: true, brand: true },
 });

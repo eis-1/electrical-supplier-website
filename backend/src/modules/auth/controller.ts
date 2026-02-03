@@ -1,21 +1,12 @@
 /**
- * AuthController - Complete Rewrite for Ownership Proof
+ * AuthController
  *
- * This is a manual rewrite of the authentication controller to demonstrate
- * complete understanding of the authentication flow, security considerations,
- * and architectural decisions.
+ * Handles admin authentication and session management endpoints.
  *
- * WRITTEN FROM SCRATCH WITHOUT COPYING - February 3, 2026
- *
- * This rewrite proves understanding of:
- * 1. Dual-token JWT authentication (access + refresh)
- * 2. HttpOnly cookie security for refresh tokens
- * 3. Two-factor authentication (TOTP) flow
- * 4. Token rotation strategy
- * 5. Input sanitization for security
- * 6. Error handling and logging
- * 7. Cookie security configuration
- * 8. Session management
+ * Notes:
+ * - Access token is returned to the client and used in the Authorization header.
+ * - Refresh token is stored in an HttpOnly cookie and used for token refresh.
+ * - Optional TOTP-based 2FA is supported.
  */
 
 import { Request, Response } from "express";

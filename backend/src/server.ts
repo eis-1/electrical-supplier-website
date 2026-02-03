@@ -2,7 +2,10 @@ import { createApp } from "./app";
 import { env } from "./config/env";
 import { connectDatabase, disconnectDatabase } from "./config/db";
 import { initRedis, closeRedis } from "./config/redis";
-import { initializeRateLimiters } from "./middlewares/rateLimit.middleware";
+import {
+  initializeRateLimiters,
+  shutdownRateLimiters,
+} from "./middlewares/rateLimit.middleware";
 import { initSentry } from "./config/sentry";
 import { logger } from "./utils/logger";
 
@@ -41,6 +44,9 @@ const startServer = async () => {
         logger.info("HTTP server closed");
 
         try {
+          await shutdownRateLimiters();
+          logger.info("Rate limiters shut down");
+
           // Close Redis connection
           await closeRedis();
           logger.info("Redis connection closed");

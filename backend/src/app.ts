@@ -22,9 +22,10 @@ import auditRoutes from "./modules/audit/routes";
 export const createApp = (): Application => {
   const app = express();
 
-  // If running behind a reverse proxy (Nginx/Cloudflare), trust proxy headers.
-  // This ensures req.ip and rate limiting use the real client IP.
-  app.set("trust proxy", 1);
+  // Trust proxy headers only when explicitly configured.
+  // This ensures req.ip and rate limiting use the real client IP behind a proxy,
+  // while avoiding client-side spoofing of X-Forwarded-For in local development.
+  app.set("trust proxy", env.TRUST_PROXY ? 1 : false);
 
   // HTTP request logging with Pino
   // Automatically logs all requests with timing, status, etc.

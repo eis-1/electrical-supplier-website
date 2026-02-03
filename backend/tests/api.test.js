@@ -186,6 +186,48 @@ describe('Electrical Supplier API Tests', () => {
       expect(response.data.success).toBe(false);
     });
 
+    test('should rate limit repeated failed logins (429)', async () => {
+      setAuth(null);
+
+      const forwardedFor = `203.0.113.${Math.floor(Math.random() * 200) + 1}`;
+      const requestConfig = {
+        headers: {
+          'X-Forwarded-For': forwardedFor,
+        },
+      };
+
+      // Default auth limiter: 5 failed attempts per window per IP.
+      for (let i = 0; i < 5; i++) {
+        const res = await api.post(
+          `${API_PREFIX}/auth/login`,
+          {
+            email: adminCreds.email,
+            password: 'WrongPassword123!',
+          },
+          requestConfig,
+        );
+        expect(res.status).toBe(401);
+      }
+
+      const blocked = await api.post(
+        `${API_PREFIX}/auth/login`,
+        {
+          email: adminCreds.email,
+          password: 'WrongPassword123!',
+        },
+        requestConfig,
+      );
+
+      expect(blocked.status).toBe(429);
+      expect(blocked.data.success).toBe(false);
+      expect(String(blocked.data.error || blocked.data.message || '')).toMatch(
+        /too many/i,
+      );
+
+      // Restore auth header for subsequent tests.
+      setAuth(state.token);
+    });
+
     test('should verify access token', async () => {
       const response = await api.post(`${API_PREFIX}/auth/verify`);
       expect(response.status).toBe(200);
@@ -425,6 +467,58 @@ describe('Electrical Supplier API Tests', () => {
         expect(response.data.success).toBe(true);
         expect(response.data.data.id).toBeDefined();
         expect(response.data.data.referenceNumber).toBeDefined();
+      } finally {
+        // Restore auth header for admin-only endpoints, even if assertions fail.
+        setAuth(state.token);
+      }
+    });
+
+    test('should rate limit excessive quote submissions (429)', async () => {
+      // Quote endpoint is public; remove auth header.
+      setAuth(null);
+
+      const forwardedFor = `203.0.113.${Math.floor(Math.random() * 200) + 1}`;
+      const requestConfig = {
+        headers: {
+          'X-Forwarded-For': forwardedFor,
+        },
+      };
+
+      const submit = async (uniq) => {
+        return api.post(
+          `${API_PREFIX}/quotes`,
+          {
+            name: 'John Doe',
+            company: 'Test Company',
+            phone: `+1555000${String(uniq).slice(-4)}`,
+            whatsapp: `+1555000${String(uniq).slice(-4)}`,
+            email: `john${uniq}@test.com`,
+            productName: 'LED Panel Light',
+            quantity: '50 units',
+            projectDetails: 'Test project',
+            // Optional anti-spam fields (safe defaults)
+            honeypot: '',
+            formStartTs: Date.now() - 5000,
+          },
+          requestConfig,
+        );
+      };
+
+      try {
+        // Default quote limiter: 5 submissions per window per IP.
+        for (let i = 0; i < 5; i++) {
+          const uniq = Date.now() + i;
+          const res = await submit(uniq);
+          expect(res.status).toBe(201);
+          expect(res.data.success).toBe(true);
+        }
+
+        const blocked = await submit(Date.now() + 9999);
+        expect(blocked.status).toBe(429);
+        expect(blocked.data.success).toBe(false);
+        expect(String(blocked.data.error || blocked.data.message || '')).toMatch(
+          /too many/i,
+        );
       } finally {
         // Restore auth header for admin-only endpoints, even if assertions fail.
         setAuth(state.token);

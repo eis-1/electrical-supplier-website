@@ -142,10 +142,10 @@ const quoteStore = new RedisStore({
 // OLD: Race condition vulnerability
 const existing = await findDuplicate(email, phone);
 if (existing) throw error;
-await create(quote); // ⚠️ Two requests can both pass check
+await create(quote); // Note: two requests can both pass the check
 
 // NEW: Atomic database constraint
-@@unique([email, phone, createdDay]) // ✅ Only 1 succeeds
+@@unique([email, phone, createdDay]) // Only 1 succeeds
 ```
 
 **Why Per-Day Instead of Per-10-Minutes?**
@@ -284,7 +284,7 @@ const filename = `${Date.now()}-${randomBytes(6).toString("hex")}${ext}`;
    // Prisma auto-generates types from schema
    const product: Product = await prisma.product.findUnique({
      where: { slug: "circuit-breaker" },
-   }); // ✅ TypeScript knows all fields
+   }); // TypeScript knows all fields
    ```
 
 2. **SQL Injection Prevention:**
@@ -458,18 +458,18 @@ app.get("*", (req, res) => res.sendFile("index.html"));
 
 ```typescript
 throw new Error("Database connection failed");
-// ❌ Returns: 500 Internal Server Error
-// ❌ Stack trace leaked to client
-// ❌ No context for logging
+// Returns: 500 Internal Server Error
+// Risk: stack trace may leak to client
+// Missing context for logging
 ```
 
 **Solution with AppError:**
 
 ```typescript
 throw new AppError(503, "Database temporarily unavailable");
-// ✅ Returns: 503 Service Unavailable
-// ✅ Clean JSON: { success: false, message: "..." }
-// ✅ Stack trace only in logs (not client response)
+// Returns: 503 Service Unavailable
+// Clean JSON: { success: false, message: "..." }
+// Stack trace only in logs (not client response)
 ```
 
 ### Error Hierarchy
@@ -539,13 +539,13 @@ class AppError extends Error {
 ### Client-Facing vs Internal Errors
 
 ```typescript
-// ❌ NEVER send to client:
+// NEVER send to client:
 res.json({ error: "ECONNREFUSED: Database at 192.168.1.5:5432" });
 
-// ✅ Send generic message:
+// Send generic message:
 res.json({ error: "Service temporarily unavailable" });
 
-// ✅ Log full details internally:
+// Log full details internally:
 logger.error("DB connection failed", { host, port, error });
 ```
 
@@ -594,7 +594,7 @@ Redis: INCR ratelimit:192.168.1.100 → 2
 // Separate prefixes - no collision
 Redis: SET ratelimit:api:192.168.1.100 1 EX 900
 Redis: SET ratelimit:auth:192.168.1.100 1 EX 900
-// ✅ Independent counters
+// Independent counters
 ```
 
 ### Rate Limit Thresholds
@@ -627,17 +627,27 @@ Redis: SET ratelimit:auth:192.168.1.100 1 EX 900
 
 **Redis (Production):**
 
-- ✅ Shared across multiple server instances
-- ✅ Persistent (survives restart)
-- ❌ Requires Redis server running
-- ❌ Network latency (1-2ms)
+Pros:
+
+- Shared across multiple server instances
+- Persistent (survives restart)
+
+Cons:
+
+- Requires Redis server running
+- Network latency (1-2ms)
 
 **In-Memory (Development):**
 
-- ✅ Zero setup
-- ✅ Faster (no network)
-- ❌ Lost on restart
-- ❌ Per-process (load balancer defeats it)
+Pros:
+
+- Zero setup
+- Faster (no network)
+
+Cons:
+
+- Lost on restart
+- Per-process (load balancer defeats it)
 
 **Auto-Detection:**
 
@@ -682,7 +692,7 @@ await prisma.category.delete({ where: { id: 'cat-1' } });
 
 // With FK + onDelete: Cascade:
 @@relation(..., onDelete: Cascade)
-// Deleting category automatically deletes products ✅
+// Deleting category automatically deletes products
 ```
 
 ### Slug Fields for SEO
@@ -751,18 +761,18 @@ model Product {
 ```typescript
 // WITHOUT index:
 SELECT * FROM products WHERE categoryId = 'cat-1';
-// ❌ Full table scan (slow for 100k products)
+// Full table scan (slow for large tables)
 
 // WITH index:
 SELECT * FROM products WHERE categoryId = 'cat-1';
-// ✅ Index seek (fast even for 1M products)
+// Index seek (fast even for large tables)
 ```
 
 **Trade-offs:**
 
-- ✅ Faster reads (SELECT queries)
-- ❌ Slower writes (INSERT/UPDATE must update index)
-- ❌ More disk space (index storage)
+- Faster reads (SELECT queries)
+- Slower writes (INSERT/UPDATE must update index)
+- More disk space (index storage)
 - **Acceptable:** Reads >> writes in e-commerce
 
 ### Soft Delete vs Hard Delete
@@ -854,10 +864,10 @@ CORS_ORIGIN=https://yourdomain.com
 **Why Explicit Origins vs Wildcard?**
 
 ```typescript
-// ❌ NEVER in production:
+// NEVER in production:
 Access-Control-Allow-Origin: *
 
-// ✅ Explicit origin:
+// Explicit origin:
 Access-Control-Allow-Origin: https://yourdomain.com
 ```
 
@@ -887,19 +897,19 @@ if (env.NODE_ENV === "production" && CORS_ORIGIN.includes("*")) {
 
 ```typescript
 console.log("User logged in");
-// ❌ No timestamp
-// ❌ No log level
-// ❌ No context (which user?)
-// ❌ Can't filter/search in production
+// No timestamp
+// No log level
+// No context (which user?)
+// Hard to filter/search in production
 ```
 
 **Pino Advantages:**
 
 ```typescript
 logger.info("User logged in", { userId, email });
-// ✅ {"level":"info","time":"2026-02-03T10:30:00.000Z",...}
-// ✅ JSON format (parseable by log aggregators)
-// ✅ Fast (10x faster than Winston)
+// {"level":"info","time":"2026-02-03T10:30:00.000Z",...}
+// JSON format (parseable by log aggregators)
+// Fast in typical workloads
 ```
 
 ### Log Levels Strategy

@@ -96,12 +96,65 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction,
 ): void => {
-  // Log error
-  logger.error("Error occurred:", err, {
+  const requestMeta = {
     url: req.originalUrl,
     method: req.method,
     requestId: (req as any).requestId,
-  });
+  };
+
+  const includeStack = env.NODE_ENV !== "production" && env.NODE_ENV !== "test";
+
+  const asErrorLike = (e: any) =>
+    includeStack
+      ? e
+      : {
+          name: e?.name,
+          message: e?.message,
+          code: e?.code,
+        };
+
+  // Log errors (keep test output clean; avoid error-level logs for expected 4xx)
+  if (err instanceof AppError) {
+    const isServerSide = err.statusCode >= 500 || !err.isOperational;
+    if (isServerSide) {
+      logger.error("Request failed", asErrorLike(err), {
+        ...requestMeta,
+        statusCode: err.statusCode,
+        isOperational: err.isOperational,
+      });
+    } else {
+      logger.warn("Request rejected", {
+        ...requestMeta,
+        statusCode: err.statusCode,
+        err: {
+          name: err.name,
+          message: err.message,
+        },
+      });
+    }
+  } else if (err.name === "PrismaClientKnownRequestError") {
+    const prismaError = err as any;
+    const code = prismaError.code;
+    const isExpected = code === "P2002" || code === "P2025";
+
+    if (isExpected) {
+      logger.warn("Database request rejected", {
+        ...requestMeta,
+        err: {
+          name: prismaError.name,
+          code,
+          target: prismaError.meta?.target,
+        },
+      });
+    } else {
+      logger.error("Database request failed", asErrorLike(prismaError), {
+        ...requestMeta,
+        prismaCode: code,
+      });
+    }
+  } else {
+    logger.error("Unhandled error", asErrorLike(err), requestMeta);
+  }
 
   // Send to Sentry (non-operational errors only)
   if (err instanceof AppError) {

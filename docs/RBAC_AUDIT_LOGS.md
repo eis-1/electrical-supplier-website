@@ -20,7 +20,7 @@ The application implements a comprehensive security and audit system with:
 - **4-tier role hierarchy**: superadmin → admin → editor → viewer
 - **Automatic audit logging**: All admin actions tracked
 - **Granular permissions**: Resource-based access control
-- **Compliance-ready**: Full audit trail for security compliance
+- **Audit trail support**: Designed to support common security/compliance requirements (validate against your requirements)
 
 ---
 
@@ -111,14 +111,14 @@ Permissions follow the pattern: `resource:action`
 
 **Automatically logged actions**:
 
-- ✅ Product CRUD (create, update, delete)
-- ✅ Category CRUD
-- ✅ Brand CRUD
-- ✅ Quote status changes
-- ✅ Admin login/logout
-- ✅ Admin CRUD (user management)
-- ✅ Permission changes
-- ✅ Failed actions (security alerts)
+- Product CRUD (create, update, delete)
+- Category CRUD
+- Brand CRUD
+- Quote status changes
+- Admin login/logout
+- Admin CRUD (user management)
+- Permission changes
+- Failed actions (security alerts)
 
 **Log Entry Fields**:
 
@@ -149,7 +149,7 @@ Permissions follow the pattern: `resource:action`
 ### Benefits
 
 - **Security**: Detect unauthorized access attempts
-- **Compliance**: Meet regulatory requirements (SOC 2, ISO 27001)
+- **Compliance**: Helps support common control areas (for example SOC 2, ISO 27001); validate against your requirements
 - **Troubleshooting**: Track down when/who made changes
 - **Accountability**: Clear ownership of actions
 
@@ -431,19 +431,19 @@ async updateProduct(req: AuthRequest, res: Response) {
 
 **1. Least Privilege Principle**
 
-- ✅ Assign minimum required role
-- ✅ Use `viewer` for read-only staff
-- ✅ Use `editor` for content team
-- ✅ Use `admin` only for senior staff
-- ✅ Limit `superadmin` to 1-2 accounts
+- Assign minimum required role
+- Use `viewer` for read-only staff
+- Use `editor` for content team
+- Use `admin` only for senior staff
+- Limit `superadmin` to 1-2 accounts
 
 **2. Regular Audits**
 
-- ✅ Review audit logs weekly
-- ✅ Check for failed login attempts
-- ✅ Verify admin access patterns
-- ✅ Remove inactive admin accounts
-- ✅ Rotate superadmin credentials
+- Review audit logs weekly
+- Check for failed login attempts
+- Verify admin access patterns
+- Remove inactive admin accounts
+- Rotate superadmin credentials
 
 **3. Audit Log Retention**
 
@@ -466,25 +466,25 @@ Set up alerts for:
 
 ### Compliance Standards
 
-This implementation supports:
+This implementation can help support common control areas (validate against your compliance requirements):
 
 **SOC 2 Type II**:
 
-- ✅ Access control (RBAC)
-- ✅ Audit trail (comprehensive logging)
-- ✅ Change management (before/after snapshots)
+- Access control (RBAC)
+- Audit trail (comprehensive logging)
+- Change management (before/after snapshots)
 
 **ISO 27001**:
 
-- ✅ Access control (A.9)
-- ✅ Logging and monitoring (A.12.4)
-- ✅ User access management (A.9.2)
+- Access control (A.9)
+- Logging and monitoring (A.12.4)
+- User access management (A.9.2)
 
 **GDPR**:
 
-- ✅ Access logging (Article 30)
-- ✅ Data change tracking
-- ✅ Admin accountability
+- Access logging (Article 30)
+- Data change tracking
+- Admin accountability
 
 ---
 
@@ -553,11 +553,11 @@ VALUES (
 
 **What they can do**:
 
-- ✅ Create/edit/delete products
-- ✅ View and update quotes
-- ✅ View categories and brands
-- ❌ Cannot manage admins
-- ❌ Cannot view audit logs
+- Can create/edit/delete products
+- Can view and update quotes
+- Can view categories and brands
+- Cannot manage admins
+- Cannot view audit logs
 
 ### Example 2: Query Failed Actions
 
@@ -619,11 +619,9 @@ await auditLogService.cleanup(180);
 
 ## Summary
 
-✅ **4-tier RBAC**: Superadmin, admin, editor, viewer  
-✅ **Automatic audit logging**: All admin actions tracked  
-✅ **Granular permissions**: Resource-based access control  
-✅ **Compliance-ready**: SOC 2, ISO 27001, GDPR support  
-✅ **Query & filter**: Powerful audit log API  
-✅ **Security**: IP tracking, user agent, before/after snapshots
-
-**Enterprise-grade access control and audit trail!** 🔐📊
+- **4-tier RBAC**: Superadmin, admin, editor, viewer
+- **Automatic audit logging**: Admin actions tracked
+- **Granular permissions**: Resource-based access control
+- **Compliance mapping**: Control areas can be mapped to common standards (SOC 2, ISO 27001, GDPR)
+- **Query & filter**: Audit log API supports filtering and pagination
+- **Security context**: IP tracking, user agent, before/after snapshots

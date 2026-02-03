@@ -77,9 +77,9 @@ cd backend
 npm run dev
 
 # Should see:
-# ✓ Database connected successfully
+# Database connected successfully
 # Rate limiters initialized successfully
-# 🚀 Server running on port 5000
+# Server running on port 5000
 ```
 
 **1.2 Test Health Endpoint**
@@ -89,8 +89,8 @@ Browser: http://localhost:5000/health
 PowerShell: Invoke-WebRequest -Uri "http://localhost:5000/health"
 ```
 
-✅ Status should be 200 OK  
-✅ Response should include security features
+- Status should be 200 OK
+- Response should include security features
 
 ---
 
@@ -143,13 +143,13 @@ node setup-admin.js
 
 This creates (or recreates):
 
-- Email: `admin@electricalsupplier.com`
+- Email: `<ADMIN_EMAIL>`
 - Password: Set via seed script configuration
 - **Note**: Use the password configured in your seed script or `.env` file
 
-✅ Admin exists in database  
-✅ Password is hashed in DB  
-✅ `twoFactorEnabled` defaults to `false`
+- Admin exists in database
+- Password is hashed in DB
+- `twoFactorEnabled` defaults to `false`
 
 ---
 
@@ -157,7 +157,7 @@ This creates (or recreates):
 
 ```powershell
 $body = @{
-  email = "admin@electricalsupplier.com"
+  email = "<ADMIN_EMAIL>"
   password = "your-admin-password"  # Use password from seed script
 } | ConvertTo-Json
 
@@ -184,9 +184,9 @@ Write-Host "Token: $token"
 }
 ```
 
-✅ Status: 200 OK  
-✅ Token returned  
-✅ `refreshToken` cookie set (HttpOnly)
+- Status: 200 OK
+- Token returned
+- `refreshToken` cookie set (HttpOnly)
 
 **Save the token** for next requests!
 
@@ -223,8 +223,8 @@ Write-Host "Secret: $($json.data.secret)"
 }
 ```
 
-✅ QR code is base64 PNG  
-✅ Secret is a base32 TOTP secret (typically 32 chars)
+- QR code is base64 PNG
+- Secret is a base32 TOTP secret (typically 32 chars)
 
 **Action Required:**
 
@@ -266,9 +266,9 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/v1/auth/2fa/enable" `
 }
 ```
 
-✅ Status: 200 OK  
-✅ Backup codes returned (save them securely)  
-❌ Wrong code returns 400
+- Status: 200 OK
+- Backup codes returned (save them securely)
+- Wrong code returns 400
 
 ---
 
@@ -278,8 +278,8 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/v1/auth/2fa/enable" `
 
 ```powershell
 $body = @{
-    email = "admin@test.com"
-    password = "SecureP@ssw0rd123!"
+  email = "<ADMIN_EMAIL>"
+  password = "<ADMIN_PASSWORD>"
 } | ConvertTo-Json
 
 $response = Invoke-WebRequest -Uri "http://localhost:5000/api/v1/auth/login" `
@@ -303,7 +303,7 @@ Write-Host "Requires 2FA: $($json.data.requiresTwoFactor)"
     "requiresTwoFactor": true,
     "admin": {
       "id": "uuid-here",
-      "email": "admin@electricalsupplier.com",
+      "email": "<ADMIN_EMAIL>",
       "name": "System Administrator",
       "role": "admin",
       "twoFactorEnabled": true
@@ -312,9 +312,9 @@ Write-Host "Requires 2FA: $($json.data.requiresTwoFactor)"
 }
 ```
 
-✅ requiresTwoFactor is true  
-✅ adminId provided  
-❌ No access token yet
+- requiresTwoFactor is true
+- adminId provided
+- No access token yet
 
 ---
 
@@ -351,10 +351,10 @@ Write-Host "New Token: $newToken"
 }
 ```
 
-✅ Status: 200 OK  
-✅ Access token issued  
-✅ Can now access protected routes  
-❌ Wrong code returns 401
+- Status: 200 OK
+- Access token issued
+- Can now access protected routes
+- Wrong code returns 401
 
 ---
 
@@ -365,7 +365,7 @@ It **does not** issue a JWT. JWT issuance happens via `POST /api/v1/auth/verify-
 
 ```powershell
 $body = @{
-  email = "admin@electricalsupplier.com"
+  email = "<ADMIN_EMAIL>"
   token = "A1B2-C3D4-E5F6"  # Use one of your backup codes
   useBackupCode = $true
 } | ConvertTo-Json
@@ -376,8 +376,8 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/v1/auth/2fa/verify" `
     -Body $body
 ```
 
-✅ Backup code works  
-✅ Same code fails second time (single-use)
+- Backup code works
+- Same code fails second time (single-use)
 
 ---
 
@@ -418,9 +418,9 @@ for ($i = 1; $i -le 6; $i++) {
 - Attempt 6: 429 "Too many requests"
 - Response includes `Retry-After: 300` header
 
-✅ Rate limit triggered at 6th attempt  
-✅ Retry-After header present  
-✅ Can retry after 5 minutes
+- Rate limit triggered at 6th attempt
+- Retry-After header present
+- Can retry after 5 minutes
 
 ---
 
@@ -446,9 +446,9 @@ $response = Invoke-WebRequest -Uri "http://localhost:5000/api/v1/upload" `
     -ErrorAction SilentlyContinue
 ```
 
-✅ Should return 400 "Invalid filename or type"  
-✅ Attack blocked and logged  
-❌ Never returns 200 or deletes file
+- Should return 400 "Invalid filename or type"
+- Attack blocked and logged
+- Never returns 200 or deletes file
 
 ---
 
@@ -465,8 +465,8 @@ $response = Invoke-WebRequest -Uri "http://localhost:5000/api/v1/categories" `
     -ErrorAction SilentlyContinue
 ```
 
-✅ Should return 401 "Invalid or expired token"  
-✅ No access to protected routes
+- Should return 401 "Invalid or expired token"
+- No access to protected routes
 
 ---
 
@@ -488,8 +488,8 @@ X-XSS-Protection: 0
 Content-Security-Policy: default-src 'self'
 ```
 
-✅ All security headers present  
-✅ Helmet middleware active
+- All security headers present
+- Helmet middleware active
 
 ---
 
@@ -520,9 +520,9 @@ $categoryId = $json.data.category.id
 Write-Host "Category ID: $categoryId"
 ```
 
-✅ Status: 201 Created  
-✅ Category has UUID  
-✅ Without auth returns 401
+- Status: 201 Created
+- Category has UUID
+- Without auth returns 401
 
 ---
 
@@ -532,9 +532,9 @@ Write-Host "Category ID: $categoryId"
 Browser: http://localhost:5000/api/v1/categories?page=1&limit=10
 ```
 
-✅ Returns array of categories  
-✅ Includes pagination data  
-✅ No auth required (public endpoint)
+- Returns array of categories
+- Includes pagination data
+- No auth required (public endpoint)
 
 ---
 
@@ -547,7 +547,7 @@ $body = @{
     company = "Test Company"
     phone = "+1234567890"
     whatsapp = "+1234567890"
-    email = "john@test.com"
+    email = "<CUSTOMER_EMAIL>"
     productName = "LED Panel Light"
     quantity = "50 units"
     projectDetails = "Office renovation"
@@ -559,9 +559,9 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/v1/quotes" `
     -Body $body
 ```
 
-✅ Status: 201 Created  
-✅ Email sent to admin  
-✅ Status is "new"
+- Status: 201 Created
+- Email notification sent/queued (depends on email configuration)
+- Status is "new"
 
 ---
 
@@ -642,52 +642,52 @@ npm run test:coverage
 npm run test:watch
 ```
 
-### Expected Output
+### Example output (varies by environment)
 
 ```
 PASS  tests/api.test.js
   Electrical Supplier API Tests
     1. Health Check
-      ✓ should return server health status
+      - should return server health status
     2. Authentication (No 2FA)
-      ✓ should login without 2FA
-      ✓ should reject invalid credentials
+      - should login without 2FA
+      - should reject invalid credentials
     3. Two-Factor Authentication Setup
-      ✓ should setup 2FA and get QR code
-      ✓ should enable 2FA with valid TOTP
-      ✓ should get 2FA status
+      - should setup 2FA and get QR code
+      - should enable 2FA with valid TOTP
+      - should get 2FA status
     4. Login with 2FA
-      ✓ should require 2FA on login (step 1)
-      ✓ should complete login with valid TOTP (step 2)
-      ✓ should verify with backup code
-      ✓ should reject reused backup code
+      - should require 2FA on login (step 1)
+      - should complete login with valid TOTP (step 2)
+      - should verify with backup code
+      - should reject reused backup code
     5. Rate Limiting
-      ✓ should block after 5 failed 2FA attempts
+      - should block after 5 failed 2FA attempts
     6. Category Management
-      ✓ should list categories
-      ✓ should create category (admin only)
+      - should list categories
+      - should create category (admin only)
     7. Upload Security
-      ✓ should block path traversal in delete
-      ✓ should block invalid file type
+      - should block path traversal in delete
+      - should block invalid file type
 
 Test Suites: 1 passed
 Tests:       all passed
-Time:        8.234s
+Time:        (varies)
 ```
 
 ### What Tests Cover
 
-- ✅ Health endpoint
-- ✅ Admin login
-- ✅ 2FA setup/enable/verify
-- ✅ TOTP code validation
-- ✅ Backup code usage
-- ✅ Rate limiting (5 attempts)
-- ✅ Category CRUD
-- ✅ Quote requests
-- ✅ Path traversal protection
-- ✅ Token validation
-- ✅ Security headers
+- Health endpoint
+- Admin login
+- 2FA setup/enable/verify
+- TOTP code validation
+- Backup code usage
+- Rate limiting (5 attempts)
+- Category CRUD
+- Quote requests
+- Path traversal protection
+- Token validation
+- Security headers
 
 ---
 

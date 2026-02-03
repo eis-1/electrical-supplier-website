@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comprehensive test suite for the Electrical Supplier Website API with focus on security and 2FA functionality.
+Test suite documentation for the Electrical Supplier Website API, focusing on auth/security and core workflows.
 
 ## Prerequisites
 
@@ -49,75 +49,75 @@ npx jest --watch
 
 ### 1. Health Check
 
-- ✅ Server responds
-- ✅ Security features enabled
-- ✅ Response time acceptable
+- Server responds
+- Security features enabled
+- Response time acceptable
 
 ### 2. Authentication (No 2FA)
 
-- ✅ Login with valid credentials
-- ✅ Reject invalid credentials
-- ✅ Verify access token
+- Login with valid credentials
+- Reject invalid credentials
+- Verify access token
 
 ### 3. Two-Factor Authentication Setup
 
-- ✅ Setup 2FA (get QR code and secret)
-- ✅ Reject invalid TOTP code
-- ✅ Enable 2FA with valid TOTP
-- ✅ Get 2FA status
+- Setup 2FA (get QR code and secret)
+- Reject invalid TOTP code
+- Enable 2FA with valid TOTP
+- Get 2FA status
 
 ### 4. Login with 2FA
 
-- ✅ Require 2FA on login (step 1)
-- ✅ Reject invalid TOTP
-- ✅ Complete login with valid TOTP (step 2)
-- ✅ Verify with backup code
-- ✅ Reject reused backup code
+- Require 2FA on login (step 1)
+- Reject invalid TOTP
+- Complete login with valid TOTP (step 2)
+- Verify with backup code
+- Reject reused backup code
 
 ### 5. Rate Limiting
 
-- ✅ Block after 5 failed 2FA attempts
-- ✅ Return 429 status
-- ✅ Include Retry-After header
+- Block after repeated failed 2FA attempts
+- Return 429 status
+- Include Retry-After header
 
 ### 6. Category Management
 
-- ✅ List categories
-- ✅ Create category (admin only)
-- ✅ Reject without authentication
-- ✅ Get by slug
+- List categories
+- Create category (admin only)
+- Reject without authentication
+- Get by slug
 
 ### 7. Quote Requests
 
-- ✅ Submit quote (public endpoint)
-- ✅ List quotes (admin only)
+- Submit quote (public endpoint)
+- List quotes (admin only)
 
 ### 8. Upload Security
 
-- ✅ Block path traversal (..)
-- ✅ Block invalid file types
-- ✅ Block path separators in filename
+- Block path traversal (..)
+- Block invalid file types
+- Block path separators in filename
 
 ### 9. Security Headers
 
-- ✅ Helmet headers present
-- ✅ Cookie security flags (manual check)
+- Helmet headers present
+- Cookie security flags (manual check)
 
 ### 10. Cleanup
 
-- ✅ Disable 2FA after tests
+- Disable 2FA after tests
 
-## Expected Output
+## Example output (varies by environment)
 
 ```
 PASS  tests/api.test.js
   Electrical Supplier API Tests
     1. Health Check
-      ✓ should return server health status (45ms)
+      - should return server health status (45ms)
     ...
 
-Test Suites: 1 passed, 1 total
-Tests:       all passed
+Test Suites: 1 passed (example)
+Tests:       (varies)
 ```
 
 ## Manual Testing Checklist

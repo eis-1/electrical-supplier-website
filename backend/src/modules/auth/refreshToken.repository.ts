@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../config/db";
 import { logger } from "../../utils/logger";
-
-const prisma = new PrismaClient();
 
 /**
  * Repository for refresh token operations

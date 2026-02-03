@@ -204,11 +204,11 @@ Generate qualified quotation leads from electrical contractors, engineers, and p
 
 ---
 
-## Acceptance Criteria (Phase 1) ✅
+## Acceptance Criteria (Phase 1)
 
 This section is the "scope freeze" for Feature Done.
 
-If any acceptance criteria below is not met, the project is **not** considered 100% Feature Done.
+If any acceptance criteria below is not met, the project is not considered feature-complete for Phase 1.
 
 ### 1) Home
 

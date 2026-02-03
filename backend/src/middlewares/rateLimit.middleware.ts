@@ -1,5 +1,6 @@
 import rateLimit, { MemoryStore } from "express-rate-limit";
 import { RedisStore } from "rate-limit-redis";
+import { createHash } from "crypto";
 import { env } from "../config/env";
 import { getRedisClient } from "../config/redis";
 import { logger } from "../utils/logger";
@@ -117,6 +118,17 @@ let twoFactorLimiterInstance: ReturnType<typeof rateLimit> | null = null;
  * app.listen(5000);
  */
 export const initializeRateLimiters = (): void => {
+  if (
+    apiLimiterInstance ||
+    quoteLimiterInstance ||
+    authLimiterInstance ||
+    twoFactorLimiterInstance
+  ) {
+    throw new Error(
+      "Rate limiters already initialized. Call shutdownRateLimiters() before reinitializing.",
+    );
+  }
+
   // Create separate stores for each limiter (prevents counter collisions)
   const apiStore = getStore("api");
   const quoteStore = getStore("quote");
@@ -136,7 +148,6 @@ export const initializeRateLimiters = (): void => {
     },
     standardHeaders: true, // Send RateLimit-* headers (draft RFC)
     legacyHeaders: false, // Don't send X-RateLimit-* headers
-    skip: () => env.NODE_ENV === "development", // Completely skip in development
     store: apiStore,
   });
 
@@ -163,8 +174,9 @@ export const initializeRateLimiters = (): void => {
   // Default: 5 failed attempts per 15 minutes per IP
   // Successful logins don't count toward the limit
   authLimiterInstance = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: env.NODE_ENV === "development" ? 1000 : 5, // lenient in dev, strict in prod
+    windowMs: env.AUTH_RATE_LIMIT_WINDOW_MS, // Default: 15 minutes
+    max:
+      env.NODE_ENV === "development" ? 1000 : env.AUTH_RATE_LIMIT_MAX_REQUESTS, // lenient in dev, strict in prod
     message: {
       success: false,
       error: "Too many login attempts, please try again after 15 minutes",
@@ -180,8 +192,11 @@ export const initializeRateLimiters = (): void => {
   // Default: 5 failed attempts per 5 minutes per IP+email
   // Uses composite key (IP + email) to prevent distributed attacks
   twoFactorLimiterInstance = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes (shorter than auth limiter)
-    max: env.NODE_ENV === "development" ? 1000 : 5, // lenient in dev, strict in prod
+    windowMs: env.TWO_FACTOR_RATE_LIMIT_WINDOW_MS, // Default: 5 minutes (shorter than auth limiter)
+    max:
+      env.NODE_ENV === "development"
+        ? 1000
+        : env.TWO_FACTOR_RATE_LIMIT_MAX_REQUESTS, // lenient in dev, strict in prod
     message: {
       success: false,
       error: "Too many 2FA verification attempts. Please try again later",
@@ -193,8 +208,22 @@ export const initializeRateLimiters = (): void => {
       // Custom key: Combine IP + email to prevent:
       // - Single IP trying multiple emails (distributed attack)
       // - Multiple IPs trying same email (botnet attack)
-      const email = req.body.email || req.body.adminId || "unknown";
-      return `2fa:${req.ip}:${email}`;
+      const emailRaw = typeof req.body?.email === "string" ? req.body.email : "";
+      const adminIdRaw =
+        typeof req.body?.adminId === "string" ? req.body.adminId : "";
+
+      const identifier = (emailRaw || adminIdRaw || "unknown").trim();
+      const normalizedIdentifier = emailRaw
+        ? identifier.toLowerCase()
+        : identifier;
+
+      // Avoid putting PII directly into Redis keys (and keep key length bounded)
+      const identifierKey =
+        normalizedIdentifier === "unknown"
+          ? "unknown"
+          : createHash("sha256").update(normalizedIdentifier).digest("hex");
+
+      return `2fa:${req.ip}:${identifierKey}`;
     },
     store: twoFactorStore,
   });

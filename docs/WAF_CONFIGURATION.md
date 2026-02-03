@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides production-ready WAF rules for the Electrical Supplier B2B website across multiple platforms.
+This guide provides example WAF rules for the Electrical Supplier B2B website across multiple platforms. Treat values (rate limits, blocks, challenge windows) as starting points and tune them to your traffic patterns and threat model.
 
 ---
 
@@ -68,10 +68,10 @@ Action: Block
 
 #### 3. Managed Rulesets (Enable These)
 
-- ✅ **Cloudflare Managed Ruleset** (OWASP Core Rule Set)
-- ✅ **Cloudflare OWASP Core Ruleset**
-- ✅ **Cloudflare Exposed Credentials Check**
-- ✅ **Cloudflare Leaked Credentials Check**
+- **Cloudflare Managed Ruleset** (OWASP Core Rule Set)
+- **Cloudflare OWASP Core Ruleset**
+- **Cloudflare Exposed Credentials Check**
+- **Cloudflare Leaked Credentials Check**
 
 #### 4. Security Level Settings
 

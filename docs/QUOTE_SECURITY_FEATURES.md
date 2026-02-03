@@ -1,20 +1,18 @@
 # Quote Request Security Features
 
-**Status:** ✅ Fully Protected Against Spam & Abuse
+**Status:** Implemented controls overview (verify in your environment)
 
 ---
 
 ## Executive Summary
 
-The quote request system has **multiple layers of security protection** to prevent spam, abuse, and automated attacks. All features are actively implemented and tested.
-
-**Protection Level:** 🛡️ **Enterprise-Grade**
+The quote request system uses multiple layers of protection to reduce spam, abuse, and automated submissions. Controls and thresholds should be validated and tuned for your environment and traffic patterns.
 
 ---
 
 ## Security Layers Overview
 
-### 🔒 5-Layer Defense System
+### 5-Layer Defense System
 
 ```
 ┌─────────────────────────────────────────┐
@@ -55,10 +53,10 @@ quoteLimiterInstance = rateLimit({
 
 ### Protection Against
 
-✅ Automated bot attacks  
-✅ Script-based spamming  
-✅ Distributed attacks from same IP  
-✅ Accidental form resubmissions
+- Automated bot attacks
+- Script-based spamming
+- Distributed attacks from the same IP
+- Accidental form resubmissions
 
 ### Environment Variables
 
@@ -111,10 +109,10 @@ if (honeypot.trim().length > 0) {
 
 ### Protection Against
 
-✅ Simple spam bots  
-✅ Form auto-fill scripts  
-✅ Web scrapers with auto-submit  
-✅ Low-sophistication attacks
+- Simple spam bots
+- Form auto-fill scripts
+- Web scrapers with auto-submit
+- Low-sophistication attacks
 
 ---
 
@@ -159,10 +157,10 @@ if (elapsedMs > 60 * 60 * 1000) {
 
 ### Protection Against
 
-✅ Automated form submissions  
-✅ Headless browser attacks  
-✅ Pre-filled form spam  
-✅ Replay attacks (reusing old requests)
+- Automated form submissions
+- Headless browser attacks
+- Pre-filled form spam
+- Replay attacks (reusing old requests)
 
 ---
 
@@ -225,10 +223,10 @@ async findRecentDuplicate(params: {
 
 ### Protection Against
 
-✅ Accidental double submissions  
-✅ Impatient users clicking multiple times  
-✅ Intentional spam from same person  
-✅ Form submission errors causing retries
+- Accidental double submissions
+- Impatient users clicking multiple times
+- Intentional spam from the same person
+- Form submission errors causing retries
 
 ### Environment Variables
 
@@ -289,10 +287,10 @@ async countByEmailSince(params: {
 
 ### Protection Against
 
-✅ Email-based spam campaigns  
-✅ Single user submitting many quotes  
-✅ Automated scripts using same email  
-✅ Resource exhaustion attacks
+- Email-based spam campaigns
+- Single user submitting many quotes
+- Automated scripts using the same email
+- Resource exhaustion attacks
 
 ### Environment Variables
 
@@ -385,12 +383,12 @@ logger.security({
 
 **Defense:**
 
-1. ✅ **Rate Limiter** blocks after 5 requests in 1 hour
-2. ✅ **Honeypot** catches bot (likely fills hidden field)
-3. ✅ **Timing** detects submissions < 1.5 seconds
-4. ✅ **Security logs** record attack for analysis
+1. Rate limiter blocks after the configured threshold within the configured window
+2. Honeypot rejects submissions that fill hidden fields
+3. Timing checks reject submissions that are unrealistically fast
+4. Security logs record the event for analysis
 
-**Result:** 🛡️ **Blocked at Layer 1-3**
+**Result:** Typically blocked by early layers
 
 ---
 
@@ -400,12 +398,12 @@ logger.security({
 
 **Defense:**
 
-1. ✅ **Rate Limiter** blocks after 5 requests in 1 hour
-2. ✅ **Daily Email Limit** blocks after 5 requests per email
-3. ✅ **Duplicate Detection** prevents same info within 10 minutes
-4. ✅ **IP logged** for potential banning
+1. Rate limiter blocks after the configured threshold
+2. Daily per-email limit caps repeated submissions
+3. Duplicate detection reduces rapid repeated submissions
+4. IP/user agent are logged for investigation and blocking decisions
 
-**Result:** 🛡️ **Blocked at Layer 1 & 5**
+**Result:** Typically blocked after repeated submissions
 
 ---
 
@@ -415,13 +413,13 @@ logger.security({
 
 **Defense:**
 
-1. ✅ **Rate Limiter** limits each IP to 5/hour
-2. ✅ **Honeypot** catches unsophisticated bots
-3. ✅ **Timing** detects automated submissions
-4. ✅ **Security logs** identify attack pattern
-5. ⚠️ **Manual intervention** may be needed (IP banning, CAPTCHA)
+1. Rate limiter limits each IP
+2. Honeypot catches unsophisticated bots
+3. Timing analysis detects automated submissions
+4. Security logs help identify the pattern
+5. Manual intervention may be needed (IP blocking, CAPTCHA/Turnstile)
 
-**Result:** 🛡️ **Significantly slowed, detectable**
+**Result:** Often slowed and more detectable
 
 ---
 
@@ -431,11 +429,11 @@ logger.security({
 
 **Defense:**
 
-1. ✅ **Duplicate Detection** blocks second submission within 10 minutes
-2. ✅ User receives clear message: "We already received your request"
-3. ✅ No security log (not flagged as attack)
+1. Duplicate detection rejects the second submission within the configured window
+2. User receives a clear message (for example: "We already received your request")
+3. Logging policy can treat this as a UX event rather than a security alert
 
-**Result:** ✅ **Prevented gracefully**
+**Result:** Prevented with a user-friendly response
 
 ---
 
@@ -445,17 +443,17 @@ logger.security({
 
 **Defense:**
 
-1. ✅ **Timing Analysis** blocks submissions > 1 hour old
-2. ✅ Timestamp validation prevents replay attacks
-3. ✅ Security log records attempt
+1. Timing analysis rejects submissions older than the configured maximum
+2. Timestamp validation helps prevent replay attempts
+3. Security log records the attempt
 
-**Result:** 🛡️ **Blocked at Layer 3**
+**Result:** Typically blocked by timing checks
 
 ---
 
 ## Configuration Summary
 
-### Current Settings (Production-Ready)
+### Current Settings (example defaults)
 
 | Setting               | Default Value          | Purpose                       |
 | --------------------- | ---------------------- | ----------------------------- |

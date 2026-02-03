@@ -4,14 +4,14 @@ Use this checklist before deploying to production to ensure all security measure
 
 ---
 
-## 🔐 Secrets & Credentials
+## Secrets & credentials
 
-- [ ] All default secrets replaced with strong random values (32+ chars)
+- [ ] All default secrets replaced with strong random values (high entropy)
 - [ ] JWT_SECRET is unique and never committed to Git
 - [ ] JWT_REFRESH_SECRET is different from JWT_SECRET
 - [ ] COOKIE_SECRET is unique
 - [ ] Admin password changed from any default value
-- [ ] Database password is strong (16+ chars, mixed case, numbers, symbols)
+- [ ] Database password is strong (high entropy; stored securely)
 - [ ] Redis password configured (if using Redis)
 - [ ] All API keys rotated from development values
 - [ ] Secrets stored in password manager or secret management service
@@ -20,21 +20,21 @@ Use this checklist before deploying to production to ensure all security measure
 
 ---
 
-## 🌐 HTTPS & Transport Security
+## HTTPS & transport security
 
 - [ ] HTTPS enabled with valid SSL certificate
 - [ ] Certificate not expired (check validity period)
 - [ ] Certificate chain is complete
 - [ ] HSTS enabled (Strict-Transport-Security header)
 - [ ] HTTP redirects to HTTPS
-- [ ] SSL/TLS configuration tested (SSL Labs A/A+ rating)
-- [ ] TLS 1.2+ only (TLS 1.0/1.1 disabled)
+- [ ] SSL/TLS configuration tested using a trusted scanner
+- [ ] Legacy TLS versions disabled where possible
 - [ ] Strong cipher suites configured
 - [ ] Certificate auto-renewal configured (Let's Encrypt)
 
 ---
 
-## 🛡️ Security Headers
+## Security headers
 
 Verify these headers are present on all responses:
 
@@ -54,14 +54,14 @@ curl -I https://yourdomain.com/
 
 ---
 
-## 🔒 Authentication & Authorization
+## Authentication & authorization
 
 - [ ] Admin routes require authentication
-- [ ] JWT tokens expire appropriately (15m for access, 7d for refresh)
+- [ ] JWT tokens expire appropriately for your threat model and UX requirements
 - [ ] Refresh token rotation implemented
 - [ ] 2FA available and encouraged for admins
 - [ ] Password requirements enforced (min length, complexity)
-- [ ] Bcrypt rounds appropriate for production (12+)
+- [ ] Password hashing work factor appropriate for production
 - [ ] Failed login attempts limited
 - [ ] Account lockout after repeated failures (optional)
 - [ ] Session invalidation on logout works
@@ -69,7 +69,7 @@ curl -I https://yourdomain.com/
 
 ---
 
-## 🚦 Rate Limiting
+## Rate limiting
 
 - [ ] Rate limiting enabled on all public endpoints
 - [ ] Rate limiting enabled on auth endpoints (stricter)
@@ -88,7 +88,7 @@ for i in {1..200}; do curl https://yourdomain.com/api/v1/health; done
 
 ---
 
-## 📤 File Uploads
+## File uploads
 
 - [ ] File size limits enforced
 - [ ] File type validation by magic bytes (not just extension)
@@ -111,7 +111,7 @@ curl -X POST https://yourdomain.com/api/v1/upload \
 
 ---
 
-## 🗄️ Database Security
+## Database security
 
 - [ ] Database connection uses strong password
 - [ ] Database not exposed to public internet
@@ -125,7 +125,7 @@ curl -X POST https://yourdomain.com/api/v1/upload \
 
 ---
 
-## 🌍 CORS Configuration
+## CORS configuration
 
 - [ ] CORS_ORIGIN set to specific domain (not `*`)
 - [ ] Credentials allowed only for trusted origins
@@ -143,7 +143,7 @@ curl -H "Origin: https://evil.com" \
 
 ---
 
-## 🔍 Input Validation
+## Input validation
 
 - [ ] All user inputs validated (express-validator)
 - [ ] Email validation implemented
@@ -157,7 +157,7 @@ curl -H "Origin: https://evil.com" \
 
 ---
 
-## 🚨 Error Handling
+## Error handling
 
 - [ ] Error messages don't leak sensitive information
 - [ ] Stack traces not exposed in production
@@ -169,7 +169,7 @@ curl -H "Origin: https://evil.com" \
 
 ---
 
-## 📊 Logging & Monitoring
+## Logging & monitoring
 
 - [ ] Request logging enabled
 - [ ] Request ID tracking implemented
@@ -184,7 +184,7 @@ curl -H "Origin: https://evil.com" \
 
 ---
 
-## 🔧 Infrastructure Security
+## Infrastructure security
 
 - [ ] Server firewall configured (only 80/443 open)
 - [ ] SSH key-based authentication (password disabled)
@@ -197,7 +197,7 @@ curl -H "Origin: https://evil.com" \
 
 ---
 
-## 🔄 Dependencies
+## Dependencies
 
 - [ ] All dependencies up to date
 - [ ] No high/critical vulnerabilities (`npm audit`)
@@ -215,7 +215,7 @@ npm audit --production
 
 ---
 
-## 🎯 Admin Panel Security
+## Admin panel security
 
 - [ ] Admin routes protected by authentication
 - [ ] Admin pages have `noindex` meta tag
@@ -227,7 +227,7 @@ npm audit --production
 
 ---
 
-## 📧 Email Security
+## Email security
 
 - [ ] SMTP credentials secured
 - [ ] SPF record configured
@@ -239,7 +239,7 @@ npm audit --production
 
 ---
 
-## 🧪 Security Testing
+## Security testing
 
 - [ ] Automated security scans in CI (CodeQL, Snyk, OWASP)
 - [ ] Manual penetration testing performed (optional)
@@ -253,7 +253,7 @@ npm audit --production
 
 ---
 
-## 📋 Compliance (if applicable)
+## Compliance (if applicable)
 
 - [ ] GDPR compliance reviewed (if EU users)
 - [ ] Privacy policy published
@@ -264,7 +264,7 @@ npm audit --production
 
 ---
 
-## 🔄 Incident Response
+## Incident response
 
 - [ ] Security incident response plan documented
 - [ ] Contact information for security issues published
@@ -274,7 +274,7 @@ npm audit --production
 
 ---
 
-## ✅ Final Verification
+## Final verification
 
 Run these commands to verify security:
 

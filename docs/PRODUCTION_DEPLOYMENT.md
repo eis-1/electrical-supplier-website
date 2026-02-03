@@ -2,9 +2,9 @@
 
 ## Security Checklist
 
-### 1. Environment Variables - CRITICAL ⚠️
+### 1. Environment Variables (required)
 
-Before deploying to production, you **MUST** change the following secrets in `backend/.env`:
+Before deploying to production, you must set and rotate the following secrets in `backend/.env`:
 
 ```bash
 # Generate strong random secrets (32+ characters)
@@ -90,7 +90,7 @@ The built files will be in `frontend/dist`. The backend serves these automatical
 
 ## Architecture Improvements Implemented
 
-### ✅ 1. Security Hardening
+### 1. Security Hardening
 
 - **Request ID tracking**: Every request gets a unique `X-Request-ID` for tracing
 - **Admin route protection**: All admin API routes require JWT authentication
@@ -99,7 +99,7 @@ The built files will be in `frontend/dist`. The backend serves these automatical
 - **Rate limiting**: Distributed rate limiting with Redis (fallback to in-memory)
 - **Admin/API noindex**: Prevents search engines from indexing sensitive routes
 
-### ✅ 2. SEO & Discoverability
+### 2. SEO & Discoverability
 
 - **Dynamic SEO meta tags**: Each page has contextual title/description/keywords
 - **Canonical URLs**: Normalized (no query params/hash) for better indexing
@@ -108,7 +108,7 @@ The built files will be in `frontend/dist`. The backend serves these automatical
 - **Dynamic sitemap**: `/sitemap.xml` adapts to request domain (no hardcoded URLs)
 - **Robots.txt**: Dynamic `/robots.txt` with proper admin/API disallow
 
-### ✅ 3. Performance & Caching
+### 3. Performance & Caching
 
 - **Asset caching strategy**:
   - Hashed `/assets/*`: 1 year immutable cache
@@ -117,7 +117,7 @@ The built files will be in `frontend/dist`. The backend serves these automatical
 - **Compression ready**: Code prepared for gzip/brotli (install `compression` package)
 - **Lazy loading**: Images use LazyImage component
 
-### ✅ 4. Reliability
+### 4. Reliability
 
 - **Graceful shutdown**: SIGTERM/SIGINT handlers close connections cleanly
 - **Health endpoints**:
@@ -126,7 +126,7 @@ The built files will be in `frontend/dist`. The backend serves these automatical
 - **30-second shutdown timeout**: Forces exit if graceful shutdown hangs
 - **Database connection pooling**: Prisma manages connections efficiently
 
-### ✅ 5. Observability
+### 5. Observability
 
 - **Request ID middleware**: Unique ID per request for log correlation
 - **Structured logging**: JSON logs in production, human-readable in dev
@@ -134,14 +134,14 @@ The built files will be in `frontend/dist`. The backend serves these automatical
 - **Performance metrics**: `logger.metric()` for tracking response times
 - **Error stack traces**: Full error context in logs
 
-### ✅ 6. Scalability
+### 6. Scalability
 
 - **Stateless auth**: JWT tokens (no server-side sessions)
 - **Redis-based rate limiting**: Works across multiple server instances
 - **Database indexes**: Prisma schema includes indexes on common lookups
 - **Refresh token rotation**: Secure long-lived sessions without exposing main token
 
-### ✅ 7. Developer Experience
+### 7. Developer Experience
 
 - **TypeScript throughout**: Type safety for both frontend and backend
 - **ESLint + Prettier**: Code quality and formatting enforced
@@ -401,7 +401,7 @@ If you're hitting rate limits during testing:
 
 ### Database migrations fail
 
-Reset database (⚠️ DESTROYS DATA):
+Reset database (destructive; destroys data):
 
 ```bash
 cd backend

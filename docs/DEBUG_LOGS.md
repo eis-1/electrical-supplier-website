@@ -19,7 +19,7 @@
 
 ## Bug #1: API Endpoint Mismatch (404 Errors)
 
-### 🔴 Symptom
+### Symptom
 
 **User Report:**
 
@@ -42,13 +42,13 @@ Error: Request failed with status code 404
 [INFO] 15:23:45 - Route not found: /api/products
 ```
 
-### 🔍 Root Cause
+### Root Cause
 
 **Initial Hypothesis:**
 
-- Route not registered? ❌
-- Middleware blocking request? ❌
-- Case sensitivity issue? ✅ **FOUND IT**
+- Route not registered? (ruled out)
+- Middleware blocking request? (ruled out)
+- Case sensitivity issue? (confirmed)
 
 **Investigation Process:**
 
@@ -56,10 +56,10 @@ Error: Request failed with status code 404
 
 ```typescript
 // Found this:
-app.use("/api/product", productRouter); // ❌ Singular 'product'
+app.use("/api/product", productRouter); // Problem: singular 'product'
 
 // Documentation said:
-GET / api / products; // ✅ Plural 'products'
+GET / api / products; // Expected: plural 'products'
 ```
 
 2. **Traced the issue:**
@@ -70,13 +70,13 @@ GET / api / products; // ✅ Plural 'products'
 3. **Verified with test:**
 
 ```bash
-curl http://localhost:5000/api/product     # ✅ Works (200 OK)
-curl http://localhost:5000/api/products    # ❌ 404 Not Found
+curl http://localhost:5000/api/product     # Works (200 OK)
+curl http://localhost:5000/api/products    # 404 Not Found
 ```
 
 **Root Cause:** Route path mismatch between backend definition and API documentation/frontend calls.
 
-### ✅ Fix
+### Fix
 
 **File:** `backend/src/app.ts`
 
@@ -106,12 +106,12 @@ curl http://localhost:5000/api/products
 # Response: 200 OK with product array
 
 # Update frontend calls
-GET /api/products           # ✅ Works
-GET /api/products/123       # ✅ Works (nested routes)
-POST /api/products          # ✅ Works
+GET /api/products           # Works
+GET /api/products/123       # Works (nested routes)
+POST /api/products          # Works
 ```
 
-### 🛡️ Prevention Strategy
+### Prevention Strategy
 
 **1. Automated Route Testing:**
 
@@ -144,11 +144,11 @@ describe("API Route Registration", () => {
 
 ```typescript
 // Establish clear convention in CONTRIBUTING.md:
-// ✅ Use plural for resource collections:
+// Use plural for resource collections:
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 
-// ✅ Use singular for singleton resources:
+// Use singular for singleton resources:
 app.use("/api/auth", authRouter);
 app.use("/api/profile", profileRouter);
 ```
@@ -171,7 +171,7 @@ app.use("/api/profile", profileRouter);
 
 ## Bug #2: JWT Token Expiry Not Handled (401 After 24h)
 
-### 🔴 Symptom
+### Symptom
 
 **User Report:**
 
@@ -188,8 +188,8 @@ GET /api/products 401 (Unauthorized)
 Response: { "error": "jwt expired" }
 
 // Frontend state shows user is logged in
-localStorage.getItem('user') // ✅ User object present
-localStorage.getItem('accessToken') // ✅ Token present (but expired)
+localStorage.getItem('user') // User object present
+localStorage.getItem('accessToken') // Token present (but expired)
 ```
 
 **Backend Logs:**
@@ -200,13 +200,13 @@ localStorage.getItem('accessToken') // ✅ Token present (but expired)
 [DEBUG] Token expired at: 2026-02-02T09:15:00.000Z (24 hours ago)
 ```
 
-### 🔍 Root Cause
+### Root Cause
 
 **Initial Hypothesis:**
 
-- Token expiration too short? ❌ (24h is reasonable)
-- Backend not accepting valid tokens? ❌
-- Frontend not refreshing token? ✅ **FOUND IT**
+- Token expiration too short? (ruled out: 24h is reasonable for many apps)
+- Backend not accepting valid tokens? (ruled out)
+- Frontend not refreshing token? (confirmed)
 
 **Investigation Process:**
 
@@ -239,7 +239,7 @@ const api = axios.create({
   baseURL: "http://localhost:5000",
 });
 
-// ❌ PROBLEM: No interceptor to refresh expired tokens
+// Problem: no interceptor to refresh expired tokens
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
@@ -253,7 +253,7 @@ api.interceptors.request.use((config) => {
 
 **Root Cause:** Frontend doesn't implement token refresh flow. When access token expires after 24h, all requests fail with 401. User must manually logout/login to get new token.
 
-### ✅ Fix
+### Fix
 
 **File:** `frontend/src/services/api.ts`
 
@@ -404,7 +404,7 @@ describe("Token Refresh Flow", () => {
 });
 ```
 
-### 🛡️ Prevention Strategy
+### Prevention Strategy
 
 **1. Token Expiration Monitoring:**
 
@@ -479,7 +479,7 @@ logger.info("Token refresh successful", {
 
 ## Bug #3: Database Constraint Violation (Prisma P2002)
 
-### 🔴 Symptom
+### Symptom
 
 **User Report:**
 
@@ -512,13 +512,13 @@ Unique constraint failed on the fields: (`email`,`phone`,`createdDay`)
 [ERROR] 14:32:17 - POST /api/quotes - 500 Internal Server Error
 ```
 
-### 🔍 Root Cause
+### Root Cause
 
 **Initial Hypothesis:**
 
-- Database connection issue? ❌
-- Duplicate detection logic broken? ✅ **FOUND IT**
-- Race condition? ✅ **ALSO THIS**
+- Database connection issue? (ruled out)
+- Duplicate detection logic broken? (confirmed)
+- Race condition? (also confirmed)
 
 **Investigation Process:**
 
@@ -527,7 +527,7 @@ Unique constraint failed on the fields: (`email`,`phone`,`createdDay`)
 ```typescript
 // backend/src/modules/quote/service.ts
 async createQuote(data: QuoteRequestInput) {
-  // ❌ PROBLEM: Check-then-create pattern (not atomic)
+  // Problem: check-then-create pattern (not atomic)
   const existingQuote = await this.repository.findByEmailAndPhone(
     data.email,
     data.contact_phone
@@ -537,7 +537,7 @@ async createQuote(data: QuoteRequestInput) {
     throw new AppError(429, 'Duplicate quote request detected');
   }
 
-  // ⚠️ Race condition window here!
+  // Note: race condition window here
   // If two requests come simultaneously, both pass the check
   const quote = await this.repository.create(data);
   return quote;
@@ -564,8 +564,8 @@ Time    Thread A                    Thread B
 ─────────────────────────────────────────────────────
 t0      Check DB (no duplicate)
 t1                                  Check DB (no duplicate)
-t2      Insert row ✅
-t3                                  Insert row ❌ (P2002)
+t2      Insert row (succeeds)
+t3                                  Insert row (fails: P2002)
 ```
 
 4. **Checked database schema:**
@@ -578,13 +578,13 @@ model QuoteRequest {
   contact_phone String
   createdDay   String   // Format: YYYY-MM-DD
 
-  @@unique([email, contact_phone, createdDay]) // ✅ Constraint exists
+  @@unique([email, contact_phone, createdDay]) // Constraint exists
 }
 ```
 
 **Root Cause:** Application-level check (SELECT then INSERT) is not atomic. Database unique constraint prevents duplicate inserts, but P2002 error wasn't handled - returned 500 instead of user-friendly 429.
 
-### ✅ Fix
+### Fix
 
 **File:** `backend/src/modules/quote/service.ts`
 
@@ -704,7 +704,7 @@ describe("Quote Duplicate Detection", () => {
 });
 ```
 
-### 🛡️ Prevention Strategy
+### Prevention Strategy
 
 **1. Always Use Database Constraints:**
 
@@ -715,9 +715,9 @@ model QuoteRequest {
 }
 
 // Advantages:
-// ✅ Atomic - no race conditions
-// ✅ Works across multiple app instances
-// ✅ Faster than SELECT then INSERT
+// Atomic - no race conditions
+// Works across multiple app instances
+// Often faster than SELECT then INSERT
 ```
 
 **2. Handle All Prisma Error Codes:**
@@ -778,7 +778,7 @@ sqlite3 prisma/dev.db ".schema QuoteRequest"
 
 ## Bug #4: CORS Configuration Missing (Browser Blocks API)
 
-### 🔴 Symptom
+### Symptom
 
 **User Report:**
 
@@ -816,13 +816,13 @@ Missing Headers:
 - Access-Control-Allow-Headers
 ```
 
-### 🔍 Root Cause
+### Root Cause
 
 **Initial Hypothesis:**
 
-- Backend not running? ❌ (server is running on port 5000)
-- Wrong API URL? ❌ (URL is correct)
-- CORS not configured? ✅ **FOUND IT**
+- Backend not running? (ruled out: server is running on port 5000)
+- Wrong API URL? (ruled out: URL is correct)
+- CORS not configured? (confirmed)
 
 **Investigation Process:**
 
@@ -835,7 +835,7 @@ import cors from "cors";
 
 const app = express();
 
-// ❌ PROBLEM: cors() called but not configured for development
+// Problem: cors() called but not configured for development
 app.use(cors()); // Default = only same-origin allowed
 ```
 
@@ -857,7 +857,7 @@ curl -X OPTIONS http://localhost:5000/api/products \
 // backend/src/config/env.ts
 export const env = {
   NODE_ENV: "development",
-  FRONTEND_URL: undefined, // ❌ Not set in .env
+  FRONTEND_URL: undefined, // Not set in .env
   // ...
 };
 ```
@@ -867,17 +867,17 @@ export const env = {
 ```
 Browser → Server: OPTIONS /api/products (preflight request)
 Server → Browser: 404 (CORS middleware not handling OPTIONS)
-Browser: ❌ Blocks actual GET request
+Browser: blocks actual GET request
 
 Expected Flow:
 Browser → Server: OPTIONS /api/products
 Server → Browser: 200 OK + Access-Control-Allow-Origin: http://localhost:3000
-Browser: ✅ Sends actual GET request
+Browser: sends actual GET request
 ```
 
 **Root Cause:** CORS middleware installed but not configured for development environment. Frontend runs on `localhost:3000`, backend on `localhost:5000` - different origins require CORS headers. OPTIONS preflight requests failing → Browser blocks all requests.
 
-### ✅ Fix
+### Fix
 
 **Step 1: Add Frontend URL to Environment**
 
@@ -924,7 +924,7 @@ export const env = {
 ```typescript
 import cors from "cors";
 
-// ❌ Wrong - allows all origins in production
+// Wrong - allows all origins in production
 app.use(cors());
 ```
 
@@ -1012,11 +1012,11 @@ const api = axios.create({
 // Test CORS is working
 api
   .get("/api/products")
-  .then((res) => console.log("✅ CORS working:", res.data))
-  .catch((err) => console.error("❌ CORS error:", err));
+  .then((res) => console.log("CORS working:", res.data))
+  .catch((err) => console.error("CORS error:", err));
 ```
 
-### 🛡️ Prevention Strategy
+### Prevention Strategy
 
 **1. CORS Configuration Checklist:**
 
@@ -1149,7 +1149,7 @@ app.use((err, req, res, next) => {
 
 ## Bug #5: Environment Variable Misspelled (App Crashes)
 
-### 🔴 Symptom
+### Symptom
 
 **User Report:**
 
@@ -1178,18 +1178,18 @@ Error: JWT secret must be at least 32 characters
 **Backend Never Starts:**
 
 ```
-❌ Server crashed on startup
-❌ Cannot connect to http://localhost:5000
-❌ No logs generated (app exits before logger initializes)
+Server crashed on startup
+Cannot connect to http://localhost:5000
+No logs generated (app exits before logger initializes)
 ```
 
-### 🔍 Root Cause
+### Root Cause
 
 **Initial Hypothesis:**
 
-- .env file not loaded? ❌
-- JWT secret too short? ✅ **SYMPTOM**
-- Environment variable name wrong? ✅ **ROOT CAUSE**
+- .env file not loaded? (ruled out)
+- JWT secret too short? (symptom)
+- Environment variable name wrong? (root cause)
 
 **Investigation Process:**
 
@@ -1200,7 +1200,7 @@ Error: JWT secret must be at least 32 characters
 NODE_ENV=development
 PORT=5000
 
-# ❌ TYPO: Extra 'S' in variable name
+# TYPO: extra 'S' in variable name
 JWT_SECRETS=my-super-secret-jwt-key-12345678
 
 # Should be:
@@ -1212,7 +1212,7 @@ JWT_SECRETS=my-super-secret-jwt-key-12345678
 ```typescript
 // backend/src/config/env.ts
 export const env = {
-  JWT_SECRET: process.env.JWT_SECRET || "", // ✅ Correct name
+  JWT_SECRET: process.env.JWT_SECRET || "", // Correct name
 
   // Validation
   get validatedJwtSecret() {
@@ -1245,13 +1245,13 @@ env.validatedJwtSecret; // → throws Error (empty string)
 import dotenv from "dotenv";
 dotenv.config(); // Loads .env variables into process.env
 
-import { env } from "./config/env"; // ❌ Crashes here
+import { env } from "./config/env"; // Crashes here
 // Validation runs immediately on import → crash before server starts
 ```
 
 **Root Cause:** User misspelled environment variable name (`JWT_SECRETS` instead of `JWT_SECRET`). Code reads `process.env.JWT_SECRET` → gets `undefined` → validation fails → app crashes before server starts. **Silent failure:** dotenv loads the file but doesn't warn about unused variables.
 
-### ✅ Fix
+### Fix
 
 **Strategy:** Improve error messages + add validation to catch typos early.
 
@@ -1275,7 +1275,7 @@ get validatedJwtSecret() {
 ```typescript
 get validatedJwtSecret() {
   if (!this.JWT_SECRET) {
-    // ✅ Better: Show what variable is missing and where to set it
+    // Better: show what variable is missing and where to set it
     throw new Error(
       'JWT_SECRET environment variable is required.\n' +
       '  Set it in backend/.env.development:\n' +
@@ -1325,7 +1325,7 @@ const detectEnvTypos = () => {
 
       if (similar.length > 0) {
         warnings.push(
-          `⚠️  Did you mean ${expected}? Found similar: ${similar.join(", ")}`,
+          `WARNING: Did you mean ${expected}? Found similar: ${similar.join(", ")}`,
         );
       }
     }
@@ -1337,7 +1337,7 @@ const detectEnvTypos = () => {
 // Run validation on module load
 const typoWarnings = detectEnvTypos();
 if (typoWarnings.length > 0) {
-  console.warn("\n⚠️  Potential environment variable typos detected:");
+  console.warn("\nWARNING: Potential environment variable typos detected:");
   typoWarnings.forEach((w) => console.warn(w));
   console.warn("\nCheck your .env file for typos!\n");
 }
@@ -1416,11 +1416,11 @@ SMTP_PASS=
 const fs = require("fs");
 const crypto = require("crypto");
 
-console.log("🔧 Setting up environment configuration...\n");
+console.log("Setting up environment configuration...\n");
 
 // Check if .env exists
 if (fs.existsSync(".env.development")) {
-  console.log("✅ .env.development already exists");
+  console.log(".env.development already exists");
   console.log("   Validating configuration...\n");
 
   // Validate existing .env
@@ -1441,14 +1441,14 @@ if (fs.existsSync(".env.development")) {
   });
 
   if (missing.length > 0) {
-    console.error("❌ Missing required variables:", missing.join(", "));
+    console.error("Missing required variables:", missing.join(", "));
     console.error("   Add them to .env.development\n");
     process.exit(1);
   }
 
-  console.log("✅ All required variables present\n");
+  console.log("All required variables present\n");
 } else {
-  console.log("📝 Creating .env.development from template...\n");
+  console.log("Creating .env.development from template...\n");
 
   // Generate secure secrets
   const jwtSecret = crypto.randomBytes(32).toString("hex");
@@ -1479,10 +1479,10 @@ STORAGE_PROVIDER=local
 `.trim();
 
   fs.writeFileSync(".env.development", envContent);
-  console.log("✅ Created .env.development with secure defaults\n");
+  console.log("Created .env.development with secure defaults\n");
 }
 
-console.log("🎉 Environment setup complete!\n");
+console.log("Environment setup complete!\n");
 ```
 
 **Usage:**
@@ -1503,8 +1503,8 @@ JWT_SECRET=abcdefghijklmnopqrstuvwxyz123456
 # Typo detected:
 JWT_SECRETS=abcdefghijklmnopqrstuvwxyz123456
 # Output:
-# ⚠️  Potential environment variable typos detected:
-# ⚠️  Did you mean JWT_SECRET? Found similar: JWT_SECRETS
+# WARNING: Potential environment variable typos detected:
+# WARNING: Did you mean JWT_SECRET? Found similar: JWT_SECRETS
 # Check your .env file for typos!
 
 # Missing variable (clear error):
@@ -1515,7 +1515,7 @@ JWT_SECRETS=abcdefghijklmnopqrstuvwxyz123456
 #   Generate: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-### 🛡️ Prevention Strategy
+### Prevention Strategy
 
 **1. Environment Setup Checklist:**
 
@@ -1593,7 +1593,7 @@ JWT_SECRETS=abcdefghijklmnopqrstuvwxyz123456
 
 # Warn if .env files are about to be committed
 if git diff --cached --name-only | grep -q "\.env$"; then
-  echo "⚠️  WARNING: You're about to commit .env files!"
+  echo "WARNING: You're about to commit .env files!"
   echo "   Make sure they don't contain secrets."
   echo "   Consider adding to .gitignore"
   exit 1
@@ -1666,7 +1666,7 @@ fi
 
 ## Summary: Key Debugging Takeaways
 
-### 🔍 Systematic Debugging Methodology
+### Systematic Debugging Methodology
 
 1. **Reproduce the bug reliably**
    - Get exact steps to trigger issue
@@ -1693,7 +1693,7 @@ fi
    - Add tests to prevent recurrence
    - Update documentation
 
-### 🛡️ Universal Prevention Strategies
+### Universal Prevention Strategies
 
 **1. Fail Fast with Clear Errors**
 
@@ -1727,7 +1727,7 @@ fi
 - E2E tests for critical user flows
 - Test negative scenarios (failures, timeouts)
 
-### 📊 Bug Categories & Detection
+### Bug Categories & Detection
 
 | Bug Type           | Detection Method | Prevention                                   |
 | ------------------ | ---------------- | -------------------------------------------- |
@@ -1737,7 +1737,7 @@ fi
 | **CORS Issues**    | Browser console  | CORS tests, environment validation           |
 | **Config Errors**  | Startup crash    | Env validation, .env.example template        |
 
-### 🎯 Production Monitoring
+### Production Monitoring
 
 **Key Metrics to Track:**
 

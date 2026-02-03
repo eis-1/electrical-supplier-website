@@ -5,16 +5,8 @@ import { logger } from "../utils/logger";
 import { env } from "../config/env";
 
 /**
- * CSRF (Cross-Site Request Forgery) Protection Middleware
- *
- * Implements Double Submit Cookie pattern:
- * 1. Server generates a random CSRF token
- * 2. Token is sent both as a cookie and expected in request header/body
- * 3. Server validates both match for state-changing operations
- *
- * Use this for any endpoint that:
- * - Uses cookies for authentication (refresh token)
- * - Performs state-changing operations (POST/PUT/PATCH/DELETE)
+ * CSRF protection (double submit cookie): server sets a CSRF cookie and expects
+ * the same token in a request header/body for unsafe methods.
  */
 
 const CSRF_TOKEN_LENGTH = 32;
@@ -117,34 +109,6 @@ export function validateCsrfToken(
 
   // Token is valid, proceed
   next();
-}
-
-/**
- * Middleware: CSRF protection with auto token generation
- * Combines setCsrfToken + validateCsrfToken
- * Use this on routes that need both generation and validation
- */
-export function csrfProtection(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  // For safe methods or if token doesn't exist yet, generate one
-  const safeMethods = ["GET", "HEAD", "OPTIONS"];
-  if (safeMethods.includes(req.method) || !req.cookies[CSRF_COOKIE_NAME]) {
-    return setCsrfToken(req, res, next);
-  }
-
-  // For unsafe methods, validate existing token
-  return validateCsrfToken(req, res, next);
-}
-
-/**
- * Helper: Get current CSRF token from request
- * Useful for endpoints that need to return the token to client
- */
-export function getCsrfToken(req: Request): string | undefined {
-  return req.cookies[CSRF_COOKIE_NAME];
 }
 
 /**

@@ -1,20 +1,9 @@
 /**
- * QuoteService - Complete Rewrite for Ownership Proof
+ * QuoteService
  *
- * This is a manual rewrite of the quote request service to demonstrate
- * complete understanding of the 5-layer defense-in-depth security architecture
- * designed to prevent spam while maintaining good user experience.
- *
- * WRITTEN FROM SCRATCH WITHOUT COPYING - February 3, 2026
- *
- * This rewrite proves understanding of:
- * 1. Multi-layer spam prevention (5 independent layers)
- * 2. Race condition prevention at database level
- * 3. Defense-in-depth security philosophy
- * 4. Error handling and logging patterns
- * 5. Email notification best practices
- * 6. Graceful degradation (email failures don't block quotes)
- * 7. Security monitoring and audit trails
+ * Business logic for quote request management, including layered anti-spam
+ * controls (rate limiting, honeypot, timing analysis, daily limits, and
+ * duplicate detection) and non-blocking email notifications.
  */
 
 import { QuoteRepository } from "./repository";
@@ -464,7 +453,7 @@ export class QuoteService {
       try {
         // Email 1: Notify admin team
         // Contains: All customer details for review
-        await emailService.sendQuoteNotification({
+        const adminEmailSent = await emailService.sendQuoteNotification({
           referenceNumber,
           name: createdQuote.name,
           company: createdQuote.company || undefined,
@@ -477,16 +466,24 @@ export class QuoteService {
 
         // Email 2: Confirm to customer
         // Contains: Reference number for tracking
-        await emailService.sendQuoteConfirmation(
+        const customerEmailSent = await emailService.sendQuoteConfirmation(
           createdQuote.email,
           referenceNumber
         );
 
-        // Both emails sent successfully
-        logger.info("Quote notification emails sent successfully", {
-          quoteId: createdQuote.id,
-          referenceNumber,
-        });
+        if (adminEmailSent && customerEmailSent) {
+          logger.info("Quote notification emails sent successfully", {
+            quoteId: createdQuote.id,
+            referenceNumber,
+          });
+        } else {
+          logger.warn("Quote notification email(s) not sent", {
+            quoteId: createdQuote.id,
+            referenceNumber,
+            adminEmailSent,
+            customerEmailSent,
+          });
+        }
       } catch (emailError) {
         // Email sending failed, but quote is saved
         // Log error for manual retry

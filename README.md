@@ -1,23 +1,21 @@
 # Electrical Supplier Website (B2B)
 
-[![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](#readme)
 [![Node.js](https://img.shields.io/badge/Node.js-22.19.0-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=0B0F14)](https://react.dev/)
 [![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.x-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![Tests: Passing](https://img.shields.io/badge/Tests-Passing-brightgreen)](#-testing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A full-stack B2B electrical supplier website with a product catalog, brand & category management, quote request workflow, file uploads, and a secure admin panel.
 
-**✅ Status**: Production-ready with comprehensive test coverage and complete code documentation. See [docs/CODE_DOCUMENTATION_COMPLETE.md](docs/CODE_DOCUMENTATION_COMPLETE.md) for documentation details.
+**Status**: Build and test status depends on your environment and configuration. See [TESTING.md](TESTING.md) for how to validate.
 
 **Author:** MD EAFTEKHIRUL ISLAM © 2026
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Functionality
 
@@ -33,14 +31,14 @@ A full-stack B2B electrical supplier website with a product catalog, brand & cat
 - **Two-Factor Authentication (2FA)**: TOTP-based MFA with QR code setup and backup codes
 - **JWT Authentication**: Access tokens with secure refresh token rotation
 - **Rate Limiting**: Protect against brute force and abuse
-- **Enterprise Security**: Helmet headers, CSRF protection, input validation, RBAC
+- **Security**: Helmet headers, CSRF protection, input validation, RBAC
 - **File Security**: Magic-byte validation, malware scanning, path traversal protection
 - **Password Security**: Bcrypt hashing with configurable rounds
-- **Comprehensive Documentation**: 100% JSDoc coverage (39 files, 3,430+ lines)
+- **Documentation**: JSDoc + `docs/` (see the documentation index for details)
 
 ---
 
-## 📋 Table of Contents
+## Table of contents
 
 - [Quick Start](#-quick-start)
 - [Installation](#-installation)
@@ -57,7 +55,7 @@ A full-stack B2B electrical supplier website with a product catalog, brand & cat
 
 ---
 
-## 🚀 Quick Start
+## Quick start
 
 ### Windows (recommended)
 
@@ -220,13 +218,13 @@ npm run test:coverage  # With coverage report
 
 Import `docs/Electrical_Supplier_API.postman_collection.json` for:
 
-- 40+ pre-configured requests
+- Pre-configured requests
 - Automatic token management
 - Security attack simulations
 
 ### Manual Testing
 
-See [docs/COMPLETE_TESTING_GUIDE.md](docs/COMPLETE_TESTING_GUIDE.md) for 8 phases of testing.
+See [docs/COMPLETE_TESTING_GUIDE.md](docs/COMPLETE_TESTING_GUIDE.md) for a phased testing workflow.
 
 Recommended checks before pushing:
 
@@ -238,13 +236,13 @@ Recommended checks before pushing:
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 Available docs:
 
 ### Code Documentation
 
-- **Code Documentation Report**: [docs/CODE_DOCUMENTATION_COMPLETE.md](docs/CODE_DOCUMENTATION_COMPLETE.md) - 100% JSDoc coverage summary (39 files)
+- **Code Documentation Report**: [docs/CODE_DOCUMENTATION_COMPLETE.md](docs/CODE_DOCUMENTATION_COMPLETE.md) - JSDoc coverage summary (verify in your environment)
 - **Code Documentation Guide**: [docs/CODE_DOCUMENTATION_GUIDE.md](docs/CODE_DOCUMENTATION_GUIDE.md) - Documentation standards and examples
 
 ### Testing & API
@@ -252,7 +250,7 @@ Available docs:
 - **Complete Testing Guide**: [docs/COMPLETE_TESTING_GUIDE.md](docs/COMPLETE_TESTING_GUIDE.md) - 8-phase testing workflow
 - **API Testing Guide**: [docs/API_TESTING_GUIDE.md](docs/API_TESTING_GUIDE.md) - Complete API reference and examples
 - **Test Suite Documentation**: [backend/tests/README.md](backend/tests/README.md) - Automated testing setup
-- **Postman Collection**: [docs/Electrical_Supplier_API.postman_collection.json](docs/Electrical_Supplier_API.postman_collection.json) - 40+ pre-configured requests
+- **Postman Collection**: [docs/Electrical_Supplier_API.postman_collection.json](docs/Electrical_Supplier_API.postman_collection.json) - Pre-configured requests
 
 ### Project Information
 
@@ -277,7 +275,7 @@ Available docs:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome.
 
@@ -291,19 +289,19 @@ See **[`CONTRIBUTING.md`](CONTRIBUTING.md)** for standards and workflow.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see **[`LICENSE`](LICENSE)**.
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
-### Recently Completed ✅
+### Recently completed
 
 - [x] **Role-Based Access Control (RBAC)**: Multiple admin roles (superadmin, admin, editor, viewer)
 - [x] **Audit Logging**: Comprehensive activity logs for all admin actions
-- [x] **Code Documentation**: 100% JSDoc coverage across all files
+- [x] **Code documentation**: JSDoc coverage report available
 - [x] **Enhanced Admin Dashboard**: Real-time stats and recent quotes
 - [x] **Cloud Storage Support**: S3/R2 integration for file uploads
 - [x] **Malware Scanning**: VirusTotal & ClamAV integration
@@ -319,7 +317,7 @@ This project is licensed under the MIT License - see **[`LICENSE`](LICENSE)**.
 
 ---
 
-## 📞 Contact
+## Contact
 
 - **Author**: MD EAFTEKHIRUL ISLAM
 - **Email**: eafte1@outlook.com
@@ -329,7 +327,7 @@ This project is licensed under the MIT License - see **[`LICENSE`](LICENSE)**.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built with modern open-source technologies:
 
@@ -359,13 +357,7 @@ For deeper technical notes and architecture details, see **[`docs/PROJECT_OVERVI
 
 ---
 
-## ⭐ Support
+## Support
 
-If you find this repository useful:
-
-- **Star the repository** ⭐
-- **Share it with others** 📢
-- **Contribute improvements** 🤝
-- **Report issues** 🐛
-
-Your support helps keep the project growing and up to date.
+- For bugs or feature requests, open an issue.
+- For code changes, open a pull request.

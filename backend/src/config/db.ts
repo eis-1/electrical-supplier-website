@@ -42,9 +42,43 @@ import { env } from "./env";
  * Creates Prisma Client instance with logging configuration
  */
 const prismaClientSingleton = () => {
-  return new PrismaClient({
-    log: ["error", "warn"],
+  const enablePrismaStdoutLogging = env.NODE_ENV !== "test";
+
+  const client = new PrismaClient({
+    // Avoid noisy stdout logging during tests; route logs via Prisma events elsewhere if needed.
+    log: enablePrismaStdoutLogging
+      ? [
+          { emit: "event", level: "error" },
+          { emit: "event", level: "warn" },
+        ]
+      : [],
   });
+
+  if (enablePrismaStdoutLogging) {
+    client.$on("warn", (e) => {
+      logger.warn("Prisma warning", {
+        message: e.message,
+        target: (e as any).target,
+      });
+    });
+
+    client.$on("error", (e) => {
+      // This is Prisma-internal logging (query errors, connection issues, etc.)
+      // Application errors (e.g., P2002) are handled by the API error middleware.
+      logger.error(
+        "Prisma error",
+        {
+          name: "Prisma",
+          message: e.message,
+        },
+        {
+          target: (e as any).target,
+        },
+      );
+    });
+  }
+
+  return client;
 };
 
 declare global {
@@ -61,16 +95,16 @@ if (env.NODE_ENV !== "production") {
 export const connectDatabase = async (): Promise<void> => {
   try {
     await prisma.$connect();
-    logger.info("✓ Database connected successfully");
+    logger.info("Database connected");
   } catch (error) {
     if (error instanceof Error) {
-      logger.error("✗ Database connection failed:", {
+      logger.error("Database connection failed", {
         name: error.name,
         message: error.message,
         stack: error.stack,
       });
     } else {
-      logger.error("✗ Database connection failed:", error);
+      logger.error("Database connection failed", error);
     }
     process.exit(1);
   }

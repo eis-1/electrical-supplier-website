@@ -65,7 +65,7 @@ Rotating `JWT_SECRET` / `JWT_REFRESH_SECRET` will invalidate existing sessions/t
 If you don’t already have a production database, **PostgreSQL** is the best default choice here because:
 
 - strong reliability & concurrency
-- excellent ecosystem and managed hosting options
+- strong ecosystem and managed hosting options
 - Prisma works very well with Postgres
 
 Recommended managed Postgres providers (examples):

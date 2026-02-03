@@ -142,7 +142,7 @@ const BASE_URL = "http://localhost:5000";
 
 export default function () {
   const loginPayload = JSON.stringify({
-    email: "admin@electricalsupplier.com",
+    email: "<ADMIN_EMAIL>",
     // Set this in your environment when running k6:
     //   SEED_ADMIN_PASSWORD="..."
     password: __ENV.SEED_ADMIN_PASSWORD || "<YOUR_ADMIN_PASSWORD>",
@@ -309,7 +309,7 @@ artillery run artillery.yml
 
 ## Performance Baselines
 
-### Expected Performance (Reference)
+### Example performance baselines (illustrative)
 
 | Endpoint              | p50    | p95    | p99    | Requests/sec |
 | --------------------- | ------ | ------ | ------ | ------------ |
@@ -319,7 +319,7 @@ artillery run artillery.yml
 | POST /api/auth/login  | <500ms | <2s    | <3s    | 50+          |
 | POST /api/quotes      | <1s    | <3s    | <5s    | 10+          |
 
-**Note**: Baselines will vary based on hardware, database size, and network conditions.
+**Note**: Treat these as rough reference points only. Actual performance will vary based on hardware, database size, caching, and network conditions.
 
 ## Interpreting Results
 
@@ -332,17 +332,17 @@ artillery run artillery.yml
 
 ### Good Indicators
 
-✅ p95 response time within threshold  
-✅ Error rate < 1% under normal load  
-✅ System remains stable under spike  
-✅ Recovery after spike is quick (<30s)
+- p95 response time remains within your chosen threshold
+- Error rate remains low under normal load (for example, < 1%)
+- System remains stable during a spike
+- Recovery after a spike is quick (for example, under ~30s)
 
 ### Warning Signs
 
-⚠️ p95 response time increasing over time (memory leak?)  
-⚠️ Error rate > 5% under normal load  
-⚠️ Slow recovery after spike  
-⚠️ Database connection pool exhaustion
+- p95 response time increases over time (possible leak, GC pressure, or resource exhaustion)
+- Error rate increases materially under normal load (for example, > 5%)
+- Slow recovery after a spike
+- Database connection pool exhaustion
 
 ## Optimization Tips
 

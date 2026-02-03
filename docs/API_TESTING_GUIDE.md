@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive testing procedures for all API endpoints, with special focus on authentication, 2FA, and security features.
+This guide provides step-by-step testing procedures for key API endpoints, with a focus on authentication, 2FA, and security-related behaviors.
 
 **Base URL**: `http://localhost:5000`  
 **API Version**: `v1`  
@@ -42,9 +42,9 @@ GET http://localhost:5000/health
 
 **Verification**:
 
-- ✅ Status is "ok"
-- ✅ Security features are enabled
-- ✅ Response time < 100ms
+- Status is "ok"
+- Security features are enabled (as expected for your environment)
+- Response time meets your target SLO (varies by environment)
 
 ---
 
@@ -58,14 +58,14 @@ To create a local admin for testing, use the bootstrap script:
 
 - File: `backend/setup-admin.js`
 - Creates (or recreates) the default admin:
-  - Email: `admin@electricalsupplier.com`
+  - Email: `<ADMIN_EMAIL>`
   - Password: Set via `SEED_ADMIN_PASSWORD` (recommended to set explicitly even in development)
 
 **Verification**:
 
-- ✅ Admin exists in database
-- ✅ Password is hashed (not returned by any API)
-- ✅ `twoFactorEnabled` defaults to `false`
+- Admin exists in database
+- Password is hashed (not returned by any API)
+- `twoFactorEnabled` defaults to `false`
 
 ---
 
@@ -82,8 +82,8 @@ POST http://localhost:5000/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@example.com",
-  "password": "SecureP@ssw0rd123!"
+  "email": "<ADMIN_EMAIL>",
+  "password": "<ADMIN_PASSWORD>"
 }
 ```
 
@@ -96,7 +96,7 @@ Content-Type: application/json
   "data": {
     "admin": {
       "id": "uuid-string",
-      "email": "admin@example.com",
+      "email": "<ADMIN_EMAIL>",
       "name": "Test Administrator",
       "role": "admin",
       "twoFactorEnabled": false
@@ -114,10 +114,10 @@ Set-Cookie: refreshToken=refresh-jwt; HttpOnly; Secure; SameSite=Strict; Max-Age
 
 **Verification**:
 
-- ✅ `token` returned in response body
-- ✅ `refreshToken` set as HttpOnly cookie
-- ✅ Invalid credentials return 401
-- ✅ Tokens can be verified with JWT decoder
+- `token` returned in response body
+- `refreshToken` set as HttpOnly cookie
+- Invalid credentials return 401
+- Tokens can be verified with a JWT decoder
 
 ---
 
@@ -148,9 +148,9 @@ Cookie: refreshToken=your-refresh-token-here
 
 **Verification**:
 
-- ✅ New `token` issued
-- ✅ Old token no longer valid
-- ✅ Missing/invalid refreshToken returns 401
+- New `token` issued
+- Old token no longer valid
+- Missing/invalid refreshToken returns 401
 
 ---
 
@@ -184,10 +184,10 @@ Authorization: Bearer your-access-token
 
 **Verification**:
 
-- ✅ QR code is base64-encoded PNG image
-- ✅ Secret is a base32 TOTP secret (typically 32 chars)
-- ✅ Unauthorized request returns 401
-- ✅ QR code can be scanned with Google Authenticator/Authy
+- QR code is base64-encoded PNG image
+- Secret is a base32 TOTP secret (typically 32 chars)
+- Unauthorized request returns 401
+- QR code can be scanned with Google Authenticator/Authy
 
 **Manual Test**: Scan QR code with authenticator app and note the 6-digit code
 
@@ -225,11 +225,11 @@ Content-Type: application/json
 
 **Verification**:
 
-- ✅ Valid TOTP code enables 2FA
-- ✅ Invalid code returns 400 "Invalid verification code"
-- ✅ Database updated with `twoFactorEnabled=true`
-- ✅ Secret is encrypted in database
-- ✅ Backup codes are hashed
+- Valid TOTP code enables 2FA
+- Invalid code returns 400 "Invalid verification code"
+- Database updated with `twoFactorEnabled=true`
+- Secret is encrypted in database
+- Backup codes are hashed
 
 ---
 
@@ -246,8 +246,8 @@ POST http://localhost:5000/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@example.com",
-  "password": "SecureP@ssw0rd123!"
+  "email": "<ADMIN_EMAIL>",
+  "password": "<ADMIN_PASSWORD>"
 }
 ```
 
@@ -261,7 +261,7 @@ Content-Type: application/json
     "requiresTwoFactor": true,
     "admin": {
       "id": "uuid-string",
-      "email": "admin@example.com",
+      "email": "<ADMIN_EMAIL>",
       "name": "Test Administrator",
       "role": "admin",
       "twoFactorEnabled": true
@@ -272,10 +272,10 @@ Content-Type: application/json
 
 **Verification**:
 
-- ✅ No access token returned
-- ✅ requiresTwoFactor is true
-- ✅ `admin.id` provided for 2FA verification
-- ✅ Cannot access protected routes yet
+- No access token returned
+- requiresTwoFactor is true
+- `admin.id` provided for 2FA verification
+- Cannot access protected routes yet
 
 ---
 
@@ -306,7 +306,7 @@ Content-Type: application/json
   "data": {
     "admin": {
       "id": "uuid-string",
-      "email": "admin@example.com",
+      "email": "<ADMIN_EMAIL>",
       "name": "Test Administrator",
       "role": "admin",
       "twoFactorEnabled": true
@@ -318,10 +318,10 @@ Content-Type: application/json
 
 **Verification**:
 
-- ✅ Access token (`token`) issued after verification
-- ✅ `refreshToken` cookie set
-- ✅ Invalid TOTP returns 401
-- ✅ Can now access protected routes
+- Access token (`token`) issued after verification
+- `refreshToken` cookie set
+- Invalid TOTP returns 401
+- Can now access protected routes
 
 ---
 
@@ -341,7 +341,7 @@ POST http://localhost:5000/api/v1/auth/2fa/verify
 Content-Type: application/json
 
 {
-  "email": "admin@example.com",
+  "email": "<ADMIN_EMAIL>",
   "token": "A1B2-C3D4-E5F6",
   "useBackupCode": true
 }
@@ -361,10 +361,10 @@ Content-Type: application/json
 
 **Verification**:
 
-- ✅ Valid backup code accepted
-- ✅ Used backup code is invalidated
-- ✅ Invalid backup code returns 400
-- ✅ Same code cannot be used twice
+- Valid backup code accepted
+- Used backup code is invalidated
+- Invalid backup code returns 400
+- Same code cannot be used twice
 
 ---
 
@@ -425,9 +425,9 @@ Content-Type: application/json
 
 **Verification**:
 
-- ✅ Requires valid TOTP to disable
-- ✅ Secret and backup codes cleared from database
-- ✅ Future logins don't require 2FA
+- Requires valid TOTP to disable
+- Secret and backup codes cleared from database
+- Future logins don't require 2FA
 
 ---
 
@@ -451,10 +451,10 @@ Content-Type: application/json
 
 **Expected Behavior**:
 
-- ✅ Requests 1-5: 401 "Invalid verification code"
-- ✅ Request 6: 429 "Too many requests"
-- ✅ Response includes "Retry-After" header
-- ✅ After 5 minutes, can retry
+- Requests 1-5: 401 "Invalid verification code"
+- Request 6: 429 "Too many requests"
+- Response includes "Retry-After" header
+- After 5 minutes, can retry
 
 **Headers on 429 Response**:
 
@@ -561,9 +561,9 @@ Content-Type: application/json
 
 **Verification**:
 
-- ✅ Requires authentication
-- ✅ Slug is unique
-- ✅ Duplicate slug returns 400
+- Requires authentication
+- Slug is unique
+- Duplicate slug returns 400
 
 ---
 
@@ -660,7 +660,7 @@ Content-Type: application/json
   "company": "ABC Electrical",
   "phone": "+1234567890",
   "whatsapp": "+1234567890",
-  "email": "john@abc.com",
+  "email": "<CUSTOMER_EMAIL>",
   "productName": "LED Panel Light 20W",
   "quantity": "50 units",
   "projectDetails": "Office renovation project"
@@ -679,7 +679,7 @@ Content-Type: application/json
       "name": "John Doe",
       "company": "ABC Electrical",
       "phone": "+1234567890",
-      "email": "john@abc.com",
+      "email": "<CUSTOMER_EMAIL>",
       "status": "new",
       "createdAt": "2026-01-15T10:00:00.000Z"
     }
@@ -689,10 +689,10 @@ Content-Type: application/json
 
 **Verification**:
 
-- ✅ No authentication required (public endpoint)
-- ✅ Email validation
-- ✅ Rate limited to prevent spam
-- ✅ Admin receives email notification
+- No authentication required (public endpoint)
+- Email validation
+- Rate limited to prevent spam
+- Admin receives an email notification (depends on email configuration)
 
 ---
 
@@ -740,12 +740,12 @@ Content-Type: multipart/form-data
 
 **Verification**:
 
-- ✅ Requires authentication
-- ✅ Magic-byte validation (checks actual file type, not extension)
-- ✅ Max file size: 5MB
-- ✅ Allowed images: JPEG, PNG, WebP, GIF
-- ✅ Allowed documents: PDF
-- ✅ Path traversal protection
+- Requires authentication
+- Magic-byte validation (checks actual file type, not extension)
+- Max file size: 5MB
+- Allowed images: JPEG, PNG, WebP, GIF
+- Allowed documents: PDF
+- Path traversal protection
 
 ---
 
@@ -828,10 +828,10 @@ Expected: 400 "Invalid filename or type"
 
 **Expected Flags**:
 
-- ✅ `HttpOnly` - Prevents JavaScript access
-- ✅ `Secure` - HTTPS only (production)
-- ✅ `SameSite=Strict` - CSRF protection
-- ✅ Proper Max-Age values
+- `HttpOnly` - Prevents JavaScript access
+- `Secure` - HTTPS only (production)
+- `SameSite=Strict` - CSRF protection
+- Proper Max-Age values
 
 ---
 

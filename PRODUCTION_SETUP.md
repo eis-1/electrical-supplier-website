@@ -75,7 +75,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 ### Secrets Management Best Practices
 
-✅ **DO:**
+**Do:**
 
 - Use a password manager (1Password, LastPass, Bitwarden)
 - Use different secrets for each environment (dev/staging/prod)
@@ -84,7 +84,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 - Store database backups encrypted
 - Use `.env` files ONLY locally, never commit them
 
-❌ **DON'T:**
+**Avoid:**
 
 - Commit secrets to Git (check `.gitignore` includes `.env`)
 - Share secrets via email, Slack, or chat
@@ -94,7 +94,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 ---
 
-## 🔒 Part 2: HTTPS Configuration
+## Part 2: HTTPS configuration
 
 ### Why HTTPS is Required
 
@@ -236,7 +236,7 @@ Benefits:
 
 ---
 
-## 🚀 Part 3: Production Deployment
+## Part 3: Production deployment
 
 ### Prerequisites Checklist
 
@@ -346,7 +346,7 @@ curl -I https://yourdomain.com/ | grep -i "strict-transport"
 
 ---
 
-## 🔍 Part 4: Security Verification
+## Part 4: Security Verification
 
 ### SSL/TLS Testing
 
@@ -398,7 +398,7 @@ Content-Security-Policy: (should be present)
 
 ---
 
-## 📊 Part 5: Monitoring & Maintenance
+## Part 5: Monitoring & maintenance
 
 ### Health Monitoring
 
@@ -508,7 +508,7 @@ pg_dump -h localhost -U username -d electrical_supplier > backup_$(date +%Y%m%d)
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [OWASP Security Cheat Sheet](https://cheatsheetseries.owasp.org/)
 - [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/)
@@ -518,19 +518,19 @@ pg_dump -h localhost -U username -d electrical_supplier > backup_$(date +%Y%m%d)
 
 ---
 
-## 🎯 Summary Checklist
+## Summary checklist
 
-Production deployment complete when:
+Consider deployment complete when you have verified:
 
-- [x] Strong secrets generated and secured
-- [x] Production environment configured
-- [x] HTTPS working with valid certificate
-- [x] HSTS enabled
-- [x] Security headers verified
-- [x] Application deployed and running
-- [x] Health checks passing
-- [x] Monitoring configured
-- [x] Backup strategy implemented
-- [x] Documentation updated
+- [ ] Strong secrets generated and secured
+- [ ] Production environment configured
+- [ ] HTTPS working with a valid certificate
+- [ ] HSTS enabled
+- [ ] Security headers verified
+- [ ] Application deployed and running
+- [ ] Health checks passing
+- [ ] Monitoring configured
+- [ ] Backup strategy implemented
+- [ ] Documentation updated
 
-**Your application is now production-ready with enterprise-grade security!** 🚀
+If you completed the steps above, your application should be configured for production deployment with security controls enabled. Validate the behavior in your environment.

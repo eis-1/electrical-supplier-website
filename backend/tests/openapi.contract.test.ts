@@ -9,11 +9,16 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import Ajv, { type ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
 
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
 import { startTestServer, type TestServerContext } from "./utils/testServer";
 
 type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
 
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "admin123";
+const CONTRACT_USER_EMAIL = "contract@electricalsupplier.com";
+const CONTRACT_USER_NAME = "Contract Test";
 
 let serverContext: TestServerContext | undefined;
 let api = axios.create({
@@ -148,10 +153,20 @@ function buildCookieHeader(setCookie: string[] | undefined): string {
   return pairs.join("; ");
 }
 
+function omitCookie(cookieHeader: string, cookieName: string): string {
+  if (!cookieHeader) return cookieHeader;
+  const parts = cookieHeader
+    .split("; ")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .filter((p) => !p.startsWith(`${cookieName}=`));
+  return parts.join("; ");
+}
+
 async function loginAndGetSession() {
   const login = await api.post(
     "/api/v1/auth/login",
-    { email: "admin@electricalsupplier.com", password: ADMIN_PASSWORD },
+    { email: CONTRACT_USER_EMAIL, password: ADMIN_PASSWORD },
     { headers: { "Content-Type": "application/json" } },
   );
 
@@ -172,10 +187,39 @@ async function loginAndGetSession() {
 }
 
 describe("OpenAPI contract (live)", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     // Ensure default admin exists and is reset to a known state.
     const backendRoot = path.resolve(__dirname, "..");
     execSync("node setup-admin.js", { cwd: backendRoot, stdio: "ignore" });
+
+    // Create a dedicated user for contract tests so that other suites toggling
+    // 2FA on the default admin cannot make these tests flaky.
+    const prisma = new PrismaClient();
+    try {
+      const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+      await prisma.admin.upsert({
+        where: { email: CONTRACT_USER_EMAIL },
+        update: {
+          password: hashedPassword,
+          name: CONTRACT_USER_NAME,
+          role: "superadmin",
+          isActive: true,
+          twoFactorEnabled: false,
+          twoFactorSecret: null,
+          backupCodes: null,
+        },
+        create: {
+          email: CONTRACT_USER_EMAIL,
+          password: hashedPassword,
+          name: CONTRACT_USER_NAME,
+          role: "superadmin",
+          isActive: true,
+          twoFactorEnabled: false,
+        },
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   });
 
   beforeAll(async () => {
@@ -237,7 +281,7 @@ describe("OpenAPI contract (live)", () => {
       url: "/api/v1/auth/login",
       expectedStatus: 200,
       data: {
-        email: "admin@electricalsupplier.com",
+        email: CONTRACT_USER_EMAIL,
         password: ADMIN_PASSWORD,
       },
       headers: {
@@ -258,7 +302,7 @@ describe("OpenAPI contract (live)", () => {
       url: "/api/v1/auth/login",
       expectedStatus: 401,
       data: {
-        email: "admin@electricalsupplier.com",
+        email: CONTRACT_USER_EMAIL,
         password: "WrongPassword123!",
       },
       headers: {
@@ -296,6 +340,49 @@ describe("OpenAPI contract (live)", () => {
     });
   });
 
+  test("POST /api/v1/auth/refresh (missing CSRF header) matches OpenAPI", async () => {
+    const { cookieHeader } = await loginAndGetSession();
+
+    await requestAndValidate({
+      pathKey: "/api/v1/auth/refresh",
+      method: "post",
+      url: "/api/v1/auth/refresh",
+      expectedStatus: 403,
+      headers: {
+        Cookie: cookieHeader,
+      },
+    });
+  });
+
+  test("POST /api/v1/auth/refresh (missing CSRF cookie) matches OpenAPI", async () => {
+    const { csrf } = await loginAndGetSession();
+
+    await requestAndValidate({
+      pathKey: "/api/v1/auth/refresh",
+      method: "post",
+      url: "/api/v1/auth/refresh",
+      expectedStatus: 403,
+      headers: {
+        "x-csrf-token": csrf,
+      },
+    });
+  });
+
+  test("POST /api/v1/auth/refresh (missing refresh token cookie) matches OpenAPI", async () => {
+    const { csrf, cookieHeader } = await loginAndGetSession();
+
+    await requestAndValidate({
+      pathKey: "/api/v1/auth/refresh",
+      method: "post",
+      url: "/api/v1/auth/refresh",
+      expectedStatus: 401,
+      headers: {
+        Cookie: omitCookie(cookieHeader, "refreshToken"),
+        "x-csrf-token": csrf,
+      },
+    });
+  });
+
   test("POST /api/v1/auth/logout matches OpenAPI (CSRF + cookies)", async () => {
     const { csrf, cookieHeader } = await loginAndGetSession();
 
@@ -307,6 +394,20 @@ describe("OpenAPI contract (live)", () => {
       headers: {
         Cookie: cookieHeader,
         "x-csrf-token": csrf,
+      },
+    });
+  });
+
+  test("POST /api/v1/auth/logout (missing CSRF header) matches OpenAPI", async () => {
+    const { cookieHeader } = await loginAndGetSession();
+
+    await requestAndValidate({
+      pathKey: "/api/v1/auth/logout",
+      method: "post",
+      url: "/api/v1/auth/logout",
+      expectedStatus: 403,
+      headers: {
+        Cookie: cookieHeader,
       },
     });
   });

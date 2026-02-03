@@ -98,11 +98,11 @@ npm run prisma:seed
 
 **Default Admin Credentials:**
 
-- Email: `admin@electricalsupplier.com`
+- Email: `<ADMIN_EMAIL>`
 
 The admin password is controlled by `SEED_ADMIN_PASSWORD` (recommended). Avoid relying on any default password, and **never** use a default password in production.
 
-⚠️ **IMPORTANT:** Set a strong password before deployment and rotate it if it is ever exposed.
+**IMPORTANT:** Set a strong password before deployment and rotate it if it is ever exposed.
 
 ---
 
@@ -199,7 +199,7 @@ This opens a GUI at `http://localhost:5555` to view and edit data.
 npx prisma migrate dev --name description_of_change
 ```
 
-### Reset database (⚠️ deletes all data):
+### Reset database (deletes all data):
 
 ```bash
 npx prisma migrate reset
@@ -262,10 +262,10 @@ backend/
 
 ## Next Steps
 
-1. ✅ Backend API is now running
-2. 🔄 Proceed to frontend setup
-3. 🔗 Connect frontend to backend API
-4. 🚀 Deploy to production
+1. Backend API should now be running
+2. Proceed to frontend setup
+3. Connect frontend to backend API
+4. Deploy to production
 
 ---
 

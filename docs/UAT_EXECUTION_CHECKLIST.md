@@ -7,7 +7,7 @@
 
 ---
 
-## ✅ Pre-Test Setup
+## Pre-test setup
 
 - [ ] Backend server running: `cd backend && npm run dev`
 - [ ] Frontend built for production: `cd frontend && npm run build`
@@ -21,7 +21,7 @@
 
 ## 1. Public Website Flows
 
-### 1.1 Homepage & Navigation ✅
+### 1.1 Homepage & Navigation
 
 **Test Case**: Verify homepage loads and navigation works
 
@@ -42,7 +42,7 @@
 
 ---
 
-### 1.2 Product Browse & Filter ✅
+### 1.2 Product Browse & Filter
 
 **Test Case**: Browse products with category filtering
 
@@ -64,7 +64,7 @@
 
 ---
 
-### 1.3 Product Search ✅
+### 1.3 Product Search
 
 **Test Case**: Search for specific products
 
@@ -82,7 +82,7 @@
 
 ---
 
-### 1.4 Quote Request Submission ✅
+### 1.4 Quote Request Submission
 
 **Test Case**: Submit valid quote request
 
@@ -119,7 +119,7 @@
 
 ---
 
-### 1.5 Quote Request Validation ✅
+### 1.5 Quote Request Validation
 
 **Test Case**: Test form validation rules
 
@@ -137,7 +137,7 @@
 
 ---
 
-### 1.6 SEO & Meta Tags ✅
+### 1.6 SEO & Meta Tags
 
 **Test Case**: Verify SEO implementation
 
@@ -159,7 +159,7 @@
 
 ---
 
-### 1.7 Mobile Responsiveness ✅
+### 1.7 Mobile Responsiveness
 
 **Test Case**: Test mobile layout (DevTools → Toggle device toolbar)
 
@@ -188,7 +188,7 @@
 
 ## 2. Admin Panel Flows
 
-### 2.1 Admin Login (Basic Auth) ✅
+### 2.1 Admin Login (Basic Auth)
 
 **Test Case**: Login with standard credentials
 
@@ -196,7 +196,7 @@
 
 - Email: `admin@electricalsupplier.com`
 - Password: Set via `SEED_ADMIN_PASSWORD` during seed/admin creation
-- **⚠️ Security**: Use a strong password in production and rotate it if ever exposed
+- **Security note**: Use a high-entropy password in production and rotate it if ever exposed
 
 **Steps**:
 
@@ -221,7 +221,7 @@
 
 ---
 
-### 2.2 Admin Dashboard Overview ✅
+### 2.2 Admin Dashboard Overview
 
 **Test Case**: Verify dashboard displays stats
 
@@ -241,7 +241,7 @@
 
 ---
 
-### 2.3 Product CRUD (Create) ✅
+### 2.3 Product CRUD (Create)
 
 **Test Case**: Create new product as admin
 
@@ -277,7 +277,7 @@
 
 ---
 
-### 2.4 Product CRUD (Read) ✅
+### 2.4 Product CRUD (Read)
 
 **Test Case**: View product list and details
 
@@ -298,7 +298,7 @@
 
 ---
 
-### 2.5 Product CRUD (Update) ✅
+### 2.5 Product CRUD (Update)
 
 **Test Case**: Edit existing product
 
@@ -325,7 +325,7 @@
 
 ---
 
-### 2.6 Product CRUD (Delete) ✅
+### 2.6 Product CRUD (Delete)
 
 **Test Case**: Delete product
 
@@ -350,7 +350,7 @@
 
 ---
 
-### 2.7 Quote Management ✅
+### 2.7 Quote Management
 
 **Test Case**: View and manage quotes
 
@@ -376,7 +376,7 @@
 
 ---
 
-### 2.8 RBAC - Viewer Role ✅
+### 2.8 RBAC - Viewer Role
 
 **Test Case**: Test read-only viewer permissions
 
@@ -409,7 +409,7 @@
 
 ---
 
-### 2.9 RBAC - Editor Role ✅
+### 2.9 RBAC - Editor Role
 
 **Test Case**: Test editor permissions
 
@@ -441,7 +441,7 @@
 
 ## 3. Two-Factor Authentication (2FA)
 
-### 3.1 2FA Setup ✅
+### 3.1 2FA Setup
 
 **Test Case**: Enable 2FA for admin account
 
@@ -480,7 +480,7 @@
 
 ---
 
-### 3.2 2FA Login Flow ✅
+### 3.2 2FA Login Flow
 
 **Test Case**: Login with 2FA enabled
 
@@ -513,7 +513,7 @@
 
 ---
 
-### 3.3 2FA Backup Code Usage ✅
+### 3.3 2FA Backup Code Usage
 
 **Test Case**: Use backup code for login
 
@@ -542,7 +542,7 @@
 
 ---
 
-### 3.4 2FA Disable ✅
+### 3.4 2FA Disable
 
 **Test Case**: Disable 2FA
 
@@ -573,7 +573,7 @@
 
 ## 4. Security & Uploads
 
-### 4.1 File Upload Security ✅
+### 4.1 File Upload Security
 
 **Test Case**: Test file upload restrictions
 
@@ -584,13 +584,13 @@
 
 **Test Files**:
 
-- [ ] Valid image (PNG, 1MB) → ✅ Accepted
-- [ ] Valid image (JPG, 2MB) → ✅ Accepted
-- [ ] Oversized image (10MB) → ❌ Rejected (max 5MB)
-- [ ] Executable file (.exe) → ❌ Rejected
-- [ ] PHP script (.php) → ❌ Rejected
-- [ ] SVG with embedded script → ❌ Sanitized or rejected
-- [ ] Malformed image header → ❌ Rejected
+- [ ] Valid image (PNG, 1MB) → Accepted
+- [ ] Valid image (JPG, 2MB) → Accepted
+- [ ] Oversized image (10MB) → Rejected (max 5MB)
+- [ ] Executable file (.exe) → Rejected
+- [ ] PHP script (.php) → Rejected
+- [ ] SVG with embedded script → Sanitized or rejected
+- [ ] Malformed image header → Rejected
 
 **Checklist**:
 
@@ -609,7 +609,7 @@
 
 ---
 
-### 4.2 File Download/Access ✅
+### 4.2 File Download/Access
 
 **Test Case**: Verify uploaded files accessible
 
@@ -639,7 +639,7 @@
 
 ## 5. Performance & Accessibility
 
-### 5.1 Lighthouse Audit ✅
+### 5.1 Lighthouse Audit
 
 **Test Case**: Run Lighthouse audit
 
@@ -669,7 +669,7 @@
 
 ---
 
-### 5.2 Accessibility (A11y) Testing ✅
+### 5.2 Accessibility (A11y) Testing
 
 **Test Case**: Keyboard navigation and screen reader support
 
@@ -700,7 +700,7 @@
 
 ## 6. Error Handling & Edge Cases
 
-### 6.1 Network Errors ✅
+### 6.1 Network Errors
 
 **Test Case**: Test offline/network failure scenarios
 
@@ -725,7 +725,7 @@
 
 ---
 
-### 6.2 Invalid API Responses ✅
+### 6.2 Invalid API Responses
 
 **Test Case**: Handle backend errors gracefully
 
@@ -746,7 +746,7 @@
 
 ---
 
-### 6.3 SQL Injection Prevention ✅
+### 6.3 SQL Injection Prevention
 
 **Test Case**: Attempt SQL injection attacks
 
@@ -771,7 +771,7 @@
 
 ---
 
-### 6.4 XSS Prevention ✅
+### 6.4 XSS Prevention
 
 **Test Case**: Attempt cross-site scripting attacks
 
@@ -797,7 +797,7 @@
 
 ## 7. API Contract Testing
 
-### 7.1 OpenAPI Spec Coverage ✅
+### 7.1 OpenAPI Spec Coverage
 
 **Test Case**: Verify API documentation completeness
 
@@ -816,7 +816,7 @@
 
 ---
 
-### 7.2 API Rate Limiting ✅
+### 7.2 API Rate Limiting
 
 **Test Case**: Verify rate limits enforced
 
@@ -848,7 +848,7 @@
 
 ## 8. Environment Configuration
 
-### 8.1 .env Templates Alignment ✅
+### 8.1 .env Templates Alignment
 
 **Test Case**: Verify all .env examples match
 
@@ -876,7 +876,7 @@
 
 ## 9. Final Handover Readiness
 
-### 9.1 Documentation Complete ✅
+### 9.1 Documentation Complete
 
 **Checklist**:
 
@@ -894,7 +894,7 @@
 
 ---
 
-### 9.2 Clean Default Credentials ✅
+### 9.2 Clean Default Credentials
 
 **Test Case**: Ensure no hardcoded secrets in repo
 
@@ -914,7 +914,7 @@
 
 ---
 
-### 9.3 CI/CD Readiness ✅
+### 9.3 CI/CD Readiness
 
 **Test Case**: Verify project can be built and tested
 
@@ -944,7 +944,7 @@ npm run test:e2e
 - [ ] Linting passes (no errors)
 - [ ] Unit tests pass (if implemented)
 - [ ] Build completes without errors
-- [ ] E2E tests pass: 27/27 ✅
+- [ ] E2E tests pass (verify in your environment)
 
 **Expected Result**: All commands succeed
 

@@ -9,9 +9,9 @@ This guide explains how to configure email services for the Electrical Supplier 
 
 ## Current Status
 
-✅ **Email Service**: Implemented with graceful degradation  
-✅ **Code**: Ready for SMTP configuration  
-⚠️ **Configuration**: SMTP credentials not set (emails will be logged but not sent)
+- **Email service**: Implemented with graceful degradation
+- **Code**: Ready for SMTP configuration
+- **Configuration**: SMTP credentials not set by default (emails will be logged but not sent)
 
 ---
 
@@ -193,10 +193,10 @@ async function testEmail() {
       html: "<p>This is a <strong>test email</strong> from your Electrical Supplier Website.</p>",
     });
 
-    console.log("✅ Email sent successfully!");
+    console.log("Email sent successfully.");
     console.log("Message ID:", info.messageId);
   } catch (error) {
-    console.error("❌ Email sending failed:", error.message);
+    console.error("Email sending failed:", error.message);
   }
 }
 
@@ -239,7 +239,7 @@ Run: `node backend/test-email.js`
 NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
 
-⚠️ **Security Warning**: Never use this in production!
+**Security warning:** Never use this in production.
 
 ### Emails Not Received (No Errors)
 
@@ -333,24 +333,24 @@ class EmailService {
 
 If SMTP is not configured:
 
-- ✅ Application continues to function normally
-- ✅ Quote submissions succeed and are saved to database
-- ✅ Admin can view quotes in admin panel
-- ⚠️ No email notifications sent (logged as warnings)
+- Application continues to function normally
+- Quote submissions succeed and are saved to database
+- Admin can view quotes in admin panel
+- No email notifications are sent (logged as warnings)
 
 ---
 
 ## Next Steps
 
-1. ✅ Choose SMTP provider (Gmail recommended for testing)
-2. ✅ Get credentials (app password or API key)
-3. ✅ Update `backend/.env` with SMTP settings
-4. ✅ Restart backend server
-5. ✅ Test with quote submission
-6. ✅ Verify emails received
-7. ✅ Monitor logs for any issues
+1. Choose an SMTP provider
+2. Obtain credentials (app password or API key)
+3. Update `backend/.env` with SMTP settings
+4. Restart the backend server
+5. Test with a quote submission
+6. Verify emails are received
+7. Monitor logs for any issues
 
-**Status**: Ready for configuration ✅  
+**Status**: Ready for configuration
 **Priority**: Medium (optional for local dev, required for production)
 
 ---

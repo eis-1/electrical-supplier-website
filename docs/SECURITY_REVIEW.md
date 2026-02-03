@@ -1,15 +1,15 @@
 # Security Review: Headers & Logging
 
-**Reviewer:** AI Assistant  
-**Status:** ✅ Complete
+**Prepared by:** Automated review (AI-assisted)  
+**Status:** Informational
 
 ## Overview
 
-This document summarizes the security review of HTTP security headers and logging practices to prevent credential leaks and ensure secure configuration.
+This document summarizes a review of HTTP security header configuration and logging practices intended to reduce credential leakage and improve secure defaults. Validate behavior in your deployment by inspecting response headers and reviewing runtime logs.
 
 ## Security Headers Review
 
-### ✅ Headers Implemented
+### Headers configured
 
 #### HSTS (HTTP Strict Transport Security)
 
@@ -110,7 +110,7 @@ add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
 ## Logging Security Review
 
-### ✅ Sensitive Data Redaction
+### Sensitive data redaction
 
 #### Backend Logger Configuration
 
@@ -181,7 +181,7 @@ redact: {
 | Refresh Tokens       | `refreshToken: "..."`       | `refreshToken: "[REDACTED]"`  |
 | CSRF Tokens          | `csrfToken: "..."`          | `csrfToken: "[REDACTED]"`     |
 
-### ✅ Verified Safe Logging
+### Logging review notes
 
 Searched codebase for potential credential leaks:
 
@@ -194,9 +194,9 @@ grep -r "logger.*secret" backend/src/
 
 **Results:**
 
-- ✅ No direct password logging found
-- ✅ Token references are in safe contexts (e.g., "Deleted expired tokens")
-- ✅ Secret logging is error context only ("Failed to decrypt 2FA secret" - no actual secret value)
+- No direct password logging found in basic string searches
+- Token references appear in safe contexts (e.g., operational messages)
+- Secret-related messages should avoid printing actual secret values
 
 ## CORS Configuration
 
@@ -217,19 +217,19 @@ cors({
 });
 ```
 
-- ✅ Origin whitelist (not `*`)
-- ✅ Credentials enabled for cookie-based auth
-- ✅ Explicit allowed methods
-- ✅ Explicit allowed headers
-- ✅ CSRF token exposed for frontend consumption
+- Origin whitelist (not `*`)
+- Credentials enabled for cookie-based auth
+- Explicit allowed methods
+- Explicit allowed headers
+- CSRF token exposed for frontend consumption
 
 ## Rate Limiting
 
 **File: `backend/src/middlewares/rateLimit.middleware.ts`**
 
-- ✅ Redis-backed rate limiting (falls back to in-memory)
-- ✅ IP-based (respects `X-Forwarded-For` when behind proxy)
-- ✅ Different limits per endpoint type:
+- Redis-backed rate limiting (falls back to in-memory)
+- IP-based (respects `X-Forwarded-For` when behind proxy)
+- Different limits per endpoint type:
   - Authentication: 5 requests/15min
   - General API: 100 requests/15min
   - Quote submission: 3 requests/hour
@@ -248,10 +248,10 @@ maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 path: '/api/auth',   // Limit cookie scope
 ```
 
-- ✅ HttpOnly (prevents XSS cookie theft)
-- ✅ Secure flag in production
-- ✅ SameSite=strict (CSRF protection)
-- ✅ Path restriction
+- HttpOnly (prevents XSS cookie theft)
+- Secure flag in production
+- SameSite=strict (CSRF protection)
+- Path restriction
 
 ## Request ID Tracing
 
@@ -263,13 +263,15 @@ req.headers["x-request-id"] = requestId;
 res.setHeader("X-Request-ID", requestId);
 ```
 
-- ✅ Every request gets a unique ID
-- ✅ ID propagated to response headers
-- ✅ Useful for distributed tracing and log correlation
+- Every request gets a unique ID
+- ID propagated to response headers
+- Useful for distributed tracing and log correlation
 
 ## Testing
 
-### Verification Commands
+### Verification commands
+
+Run these to validate behavior in your environment:
 
 ```bash
 # 1. Build backend (verify TypeScript compiles)
@@ -285,11 +287,11 @@ grep -r "logger.*password\|logger.*token\|logger.*secret" src/
 npm run lint
 ```
 
-**Results:** ✅ All passed
+Note: Results depend on the current code and environment. Treat this section as a checklist.
 
 ## Recommendations
 
-### ✅ Implemented
+### Implemented (documented controls)
 
 - [x] HSTS with 1-year max-age
 - [x] CSP with restrictive default-src
@@ -302,7 +304,7 @@ npm run lint
 - [x] Rate limiting per endpoint
 - [x] Request ID tracing
 
-### 🔄 Optional Enhancements
+### Optional enhancements
 
 1. **Subresource Integrity (SRI)**
    - Add integrity hashes for CDN-loaded scripts/styles

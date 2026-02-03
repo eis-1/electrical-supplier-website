@@ -1,5 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/tests/setupEnv.js'],
   coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/prisma/'],
   testMatch: ['**/tests/**/*.test.{js,ts}'],
   testTimeout: 30000,
@@ -16,6 +17,8 @@ module.exports = {
     'src/**/*.{js,ts}',
     '!src/**/*.d.ts',
     '!src/**/*.test.{js,ts}',
+    '!src/**/*.original.ts',
+    '!src/**/*.rewrite.ts',
   ],
   // Coverage thresholds - enforces quality gate
   // Note: Integration tests may have lower coverage than unit tests
